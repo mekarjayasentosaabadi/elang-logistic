@@ -21,3 +21,15 @@
 <!-- BEGIN: Custom CSS-->
 <link rel="stylesheet" type="text/css" href="{{ asset('assets') }}/assets/css/style.css">
 <!-- END: Custom CSS-->
+
+{{-- font awesome --}}
+<link rel="stylesheet" href="{{ asset('assets/fontawesome-free-6.5.2-web/css/fontawesome.min.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/fontawesome-free-6.5.2-web/css/brands.min.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/fontawesome-free-6.5.2-web/css/solid.min.css') }}">
+{{-- data table --}}
+
+
+<link rel="stylesheet" type="text/css"
+    href="{{ asset('assets') }}//app-assets/vendors/css/tables/datatable/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css"
+    href="{{ asset('assets') }}//app-assets/vendors/css/tables/datatable/responsive.bootstrap5.min.css">

@@ -10,6 +10,11 @@
   <script src="{{ asset('assets') }}/app-assets/js/core/app.js"></script>
   <!-- END: Theme JS-->
 
+
+  <script src="{{ asset('assets') }}//app-assets/vendors/js/tables/datatable/jquery.dataTables.min.js"></script>
+  <script src="{{ asset('assets') }}//app-assets/vendors/js/tables/datatable/dataTables.bootstrap5.min.js"></script>
+  <script src="{{ asset('assets') }}//app-assets/vendors/js/tables/datatable/dataTables.responsive.min.js"></script>
+
   <!-- BEGIN: Page JS-->
   <!-- END: Page JS-->
 

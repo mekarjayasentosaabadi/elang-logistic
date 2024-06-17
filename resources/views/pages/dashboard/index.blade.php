@@ -16,7 +16,7 @@
                     </div>
                     <div class="avatar bg-light-primary p-50 m-0">
                         <div class="avatar-content">
-                            <i data-feather="cpu" class="font-medium-5"></i>
+                            <i class="fa fa-solid fa-truck font-medium-5"></i>
                         </div>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
                     </div>
                     <div class="avatar bg-light-primary p-50 m-0">
                         <div class="avatar-content">
-                            <i data-feather="cpu" class="font-medium-5"></i>
+                            <i class="fa fa-solid fa-money-bill-transfer font-medium-5"></i>
                         </div>
                     </div>
                 </div>
@@ -46,7 +46,7 @@
                     </div>
                     <div class="avatar bg-light-primary p-50 m-0">
                         <div class="avatar-content">
-                            <i data-feather="cpu" class="font-medium-5"></i>
+                            <i class="fa fa-solid fa-money-bill font-medium-5"></i>
                         </div>
                     </div>
                 </div>
