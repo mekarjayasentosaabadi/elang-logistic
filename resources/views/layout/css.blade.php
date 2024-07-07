@@ -5,6 +5,8 @@
 
 <!-- BEGIN: Vendor CSS-->
 <link rel="stylesheet" type="text/css" href="{{ asset('assets') }}/app-assets/vendors/css/vendors.min.css">
+
+<link rel="stylesheet" type="text/css" href="{{ asset('assets') }}/app-assets/vendors/css/forms/select/select2.min.css">
 <!-- END: Vendor CSS-->
 
 <!-- BEGIN: Theme CSS-->
@@ -16,20 +18,19 @@
 <!-- BEGIN: Page CSS-->
 <link rel="stylesheet" type="text/css"
     href="{{ asset('assets') }}/app-assets/css/core/menu/menu-types/vertical-menu.css">
+
+<link rel="stylesheet" type="text/css"
+    href="{{ asset('assets') }}/app-assets/vendors/css/tables/datatable/dataTables.bootstrap5.min.css">
+<link rel="stylesheet" type="text/css"
+    href="{{ asset('assets') }}/app-assets/vendors/css/tables/datatable/responsive.bootstrap5.min.css">
 <!-- END: Page CSS-->
 
 <!-- BEGIN: Custom CSS-->
 <link rel="stylesheet" type="text/css" href="{{ asset('assets') }}/assets/css/style.css">
+
+<link rel="stylesheet" type="text/css" href="{{ asset('assets') }}/app-assets/css/plugins/forms/form-validation.css">
 <!-- END: Custom CSS-->
 
 {{-- font awesome --}}
-<link rel="stylesheet" href="{{ asset('assets/fontawesome-free-6.5.2-web/css/fontawesome.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/fontawesome-free-6.5.2-web/css/brands.min.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/fontawesome-free-6.5.2-web/css/solid.min.css') }}">
+<link rel="stylesheet" href="{{ asset('assets') }}/fontawesome-free-6.5.2-web/css/all.min.css">
 {{-- data table --}}
-
-
-<link rel="stylesheet" type="text/css"
-    href="{{ asset('assets') }}//app-assets/vendors/css/tables/datatable/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" type="text/css"
-    href="{{ asset('assets') }}//app-assets/vendors/css/tables/datatable/responsive.bootstrap5.min.css">

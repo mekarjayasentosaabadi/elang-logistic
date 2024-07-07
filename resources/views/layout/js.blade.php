@@ -11,10 +11,14 @@
   <!-- END: Theme JS-->
 
 
-  <script src="{{ asset('assets') }}//app-assets/vendors/js/tables/datatable/jquery.dataTables.min.js"></script>
-  <script src="{{ asset('assets') }}//app-assets/vendors/js/tables/datatable/dataTables.bootstrap5.min.js"></script>
-  <script src="{{ asset('assets') }}//app-assets/vendors/js/tables/datatable/dataTables.responsive.min.js"></script>
+  <script src="{{ asset('assets') }}/app-assets/vendors/js/tables/datatable/jquery.dataTables.min.js"></script>
+  <script src="{{ asset('assets') }}/app-assets/vendors/js/tables/datatable/dataTables.bootstrap5.min.js"></script>
+  <script src="{{ asset('assets') }}/app-assets/vendors/js/tables/datatable/dataTables.responsive.min.js"></script>
+  <script src="{{ asset('assets') }}/app-assets/vendors/js/tables/datatable/responsive.bootstrap5.js"></script>
 
+  <script src="{{ asset('assets') }}/app-assets/vendors/js/forms/validation/jquery.validate.min.js"></script>
+  <script src="{{ asset('assets') }}/app-assets/vendors/js/forms/select/select2.full.min.js"></script>
+  @include('sweetalert::alert')
   <!-- BEGIN: Page JS-->
   <!-- END: Page JS-->
 
@@ -26,5 +30,11 @@
                   height: 14
               });
           }
+          // ajax setup
+          $.ajaxSetup({
+              headers: {
+                  'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              }
+          });
       })
   </script>

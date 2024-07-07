@@ -20,12 +20,15 @@
         <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
             @foreach (listMenu('superadmin') as $item)
                 @if ($item['hasChild'])
-                    <li class=" nav-item"><a class="d-flex align-items-center" href="#"><i
+                    <li
+                        class=" nav-item {{ in_array(cekUri(Route::current()->uri()), $item['url']) ? 'sidebar-group-active open' : '' }}">
+                        <a class="d-flex align-items-center" href="#"><i
                                 data-feather="{{ $item['icon'] }}"></i><span class="menu-title text-truncate"
                                 data-i18n="Dashboards">{{ $item['title'] }}</span></a>
                         <ul class="menu-content">
                             @foreach ($item['child'] as $subItem)
-                                <li><a class="d-flex align-items-center" href="{{ url($subItem['url']) }}"><i
+                                <li class="{{ cekUri(Route::current()->uri()) == $subItem['url'] ? 'active' : '' }}"><a
+                                        class="d-flex align-items-center" href="{{ url($subItem['url']) }}"><i
                                             data-feather="{{ $subItem['icon'] }}"></i><span
                                             class="menu-item text-truncate"
                                             data-i18n="{{ $subItem['title'] }}">{{ $subItem['title'] }}</span></a>
@@ -35,7 +38,8 @@
                         </ul>
                     </li>
                 @else
-                    <li class=" nav-item"><a class="d-flex align-items-center" href="{{ url($item['url']) }}"><i
+                    <li class="{{ cekUri(Route::current()->uri()) == $item['url'] ? 'active' : '' }} nav-item"><a
+                            class="d-flex align-items-center" href="{{ url($item['url']) }}"><i
                                 data-feather="{{ $item['icon'] }}"></i><span class="menu-title text-truncate"
                                 data-i18n="{{ $item['title'] }}">{{ $item['title'] }}</span></a>
                     </li>

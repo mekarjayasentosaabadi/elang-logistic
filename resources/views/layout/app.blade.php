@@ -47,6 +47,7 @@
 
 
     @include('layout.js')
+
     @yield('custom-js')
 </body>
 <!-- END: Body-->

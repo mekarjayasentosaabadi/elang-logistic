@@ -1,7 +1,7 @@
 @extends('layout.app')
 
 @section('title')
-    <span>Pengguna</span>
+    <span>Customer</span>
     <small>/</small>
     <small>Index</small>
 @endsection
@@ -11,18 +11,18 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Daftar Pengguna</h4>
-                    <a href="{{ url('/user/create') }}" class="btn btn-primary">Tambah Pengguna</a>
+                    <h4 class="card-title">Daftar Customer</h4>
+                    <a href="{{ url('/user/create') }}" class="btn btn-primary">Tambah Customer</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table" id="tbl-user">
+                        <table class="table" id="tbl-customer">
                             <thead>
                                 <tr>
                                     <th>#</th>
                                     <th>Nama</th>
                                     <th>Email</th>
-                                    <th>Role</th>
+                                    <th>Phone</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -40,11 +40,11 @@
 @section('custom-js')
     <script>
         $(document).ready(function() {
-            $('#tbl-user').DataTable({
+            $('#tbl-customer').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ url('/user/getAll') }}",
+                    url: "{{ url('/customer/getAll') }}",
                     type: 'GET'
                 },
                 columns: [{
@@ -60,8 +60,8 @@
                         name: 'email'
                     },
                     {
-                        data: 'role_id',
-                        name: 'role_id'
+                        data: 'phone',
+                        name: 'phone'
                     },
                     {
                         data: 'aksi',
