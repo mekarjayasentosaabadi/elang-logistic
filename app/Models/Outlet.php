@@ -8,6 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Outlet extends Model
 {
     use HasFactory;
+    protected $fillable= [
+        'ops_id',
+        'name',
+        'address',
+        'phone',
+        'email',
+        'lat',
+        'long',
+        'type'
+    ];
     protected $table = 'outlets';
     protected $guarded = [];
 }
