@@ -24,7 +24,7 @@ class OutletController extends Controller
     public function getAll()
     {
 
-        $q = Outlet::with('operator');
+        $q = Outlet::with('operator')->get();
 
 
         return DataTables::of($q)
