@@ -12,22 +12,30 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Detail Customer</h4>
+                    <a href="{{ route('customer.index') }}" class="btn btn-warning"> Kembali </a>
                 </div>
                 <div class="card-body">
-                    <table class="table ">
-                        <tr>
-                            <th width="20%">Nama</th>
-                            <td>: {{ $customer->name }}</td>
-                        </tr>
-                        <tr>
-                            <th>Email</th>
-                            <td>: {{ $customer->email }}</td>
-                        </tr>
-                        <tr>
-                            <th>Phone</th>
-                            <td>: {{ $customer->phone }}</td>
-                        </tr>
-                    </table>
+                    <div class="row">
+                        <div class="col-md-2 col-lg-2 col-sm-12">
+                            <img src="{{ Storage::url('customer/'.$customer->pictures) }}" alt="" class="img-thumnail">
+                        </div>
+                        <div class="col-md-10 col-lg-10 col-sm-12">
+                            <table class="table ">
+                                <tr>
+                                    <th width="20%">Nama</th>
+                                    <td>: {{ $customer->name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td>: {{ $customer->email }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone</th>
+                                    <td>: {{ $customer->phone }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -38,7 +46,7 @@
                 <div class="card-header">
                     <h4 class="card-title">Harga Customer</h4>
                 </div>
-                <div class="card-body">
+                {{-- <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 col-sm-12">
                             <ul class="nav nav-pills flex-column">
@@ -103,7 +111,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Daftar Customer</h4>
-                    <a href="{{ url('/user/create') }}" class="btn btn-primary">Tambah Customer</a>
+                    <a href="{{ route('customer.create') }}" class="btn btn-primary">Tambah Customer</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -20,6 +20,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
+                                    <th>Kode Customer</th>
                                     <th>Nama</th>
                                     <th>Email</th>
                                     <th>Phone</th>
@@ -50,6 +51,10 @@
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
+                    },
+                    {
+                        data: 'code_customer',
+                        name: 'code_customer'
                     },
                     {
                         data: 'name',

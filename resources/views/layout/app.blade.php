@@ -5,6 +5,7 @@
 <head>
 
     <title>Elang Logistics</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('layout.css')
     @yield('custom-css')
 
@@ -49,6 +50,7 @@
     @include('layout.js')
 
     @yield('custom-js')
+    @include('sweetalert::alert')
 </body>
 <!-- END: Body-->
 
