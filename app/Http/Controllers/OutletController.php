@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Outlet;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use RealRashid\SweetAlert\Facades\Alert;
 use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\Crypt;
+use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
 
 class OutletController extends Controller
 {
@@ -23,7 +24,7 @@ class OutletController extends Controller
     public function getAll()
     {
 
-        $q = Outlet::query();
+        $q = Outlet::with('operator');
 
 
         return DataTables::of($q)
@@ -50,14 +51,20 @@ class OutletController extends Controller
                 </div>';
                 return $btn;
             })
-            ->rawColumns(['aksi'])
+            ->addColumn('operators', function($ops){
+                $btn= $ops->operator->name;
+                return $btn;
+
+            })
+            ->rawColumns(['aksi', 'operators'])
             ->addIndexColumn()
             ->make(true);
     }
 
     public function create()
     {
-        return view('pages.outlet.create');
+        $operator = User::where('role_id', '2')->where('is_active', '1')->get();
+        return view('pages.outlet.create', compact('operator'));
     }
 
 
@@ -87,7 +94,8 @@ class OutletController extends Controller
     {
         $id = Crypt::decrypt($id);
         $outlet = Outlet::find($id);
-        return view('pages.outlet.edit', compact('outlet'));
+        $operator = User::where('role_id', '2')->where('is_active', '1')->get();
+        return view('pages.outlet.edit', compact('outlet','operator'));
     }
 
     function update(Request $request, $id)

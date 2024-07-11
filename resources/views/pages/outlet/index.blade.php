@@ -20,6 +20,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Nama Outlet</th>
+                                        <th>Operators</th>
                                         <th>Tipe</th>
                                         <th>Email</th>
                                         <th>No. HP</th>
@@ -54,6 +55,10 @@
                     {
                         data: 'name',
                         name: 'name'
+                    },
+                    {
+                        data: 'operators',
+                        name: 'operators'
                     },
                     {
                         data: 'type',
