@@ -57,4 +57,19 @@ class User extends Authenticatable
     function outlet(){
         return $this->hasOne(Outlet::class, 'ops_id', 'id');
     }
+
+    function orders(){
+        return $this->hasMany(Order::class, 'customer_id', 'id');
+    }
+    //Make a code customer automatic
+    protected static function boot(){
+        parent::boot();
+        static::creating(function($model){
+            if($model->role_id == '4'){
+                $latestCustomer = static::where('role_id', '4')->latest()->first();
+                $latestCode = $latestCustomer ? intval(substr($latestCustomer->code_customer, 2)): 0;
+                $model->code_customer = 'C-'. str_pad($latestCode + 1, 6, '0', STR_PAD_LEFT);
+            }
+        });
+    }
 }

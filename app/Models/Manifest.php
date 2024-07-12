@@ -5,12 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Destination extends Model
+class Manifest extends Model
 {
     use HasFactory;
-    protected $fillable = [
-        'name'
-    ];
-    protected $table = 'destinations';
-    protected $guarded = [];
+    protected $table = 'manifests';
 }

@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Outlet extends Model
 {
@@ -20,4 +21,11 @@ class Outlet extends Model
     ];
     protected $table = 'outlets';
     protected $guarded = [];
+    function operator(){
+        return $this->belongsTo(User::class, 'ops_id', 'id');
+    }
+
+    function orders(){
+        return $this->hasMany(Outlet::class, 'outlet_id', 'id');
+    }
 }

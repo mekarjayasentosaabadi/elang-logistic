@@ -1,4 +1,7 @@
-  <!-- BEGIN: Vendor JS-->
+    <script>
+        var listRoutes = JSON.parse('{{ json_decode(listRoutes()) }}')
+    </script>
+<!-- BEGIN: Vendor JS-->
   <script src="{{ asset('assets') }}/app-assets/vendors/js/vendors.min.js"></script>
   <!-- BEGIN Vendor JS-->
 

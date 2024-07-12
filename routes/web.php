@@ -39,8 +39,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('customer')->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('customer.index');
+        Route::get('/create', [CustomerController::class, 'create'])->name('customer.create');
+        Route::post('/save', [CustomerController::class, 'store'])->name('customer.stored');
         Route::get('/getAll', [CustomerController::class, 'getAll'])->name('customer.getAll');
         Route::get('/{id}', [CustomerController::class, 'show']);
+        Route::get('/{id}/edit', [CustomerController::class, 'edit']);
+        Route::post('/{id}', [CustomerController::class, 'update'])->name('customer.update');
     });
 
     Route::prefix('outlet')->group(function () {
