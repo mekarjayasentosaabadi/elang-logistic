@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('outlets', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('ops_id');
+            $table->unsignedBigInteger('location_id');
             $table->string('name');
             $table->string('address');
             $table->string('phone');

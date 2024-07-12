@@ -15,9 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('manifestno', 10)->unique();
             $table->unsignedBigInteger('orders_id');
-            $table->unsignedBigInteger('destination_from_id');
-            $table->unsignedBigInteger('destination_to_id');
-            $table->unsignedBigInteger('outlets_id');
             $table->timestamp('receive_date_time')->nullable();
             $table->string('carier');
             $table->integer('commodity')->comment('1: LV, 2: HV, 3: FE, 4: MIX')->nullable();

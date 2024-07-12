@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('numberorders', 10)->unique();
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('outlet_id')->nullable();
+            $table->unsignedBigInteger('destinations_id');
             $table->integer('armada')->default(1)->comment('1 = Darat, 2 = Laut, 3 = Udara');
             $table->text('address')->nullable();
             $table->integer('estimation')->nullable();

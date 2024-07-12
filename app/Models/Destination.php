@@ -13,4 +13,9 @@ class Destination extends Model
     ];
     protected $table = 'destinations';
     protected $guarded = [];
+
+    //return relation to orders
+    function orders(){
+        return $this->hasMany(Order::class, 'destinations_id', 'id');
+    }
 }
