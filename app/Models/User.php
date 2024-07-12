@@ -57,6 +57,10 @@ class User extends Authenticatable
     function outlet(){
         return $this->hasOne(Outlet::class, 'ops_id', 'id');
     }
+
+    function orders(){
+        return $this->hasMany(Order::class, 'customer_id', 'id');
+    }
     //Make a code customer automatic
     protected static function boot(){
         parent::boot();

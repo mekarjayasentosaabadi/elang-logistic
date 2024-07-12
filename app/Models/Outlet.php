@@ -24,4 +24,8 @@ class Outlet extends Model
     function operator(){
         return $this->belongsTo(User::class, 'ops_id', 'id');
     }
+
+    function orders(){
+        return $this->hasMany(Outlet::class, 'outlet_id', 'id');
+    }
 }
