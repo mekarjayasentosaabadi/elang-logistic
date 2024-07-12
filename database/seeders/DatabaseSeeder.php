@@ -5,6 +5,7 @@ namespace Database\Seeders;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -67,12 +68,14 @@ class DatabaseSeeder extends Seeder
         // // customer
         // $data = [
         //     [
+        //         'code'  => 'C-001',
         //         'name' => 'PT. ABC',
         //         'email' => 'admin@abc.com',
         //         'phone' => '08123456789',
         //         'address' => 'Jl. ABC No. 123',
         //     ],
         //     [
+        //         'code'  => 'C-002',
         //         'name' => 'PT. Alizwell',
         //         'email' => 'admin@alizwell.id',
         //         'phone' => '08123456789',
@@ -92,16 +95,16 @@ class DatabaseSeeder extends Seeder
         $price = [100000, 200000, 300000, 400000, 500000, 600000, 700000, 800000, 900000, 1000000];
         $data = [];
         foreach ($outlet_id as $outlet) {
-            foreach ($destination_id as $destination) {
-                foreach ($armada as $arm) {
-                    $data[] = [
-                        'customer_id' => 1,
-                        'outlet_id' => $outlet,
-                        'destination_id' => $destination,
-                        'armada' => $arm,
-                        'price' => $price[array_rand($price)],
-                        'estimation' => $estimation[array_rand($estimation)],
-                    ];
+        foreach ($destination_id as $destination) {
+        foreach ($armada as $arm) {
+        $data[] = [
+        'customer_id' => 1,
+        'outlet_id' => $outlet,
+        'destination_id' => $destination,
+        'armada' => $arm,
+        'price' => $price[array_rand($price)],
+        'estimation' => $estimation[array_rand($estimation)],
+        ];
                 }
             }
         }
