@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
+use App\Helper\ResponseFormatter;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Route;
-use Yajra\DataTables\DataTables;
+use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class UserController extends Controller
 {
@@ -16,6 +21,7 @@ class UserController extends Controller
     public function index()
     {
 
+        confirmDelete('Hapus Outlet', 'Apakah Anda Yakin Ingin Menghapus Pengguna Ini?');
         return view('pages.user.index');
     }
 
@@ -37,7 +43,7 @@ class UserController extends Controller
                 }
             })
             ->addColumn('aksi', function ($query) {
-                $encryptId = "'" . Crypt::encrypt($query->id) . "'";
+                $encryptId = Crypt::encrypt($query->id);
                 $btn = '';
                 $btn .= '<div class="dropdown">
                     <button type="button" class="btn btn-sm dropdown-toggle hide-arrow py-0 waves-effect waves-float waves-light" data-bs-toggle="dropdown">
@@ -74,13 +80,48 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validator   = Validator::make($request->all(), [
+            'name'   => 'required',
+            'role_id'=> 'required',
+            'email'  => 'required|unique:users,email'
+        ],[
+            'name.required'     => 'Nama harus diisi',
+            'role_id.required'  => 'Pilih role',
+            'email.required'    => 'Email harus diisi',
+            'email.unique'      => 'Alamat email sudah digunakan.'
+        ]);
+
+        if ($validator->fails()) {
+            $errors       = $validator->errors()->all();
+            $errorMessage = implode(', ', $errors);
+
+            Alert::error('Gagal', $errorMessage);
+            return redirect()->back()->withInput();
+        }
+
+        $dataUser = [
+            'name'      => $request->name,
+            'role_id'   => $request->role_id,
+            'email'     => $request->email,
+            'password'  => Hash::make("elang123")
+        ];
+
+        $user = User::create($dataUser);
+
+        if ($user) {
+            Alert::success('Berhasil', 'Pengguna Berhasil Ditambahkan');
+            return redirect()->to('/user');
+        } else {
+            Alert::error('Gagal', 'Pengguna Gagal Ditambahkan');
+            return redirect()->back()->withInput();
+        }
     }
+
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
         //
     }
@@ -88,24 +129,78 @@ class UserController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        try {
+            $decrypted = Crypt::decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
+        $user      = User::find($decrypted);
+        return view('pages.user.edit', compact('user'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+            try {
+                $decrypted = Crypt::decrypt($id);
+            } catch (DecryptException $e) {
+                abort(404);
+            }
+
+            $validator   = Validator::make($request->all(), [
+                'name'      => 'required',
+                'role_id'   => 'required',
+                'status_id' => 'required',
+                'email'     => 'required|unique:users,email,' . $decrypted
+            ],[
+                'name.required'       => 'Nama harus diisi',
+                'role_id.required'    => 'Pilih salah satu',
+                'status_id.required'  => 'Pilih salah satu',
+                'email.required'      => 'Email harus diisi',
+                'email.unique'        => 'Alamat email sudah digunakan.'
+            ]);
+
+            if ($validator->fails()) {
+                $errors       = $validator->errors()->all();
+                $errorMessage = implode('<br>', $errors);
+
+                Alert::error('Gagal', $errorMessage);
+                return redirect()->back()->withInput();
+            }
+
+            $dataUser = [
+                'name'      => $request->name,
+                'role_id'   => $request->role_id,
+                'status_id' => $request->status_id,
+                'email'     => $request->email,
+            ];
+
+            if ($request->reset_password) {
+                $dataUser['password'] = Hash::make($request->reset_password);
+            }
+
+            $user = User::find($decrypted)->update($dataUser);
+
+            if ($user) {
+                Alert::success('Berhasil', 'Pengguna Berhasil Edit');
+                return redirect()->to('/user');
+            } else {
+                Alert::error('Gagal', 'Pengguna Gagal Edit');
+                return redirect()->back()->withInput();
+            }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $decrypted = Crypt::decrypt($id);
+        $dataUser = User::find($decrypted)->delete();
+        return redirect()->back();
     }
 }
