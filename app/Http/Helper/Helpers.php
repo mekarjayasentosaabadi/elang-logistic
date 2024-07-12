@@ -39,6 +39,11 @@ if (!function_exists('listMenu')) {
                             'title' => 'Harga Public',
                             'url' => '/price',
                             'icon' => 'circle'
+                        ],
+                        [
+                            'title' => 'Vehicle',
+                            'url' => '/vehicle',
+                            'icon' => 'circle'
                         ]
                     ]
                 ],
