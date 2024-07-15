@@ -17,6 +17,12 @@ return new class extends Migration
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('outlet_id')->nullable();
             $table->unsignedBigInteger('destinations_id');
+            $table->integer('koli')->nullable();
+            $table->double('weight')->nullable();
+            $table->double('volume')->nullable();
+            $table->double('price')->nullable();
+            $table->text('content')->nullable();
+            $table->text('penerima')->nullable();
             $table->integer('armada')->default(1)->comment('1 = Darat, 2 = Laut, 3 = Udara');
             $table->text('address')->nullable();
             $table->integer('estimation')->nullable();

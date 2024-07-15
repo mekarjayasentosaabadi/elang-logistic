@@ -50,10 +50,6 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    function vehicles(){
-        return $this->hasMany(Vehicle::class, 'drivers_id', 'id');
-    }
-
     function outlet(){
         return $this->hasOne(Outlet::class, 'ops_id', 'id');
     }

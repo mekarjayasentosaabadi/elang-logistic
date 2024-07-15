@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('drivers_id');
             $table->string('police_no');
             $table->enum('type', ['1','2','3'])->comment('1: Truck Container, 2: Truck BOX, 3: Pickup');
             $table->string('no_stnk');
