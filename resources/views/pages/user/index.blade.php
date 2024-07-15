@@ -23,6 +23,7 @@
                                     <th>Nama</th>
                                     <th>Email</th>
                                     <th>Role</th>
+                                    <th>Status Aktif</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -49,23 +50,34 @@
                 },
                 columns: [{
                         data: 'DT_RowIndex',
-                        orderable: false,
+                        orderable : false,
+                        searchable: false
                     },
                     {
                         data: 'name',
-                        name: 'name'
+                        name: 'name',
+                        searchable:true
                     },
                     {
                         data: 'email',
-                        name: 'email'
+                        name: 'email',
+                        searchable:true
                     },
                     {
                         data: 'role_id',
-                        name: 'role_id'
+                        name: 'role_id',
+                        searchable:true
+                    },
+                    {
+                        data: 'is_active',
+                        name: 'is_active',
+                        searchable:true
                     },
                     {
                         data: 'aksi',
-                        name: 'aksi'
+                        name: 'aksi',
+                        orderable:false,
+                        searchable:false
                     }
                 ]
             });

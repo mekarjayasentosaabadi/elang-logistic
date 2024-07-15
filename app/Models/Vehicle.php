@@ -11,7 +11,8 @@ class Vehicle extends Model
     protected $fillable = [
         'police_no',
         'type',
-        'no_stnk'
+        'no_stnk',
+        'is_active'
     ];
     protected $table = 'vehicles';
 }

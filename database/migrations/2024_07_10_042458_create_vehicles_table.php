@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('police_no');
             $table->enum('type', ['1','2','3'])->comment('1: Truck Container, 2: Truck BOX, 3: Pickup');
             $table->string('no_stnk');
+            $table->integer('is_active')->default(1)->comment('0: Nonaktif, 1: Aktif');
             $table->timestamps();
         });
     }

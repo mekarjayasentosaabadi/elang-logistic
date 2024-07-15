@@ -21,14 +21,18 @@ class VehicleController extends Controller
     }
 
     public function getAll(Request $request){
-        $q = Vehicle::with('driver');
+        $q = Vehicle::query();
 
         return DataTables::of($q)
-        ->  addColumn('driver_name', function ($query) {
-                return $query->driver->name; // Display the driver's name
-            })
         ->  editColumn('type', function ($query){
-                return typeOutlet($query->type);
+                return typeVehicle($query->type);
+            })
+        ->  editColumn('is_active', function ($query){
+                if ($query->is_active == '1') {
+                    return '<span class="badge badge-light-success">Aktif</span>';
+                } else {
+                    return '<span class="badge badge-light-danger">Tidak Aktif</span>';
+                }
             })
         ->  addColumn('aksi', function ($query){
                 $encryptId = Crypt::encrypt($query->id);
@@ -45,7 +49,7 @@ class VehicleController extends Controller
                 </div>';
                 return $btn;
         })
-        ->  rawColumns(['aksi'])
+        ->  rawColumns(['is_active','aksi'])
         ->  addIndexColumn()
         ->  make(true);
     }
@@ -55,8 +59,7 @@ class VehicleController extends Controller
      */
     public function create()
     {
-        $drivers = User::where('role_id', 3)->doesntHave('vehicles')->get();
-        return view('pages.vehicle.create', compact('drivers'));
+        return view('pages.vehicle.create');
     }
 
     /**
@@ -65,12 +68,10 @@ class VehicleController extends Controller
     public function store(Request $request)
     {
         $validator =   Validator::make($request->all(), [
-            'drivers_id' => 'required',
             'no_police' => 'required|unique:vehicles,police_no',
             'type'      => 'required',
             'no_stnk'   => 'required|unique:vehicles,no_stnk'
         ], [
-            'drivers_id.required'   => 'Pilih driver',
             'no_police.required'    => 'No police harus diisi',
             'no_police.unique'      => 'No police sudah digunakan',
             'type.required'         => 'required',
@@ -87,7 +88,6 @@ class VehicleController extends Controller
         }
 
         $dataVehicle = [
-            'drivers_id' => $request->drivers_id,
             'police_no' => $request->no_police,
             'type'      => $request->type,
             'no_stnk'   => $request->no_stnk
@@ -123,11 +123,8 @@ class VehicleController extends Controller
             abort(404);
         }
 
-
         $vehicle    = Vehicle::find($decrypted);
-
-        $drivers = User::where('role_id', 3)->doesntHave('vehicles')->get();
-        return view('pages.vehicle.edit', compact('vehicle', 'drivers'));
+        return view('pages.vehicle.edit', compact('vehicle'));
     }
 
     /**
@@ -142,17 +139,16 @@ class VehicleController extends Controller
         }
 
         $validator =   Validator::make($request->all(), [
-            'drivers_id'    => 'required',
             'no_police'     => 'required|unique:vehicles,police_no,'.$decrypted,
             'type'          => 'required',
-            'no_stnk'       => 'required|unique:vehicles,no_stnk,'.$decrypted
+            'no_stnk'       => 'required|unique:vehicles,no_stnk,'.$decrypted,
+            'status_id'     => 'required'
         ], [
-            'drivers_id.required'   => 'Pilih driver',
             'no_police.required'    => 'No police harus diisi',
             'no_police.unique'      => 'No police sudah digunakan',
-            'type.required'         => 'required',
+            'type.required'         => 'Pilih salah satu',
             'no_stnk.required'      => 'No STNK harus diisi',
-            'no_stnk.unique'        => 'No STNK sudah digunakan'
+            'status_id'             => 'Pilih salah satu'
         ]);
 
         if ($validator->fails()) {
@@ -164,10 +160,10 @@ class VehicleController extends Controller
         }
 
         $dataVehicle = [
-            'drivers_id'    => $request->drivers_id,
             'police_no'     => $request->no_police,
             'type'          => $request->type,
-            'no_stnk'       => $request->no_stnk
+            'no_stnk'       => $request->no_stnk,
+            'is_active'     => $request->status_id,
         ];
 
         $vehicle = Vehicle::find($decrypted)->update($dataVehicle);

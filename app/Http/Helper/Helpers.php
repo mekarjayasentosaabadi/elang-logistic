@@ -112,6 +112,12 @@ if (!function_exists('role')) {
             case 4:
                 $data = 'Customer';
                 break;
+            case 5:
+                $data = 'Driver';
+                break;
+            case 6:
+                $data = 'Directur';
+                break;
         }
         return $data;
     }
@@ -127,6 +133,24 @@ if (!function_exists('typeOutlet')) {
                 break;
             case 2:
                 $data = 'Agen';
+                break;
+        }
+        return $data;
+    }
+}
+
+if (!function_exists('typeVehicle')) {
+    function typeVehicle($type){
+        $data = '';
+        switch ($type) {
+            case 1:
+                $data = "Truck Continer";
+                break;
+            case 2:
+                $data = "Truck BOX";
+                break;
+            case 3:
+                $data = "Truck Pickup";
                 break;
         }
         return $data;
@@ -220,4 +244,49 @@ if (!function_exists('generateAwb')) {
         $data = 'EL' . str_pad($last + 1, 8, '0', STR_PAD_LEFT);
         return $data;
     }
+}
+
+
+
+
+function getAvailableRoles($user, $isAdminCabang)
+{
+    if (Auth::user()->role_id == 1) {
+        return $user->role_id != 4 ? [
+            1 => 'Superadmin',
+            2 => 'Admin',
+            3 => 'Courier',
+            5 => 'Driver'
+        ] : ['4' => 'Customer'];
+    }
+
+    if ($user->role_id == 1 || $user->role_id == 2 || $user->role_id == 4 || $user->role_id == 6) {
+        return [
+            $user->role_id => getRoleName($user->role_id)
+        ];
+    }
+
+    if ($isAdminCabang) {
+        return [
+            3 => 'Courier',
+            5 => 'Driver'
+        ];
+    }
+
+    if (Auth::user()->role_id == 2) {
+        return [3 => 'Courier'];
+    }
+
+    return [];
+}
+
+function getRoleName($roleId)
+{
+    $roles = [
+        1 => 'Superadmin',
+        2 => 'Admin',
+        4 => 'Customer',
+        6 => 'Directur'
+    ];
+    return $roles[$roleId] ?? 'Unknown';
 }

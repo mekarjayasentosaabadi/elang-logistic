@@ -25,12 +25,17 @@
                                     <label for="role_id">Role</label>
                                     <select name="role_id" id="role_id" class="form-control">
                                         <option value="" hidden>Pilih Role</option>
-                                        <option value="1">Superadmin</option>
-                                        <option value="2">Admin</option>
-                                        <option value="3">Courier</option>
-                                        <option value="4">Driver</option>
-                                        <option value="5">Customer</option>
-                                        <option value="6">Directur</option>
+                                        @if (Auth::user()->role_id == "1")
+                                            <option value="1">Superadmin</option>
+                                            <option value="2">Admin</option>
+                                            <option value="3">Courier</option>
+                                            <option value="5">Driver</option>
+                                        @elseif ($isAdminCabang == true)
+                                            <option value="3">Courier</option>
+                                            <option value="5">Driver</option>
+                                        @elseif(Auth::user()->role_id == "2")
+                                            <option value="3">Courier</option>
+                                        @endif
                                     </select>
                                 </div>
                             </div>
