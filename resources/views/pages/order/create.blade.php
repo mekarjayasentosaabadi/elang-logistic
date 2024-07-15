@@ -14,7 +14,7 @@
                     <h4 class="card-title">Tambah Tranasksi</h4>
                 </div>
                 <div class="card-body">
-                    <form action="{{ url('/order') }}" method="post">
+                    <form id="form-create-transaksi" action="{{ url('/order') }}" method="post">
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
@@ -176,6 +176,96 @@
                     $('#pesanan_normal').show();
                 }
             });
+
+            $('#form-create-transaksi').validate({
+                rules:{
+                    'customer_id' : {
+                        required: true
+                    },
+                    'total' : {
+                        required: function (element) {
+                            return $('#pesanan_masal').is(':checked')
+                        }
+                    },
+                    'receiver' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'armada' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'service' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'destination_id' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'address' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'weight' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'volume' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'price' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'estimation' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'description' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'note' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                },
+                messages: {
+                    'customer_id': 'Pilih salah satu.',
+                    'total': 'Total harus diisi.',
+                    'receiver': 'Penerima harus diisi.',
+                    'armada': 'Pilih salah satu armada.',
+                    'service': 'Pilih jenis barang.',
+                    'destination_id': 'Pilih salah satu destinasi.',
+                    'address': 'Alamat harus diisi.',
+                    'weight': 'Berat harus diisi.',
+                    'volume': 'Volume harus diisi.',
+                    'price': 'Harga harus diisi.',
+                    'estimation': 'Estimasi harus diisi.'
+                },
+                errorPlacement:function (error, element) {
+                    if (element.closest('.input-group').length) {
+                        error.insertAfter(element.closest('.input-group'))
+                    }else if (element.hasClass('select2-hidden-accessible')){
+                        error.insertAfter(element.next('span.select2'))
+                    }else{
+                        error.insertAfter(element);
+                    }
+                }
+            })
         });
     </script>
 @endsection

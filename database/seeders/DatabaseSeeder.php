@@ -16,75 +16,79 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
-        // // \App\Models\User::factory()->create([
-        // //     'name' => 'Test User',
-        // //     'email' => 'test@example.com',
-        // // ]);
+        \App\Models\User::factory()->create([
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+        ]);
 
         // destination
-        // $data = [
-        //     'Ambon',
-        //     'Balikpapan',
-        //     'Bandung',
-        //     'Banjarmasin',
-        //     'Batam',
-        //     'Bekasi',
-        //     'Bengkulu',
-        //     'Bogor',
-        //     'Cirebon',
-        //     'Denpasar',
-        //     'Depok',
-        //     'Jakarta',
-        //     'Jambi',
-        //     'Jayapura',
-        //     'Kendari',
-        //     'Kupang',
-        //     'Makassar',
-        //     'Malang',
-        //     'Manado',
-        //     'Mataram',
-        //     'Medan',
-        //     'Padang',
-        //     'Palembang',
-        //     'Palu',
-        //     'Pekanbaru',
-        //     'Pontianak',
-        //     'Samarinda',
-        //     'Semarang',
-        //     'Serang',
-        //     'Sorong',
-        //     'Surabaya',
-        //     'Tangerang',
-        //     'Tanjungpinang',
-        //     'Yogyakarta',
-        // ];
+        $data = [
+            'Ambon',
+            'Balikpapan',
+            'Bandung',
+            'Banjarmasin',
+            'Batam',
+            'Bekasi',
+            'Bengkulu',
+            'Bogor',
+            'Cirebon',
+            'Denpasar',
+            'Depok',
+            'Jakarta',
+            'Jambi',
+            'Jayapura',
+            'Kendari',
+            'Kupang',
+            'Makassar',
+            'Malang',
+            'Manado',
+            'Mataram',
+            'Medan',
+            'Padang',
+            'Palembang',
+            'Palu',
+            'Pekanbaru',
+            'Pontianak',
+            'Samarinda',
+            'Semarang',
+            'Serang',
+            'Sorong',
+            'Surabaya',
+            'Tangerang',
+            'Tanjungpinang',
+            'Yogyakarta',
+        ];
 
-        // foreach ($data as $key => $value) {
-        //     DB::table('destinations')->insert([
-        //         'name' => $value,
-        //     ]);
-        // }
+        foreach ($data as $key => $value) {
+            DB::table('destinations')->insert([
+                'name' => $value,
+            ]);
+        }
 
-        // // customer
-        // $data = [
-        //     [
-        //         'code'  => 'C-001',
-        //         'name' => 'PT. ABC',
-        //         'email' => 'admin@abc.com',
-        //         'phone' => '08123456789',
-        //         'address' => 'Jl. ABC No. 123',
-        //     ],
-        //     [
-        //         'code'  => 'C-002',
-        //         'name' => 'PT. Alizwell',
-        //         'email' => 'admin@alizwell.id',
-        //         'phone' => '08123456789',
-        //         'address' => 'Jl. Alizwell No. 123',
-        //     ],
-        // ];
-        // foreach ($data as $key => $value) {
-        //     DB::table('customers')->insert($value);
-        // }
+        // customer
+        $data = [
+            [
+                'code_customer'  => 'C-001',
+                'name' => 'PT. ABC',
+                'email' => 'admin@abc.com',
+                'phone' => '08123456789',
+                'password' =>Hash::make('elang123'),
+                'address' => 'Jl. ABC No. 123',
+                'role_id' => '4',
+            ],
+            [
+                'code_customer'  => 'C-002',
+                'name' => 'PT. Alizwell',
+                'email' => 'admin@alizwell.id',
+                'phone' => '08123456789',
+                'password' =>Hash::make('elang123'),
+                'address' => 'Jl. Alizwell No. 123',
+                'role_id' => '4',
+            ],
+        ];
+        foreach ($data as $key => $value) {
+            DB::table('users')->insert($value);
+        }
 
 
         // customer_prices

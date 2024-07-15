@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [UserController::class, 'edit']);
         Route::patch('/{id}', [UserController::class, 'update']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
+        Route::post('/{id}/resetpassword', [UserController::class, 'resetpassword']);
     });
 
     Route::prefix('customer')->group(function () {

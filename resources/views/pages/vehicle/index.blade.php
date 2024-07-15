@@ -20,10 +20,10 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Driver</th>
-                                    <th>No Police</th>
                                     <th>Type</th>
+                                    <th>No Police</th>
                                     <th>No Stnk</th>
+                                    <th>Status Aktif</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -51,23 +51,28 @@
                 columns: [
                     {
                         data: 'DT_RowIndex',
-                        orderable: false,
-                    },
-                    {
-                        data: 'driver_name',
-                        name: 'driver_name'
-                    },
-                    {
-                        data: 'police_no',
-                        name: 'police_no'
+                        orderable : false,
+                        searchable: false
                     },
                     {
                         data: 'type',
-                        name: 'type'
+                        name: 'type',
+                        searchable:true
+                    },
+                    {
+                        data: 'police_no',
+                        name: 'police_no',
+                        searchable:true
                     },
                     {
                         data: 'no_stnk',
-                        name: 'no_stnk'
+                        name: 'no_stnk',
+                        searchable:true
+                    },
+                    {
+                        data: 'is_active',
+                        name: 'is_active',
+                        searchable:true
                     },
                     {
                         data: 'aksi',
