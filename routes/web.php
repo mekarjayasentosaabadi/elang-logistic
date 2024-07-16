@@ -9,6 +9,7 @@ use App\Http\Controllers\OutletController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DestinationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +38,13 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/{id}', [UserController::class, 'destroy']);
     });
 
+    Route::prefix('destination')->group(function(){
+        Route::get('/', [DestinationController::class, 'index'])->name('destination.index');
+        Route::get('/getAll', [DestinationController::class, 'getAll'])->name('destination.getAll');
+        Route::get('/{id}', [DestinationController::class, 'edit'])->name('destination.edit');
+        Route::post('/', [DestinationController::class, 'stored'])->name('destination.stored');
+        Route::post('/{id}', [DestinationController::class, 'update'])->name('destination.update');
+    });
     Route::prefix('customer')->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('customer.index');
         Route::get('/create', [CustomerController::class, 'create'])->name('customer.create');
@@ -45,6 +53,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}', [CustomerController::class, 'show']);
         Route::get('/{id}/edit', [CustomerController::class, 'edit']);
         Route::post('/{id}', [CustomerController::class, 'update'])->name('customer.update');
+        Route::post('/{id}/changeStatus',[CustomerController::class, 'changeStatus'])->name('customer.changestatus');
     });
 
     Route::prefix('outlet')->group(function () {
@@ -55,6 +64,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [OutletController::class, 'edit']);
         Route::patch('/{id}', [OutletController::class, 'update']);
         Route::delete('/{id}', [OutletController::class, 'destroy']);
+        Route::post('/{id}/changeStatus',[OutletController::class, 'changeStatus'])->name('outlet.changestatus');
     });
 
     Route::prefix('order')->group(function () {
