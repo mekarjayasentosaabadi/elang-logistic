@@ -26,6 +26,11 @@ if (!function_exists('listMenu')) {
                             'icon' => 'circle'
                         ],
                         [
+                            'title' => 'Destination',
+                            'url' => '/destination',
+                            'icon' => 'circle'
+                        ],
+                        [
                             'title' => 'Outlet',
                             'url' => '/outlet',
                             'icon' => 'circle'

@@ -28,14 +28,15 @@
                             </div>
                         </div>
                         <div class="col-lg-4 col-md-4 col-sm-12">
-                            <form action="">
+                            <form action="#" method="POST" id="form-add-update-data">
+                                @csrf
                                 <h4>Form Add or Edit Destinations</h4>
                                 <div class="form-group mt-2">
                                     <label for="destination">Name Destination</label>
-                                    <input type="text" name="" id="" class="form-control">
+                                    <input type="text" name="name" id="name" class="form-control">
                                 </div>
                                 <div class="form-group mt-2">
-                                    <button class="btn btn-primary btn-md" id="btnsaveedit">Save</button>
+                                    <button type="submit" class="btn btn-primary btn-md" id="btnsaveedit">Save</button>
                                 </div>
                             </form>
                         </div>
@@ -47,13 +48,13 @@
 @endsection
 
 @section('custom-js')
-assets/app-assets/vendors/js/forms/validation/jquery.validate.min.js
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/js/notifsweetalert.js') }}"></script>
     <script src="{{ asset('assets/app-assets/vendors/js/forms/validation/jquery.validate.min.js') }}"></script>
     <script>
 
-        let idDestination=[];
+        let idDestination=undefined;
         var table
         $(document).ready(function() {
             table = $('#tbl-destinations').DataTable({
@@ -82,16 +83,53 @@ assets/app-assets/vendors/js/forms/validation/jquery.validate.min.js
         });
 
         function editData(txt, id, name){
+            idDestination=undefined;
             $.getJSON(window.location.origin + '/'+listRoutes['destination.edit'].replace('{id}', id), function(){
             }).done(function(e){
-                dataDestination = ["Cek","CEL"];
-                idDestination[0]=e.data[0].id;
-                idDestination[1]=e.data[0].name;
-                // idDestination=['1'];
+                idDestination=e.data[0].id;
+                $('#name').val(e.data[0].name);
             }).fail(function(e){
+                alert('gagal')
             })
-            console.log(idDestination);
-            // console.log(iDestination)
         }
+
+        $('#form-add-update-data').validate({
+            rules:{
+                'name':'required'
+            },
+            message: {
+                name: {
+                    required: 'Name destination tidak boleh kosong.!'
+                }
+            },
+            submitHandler: function(){
+                var urlStored;
+                if(idDestination != undefined){
+                    urlStored = window.location.origin +'/'+ listRoutes['destination.update'].replace('{id}', idDestination);
+                } else {
+                    urlStored = window.location.origin +'/'+ listRoutes['destination.stored'];
+                }
+                $.ajax({
+                    url: urlStored,
+                    type: "POST",
+                    dataType: "JSON",
+                    data: new FormData($('#form-add-update-data')[0]),
+                    processData: false,
+                    contentType: false,
+                    success: function(e){
+                        notifSweetAlertSuccess(e.meta.message);
+                        idDestination=undefined;
+                        $('#name').val('');
+                        $('#tbl-destinations').DataTable().ajax.reload(null, false);
+                    },
+                    error: function(e){
+                        if(e.status== 422){
+                            notifSweetAlertErrors(e.responseJSON.errors);
+                        }
+                    }
+                })
+            }
+
+        })
     </script>
 @endsection
