@@ -15,6 +15,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Tambah Outlet</h4>
+                    <a href="{{ route('outlet.index') }}" class="btn btn-warning btn-md"> Kembali</a>
                 </div>
                 <div class="card-body">
                     <form action="{{ url('/outlet') }}" method="post" id="formValidate">
@@ -31,7 +32,16 @@
                                     </select>
                                 </div>
                                 <div class="form-group mb-2">
-                                    <label for="name">Nama</label>
+                                    <label for="location">Location</label>
+                                    <select name="location_id" id="location" class="form-control">
+                                        <option value="">-- Select location --</option>
+                                        @foreach ($destination as $item)
+                                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label for="name">Nama Outlet</label>
                                     <input type="text" name="name" id="name" value="{{ old('name') }}"
                                         class="form-control" required>
                                 </div>

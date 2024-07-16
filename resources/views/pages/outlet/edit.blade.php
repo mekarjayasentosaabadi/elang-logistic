@@ -15,6 +15,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Edit Outlet</h4>
+                    <a href="{{ route('outlet.index') }}" class="btn btn-warning btn-md"> Kembali</a>
                 </div>
                 <div class="card-body">
                     <form action="{{ url('/outlet/' . Crypt::encrypt($outlet->id)) }}" method="post" id="formValidate">
@@ -28,6 +29,15 @@
                                         <option value="">-- Select Operator --</option>
                                         @foreach ($operator as $item)
                                             <option value="{{ $item->id }}" {{ $outlet->ops_id == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label for="location">Location</label>
+                                    <select name="location_id" id="location" class="form-control">
+                                        <option value="">-- Select location --</option>
+                                        @foreach ($destination as $item)
+                                            <option value="{{ $item->id }}" {{ $outlet->location_id == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>

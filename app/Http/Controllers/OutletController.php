@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Outlet;
+use App\Models\Destination;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\DataTables;
+use App\Helper\ResponseFormatter;
 use Illuminate\Support\Facades\Crypt;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
@@ -51,12 +53,21 @@ class OutletController extends Controller
                 </div>';
                 return $btn;
             })
+            ->addColumn('toogle', function($x){
+                $checked = $x->is_active == '1' ? 'checked' : '';
+                $toogle = '';
+                $toogle .= '<div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" '.$checked.' id="paymentTerms" onclick="changeStatus(this, '.$x->id.')" />
+                                <label class="form-check-label" for="paymentTerms"></label>
+                            </div>';
+                return $toogle;
+            })
             ->addColumn('operators', function($ops){
                 $btn= $ops->operator->name;
                 return $btn;
 
             })
-            ->rawColumns(['aksi', 'operators'])
+            ->rawColumns(['aksi', 'operators', 'toogle'])
             ->addIndexColumn()
             ->make(true);
     }
@@ -64,7 +75,8 @@ class OutletController extends Controller
     public function create()
     {
         $operator = User::where('role_id', '2')->where('is_active', '1')->get();
-        return view('pages.outlet.create', compact('operator'));
+        $destination = Destination::all();
+        return view('pages.outlet.create', compact('operator','destination'));
     }
 
 
@@ -95,7 +107,8 @@ class OutletController extends Controller
         $id = Crypt::decrypt($id);
         $outlet = Outlet::find($id);
         $operator = User::where('role_id', '2')->where('is_active', '1')->get();
-        return view('pages.outlet.edit', compact('outlet','operator'));
+        $destination = Destination::all();
+        return view('pages.outlet.edit', compact('outlet','operator', 'destination'));
     }
 
     function update(Request $request, $id)
@@ -132,6 +145,25 @@ class OutletController extends Controller
         } else {
             Alert::error('Gagal', 'Outlet Gagal Dihapus');
             return redirect()->back();
+        }
+    }
+
+    function changeStatus(Request $request, $id){
+        try {
+            $status = Outlet::find($id);
+            if($status->is_active == '1'){
+                $update=[
+                    'is_active' => '0'
+                ];
+            } else {
+                $update=[
+                    'is_active' => '1'
+                ];
+            }
+            $status->update($update);
+            return ResponseFormatter::success([$status], 'Success Memperbaharui data');
+        } catch (Exception $error) {
+            return ResponseFormatter::error([$error], 'Gagal Memperbaharui data');
         }
     }
 }
