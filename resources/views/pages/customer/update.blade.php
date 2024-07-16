@@ -12,15 +12,19 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Form Update Customer</h4>
-                    <a href="{{ route('customer.index') }}" class="btn btn-warning">Back</a>
+                    <a href="{{ route('customer.index') }}" class="btn btn-warning"> Kembali</a>
                 </div>
                 <div class="card-body">
                     <form action="#" method="POST" enctype="multipart/form-data" id="form-update-customer">
                         <div class="row">
                             <div class="col-md-6 col-sm-12 col-lg-6">
                                 <div class="form-group">
+                                    <label for="code_customer">Kode Customer</label>
+                                    <input type="text" name="code_customer" id="code_customer" class="form-control" placeholder="Kode Customer" value="{{ $customer->code_customer }}" disabled>
+                                </div>
+                                <div class="form-group mt-1">
                                     <label for="name">Name</label>
-                                    <input type="text" name="name" id="name" class="form-control" placeholder="Full Name" value="{{ $customer->name }}">
+                                    <input type="text" name="name" id="name" class="form-control" placeholder="Ex: PT. ABCD" value="{{ $customer->name }}">
                                 </div>
                                 <div class="form-group mt-1">
                                     <label for="phone">Phone</label>

@@ -24,7 +24,7 @@
                                         <th>Tipe</th>
                                         <th>Email</th>
                                         <th>No. HP</th>
-                                        <th>Alamat</th>
+                                        <th>Status</th>
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
@@ -38,6 +38,8 @@
 @endsection
 
 @section('custom-js')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('assets/js/notifsweetalert.js') }}"></script>
     <script>
         var table
         $(document).ready(function() {
@@ -73,8 +75,8 @@
                         name: 'phone'
                     },
                     {
-                        data: 'address',
-                        name: 'address'
+                        data: 'toogle',
+                        name: 'toogle'
                     },
                     {
                         data: 'aksi',
@@ -87,5 +89,22 @@
 
 
         });
+        function changeStatus(txt, i){
+        console.log(i)
+        var baseUrl = window.location.origin;
+            $.ajax({
+                url: baseUrl+'/'+listRoutes['outlet.changestatus'].replace('{id}',i),
+                type: "POST",
+                dataType: "JSON",
+                processData: false,
+                contentType: false,
+                success: function(e){
+                    notifSweetAlertSuccess(e.meta.message);
+                },
+                error: function(e){
+                    alert('Gagal mengeksekusi data.!')
+                }
+            })
+        }
     </script>
 @endsection
