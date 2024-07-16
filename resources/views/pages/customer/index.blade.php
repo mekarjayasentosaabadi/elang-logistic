@@ -24,6 +24,7 @@
                                     <th>Nama</th>
                                     <th>Email</th>
                                     <th>Phone</th>
+                                    <th>Status</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -39,6 +40,8 @@
 @endsection
 
 @section('custom-js')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('assets/js/notifsweetalert.js') }}"></script>
     <script>
         $(document).ready(function() {
             $('#tbl-customer').DataTable({
@@ -69,11 +72,33 @@
                         name: 'phone'
                     },
                     {
+                        data: 'toogle',
+                        name: 'toogle'
+                    },
+                    {
                         data: 'aksi',
                         name: 'aksi'
                     }
                 ]
             });
         });
+
+        function changeStatus(txt, i){
+            console.log(i)
+            var baseUrl = window.location.origin;
+            $.ajax({
+                url: baseUrl+'/'+listRoutes['customer.changestatus'].replace('{id}',i),
+                type: "POST",
+                dataType: "JSON",
+                processData: false,
+                contentType: false,
+                success: function(e){
+                    notifSweetAlertSuccess(e.meta.message);
+                },
+                error: function(e){
+                    alert('Gagal mengeksekusi data.!')
+                }
+            })
+        }
     </script>
 @endsection

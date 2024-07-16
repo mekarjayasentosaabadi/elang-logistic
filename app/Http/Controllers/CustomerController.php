@@ -53,7 +53,16 @@ class CustomerController extends Controller
                 </div>';
                 return $btn;
             })
-            ->rawColumns(['is_active', 'role_id', 'aksi'])
+            ->addColumn('toogle', function($x){
+                $checked = $x->is_active == 1 ? 'checked' : '';
+                $toogle = '';
+                $toogle .= '<div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" '.$checked.' id="paymentTerms" onclick="changeStatus(this, '.$x->id.')" />
+                                <label class="form-check-label" for="paymentTerms"></label>
+                            </div>';
+                return $toogle;
+            })
+            ->rawColumns(['is_active', 'role_id', 'aksi', 'toogle'])
             ->addIndexColumn()
             ->make(true);
     }
@@ -77,7 +86,7 @@ class CustomerController extends Controller
                 'phone'         => 'required|unique:users,phone',
                 'address'       => 'required',
                 'email'         => 'required|unique:users,email',
-                'photos'        => 'required|mimes:jpg,png',
+                // 'photos'        => 'required|mimes:jpg,png',
             ]);
             $dataStored = [
                 'name'          => $request->name,
@@ -89,13 +98,17 @@ class CustomerController extends Controller
                 'password'      => Hash::make('elang123')
             ];
             if($request->file('photos')){
+                $request->validate([
+                    'photos'    => 'required|mimes:png,jpg|max:1024'
+                ]);
                 $files          = $request->file('photos');
                 $fileName       = time().'.'.$files->getClientOriginalExtension();
                 $files->storeAs('public/customer', $fileName);
                 $dataStored['photos']=$fileName;
             }
-            User::create($dataStored);
-            return ResponseFormatter::success([], 'Data customer berhasil di simpan.');
+            $customer = User::create($dataStored);
+            $dataCustomer = User::where('id', $customer->id)->firstOrFail();
+            return ResponseFormatter::success([$dataCustomer], 'Data customer berhasil di simpan.');
         } catch (Exception $error) {
             return ResponseFormatter::error([], 'Something went wrong');
         }
@@ -162,7 +175,7 @@ class CustomerController extends Controller
                 $dataStored['photos']=$fileName;
             }
             User::where('id', Crypt::decrypt($id))->update($dataStored);
-            Alert::success('Success', 'Data berhasil di perbaharui.');
+            // Alert::success('Success', 'Data berhasil di perbaharui.');
             return ResponseFormatter::success([], 'Data customer berhasil di perbaharui.');
         } catch (Exception $error) {
             return ResponseFormatter::error([], 'Something went wrong');
@@ -175,5 +188,24 @@ class CustomerController extends Controller
     public function destroy(Customer $customer)
     {
         //
+    }
+
+    function changeStatus(Request $request, $id){
+        try {
+            $status = User::find($id);
+            if($status->is_active == 1){
+                $update=[
+                    'is_active' => 0
+                ];
+            } else {
+                $update=[
+                    'is_active' => 1
+                ];
+            }
+            $status->update($update);
+            return ResponseFormatter::success([$status], 'Success Memperbaharui data');
+        } catch (Exception $error) {
+            return ResponseFormatter::error([$error], 'Gagal Memperbaharui data');
+        }
     }
 }

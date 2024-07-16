@@ -12,15 +12,19 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Form Add Customer</h4>
-                    <a href="{{ route('customer.index') }}" class="btn btn-warning">Back</a>
+                    <a href="{{ route('customer.index') }}" class="btn btn-warning"> Kembali</a>
                 </div>
                 <div class="card-body">
                     <form action="#" method="POST" enctype="multipart/form-data" id="form-add-customer">
                         <div class="row">
                             <div class="col-md-6 col-sm-12 col-lg-6">
                                 <div class="form-group">
+                                    <label for="code_customer">Kode Customer</label>
+                                    <input type="text" name="code_customer" id="code_customer" class="form-control" placeholder="" disabled>
+                                </div>
+                                <div class="form-group mt-1">
                                     <label for="name">Name</label>
-                                    <input type="text" name="name" id="name" class="form-control" placeholder="Full Name">
+                                    <input type="text" name="name" id="name" class="form-control" placeholder="Example : PT. ABC">
                                 </div>
                                 <div class="form-group mt-1">
                                     <label for="phone">Phone</label>
@@ -63,7 +67,7 @@
                 'phone': 'required',
                 'address': 'required',
                 'email': 'required',
-                'photos': 'required'
+                // 'photos': 'required'
             },
             submitHandler:function(){
                 $.ajax({
@@ -75,6 +79,7 @@
                     contentType: false,
                     success: function(e){
                         notifSweetAlertSuccess(e.meta.message);
+                        detailCustomer(e);
                     },
                     error: function(e){
                         if(e.status== 422){
@@ -84,6 +89,9 @@
                 })
             }
         })
+        function detailCustomer(e){
+            $('#code_customer').val(e.data[0].code_customer)
+        }
     </script>
 
 @endsection
