@@ -18,12 +18,21 @@
                         @csrf
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group">
+                                <div class="form-group mb-2">
                                     <label for="customer_id">Pengirim</label>
                                     <select name="customer_id" id="customer_id" class="form-control">
                                         <option value="">Pilih Customer</option>
                                         @foreach ($customers as $customer)
                                             <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group pesanan_pengambilan">
+                                    <label for="destination1_id">Destinasi</label>
+                                    <select name="destination1_id" id="destination1_id" class="form-control">
+                                        <option value="">Pilih Destinasi</option>
+                                        @foreach ($destinations as $destination)
+                                            <option value="{{ $destination->id }}">{{ $destination->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -37,7 +46,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mt-2" id="pesanan_pengambilan">
+                        <div class="row mt-2 pesanan_pengambilan" id="">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="total">Total Pesanan</label>
@@ -133,7 +142,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="estimation">Estimasi</label>
-                                        <input type="text" name="estimation" id="estimation" class="form-control">
+                                        <input type="number" name="estimation" id="estimation" class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -164,15 +173,16 @@
     <script>
         $(document).ready(function() {
             $('#customer_id').select2();
+            $('#destination1_id').select2();
             $('#destination_id').select2();
             $('#pesanan_normal').hide();
 
             $('#pesanan_masal').change(function() {
                 if ($(this).is(':checked')) {
-                    $('#pesanan_pengambilan').show();
+                    $('.pesanan_pengambilan').show();
                     $('#pesanan_normal').hide();
                 } else {
-                    $('#pesanan_pengambilan').hide();
+                    $('.pesanan_pengambilan').hide();
                     $('#pesanan_normal').show();
                 }
             });
@@ -183,6 +193,11 @@
                         required: true
                     },
                     'total' : {
+                        required: function (element) {
+                            return $('#pesanan_masal').is(':checked')
+                        }
+                    },
+                    'destination1_id' : {
                         required: function (element) {
                             return $('#pesanan_masal').is(':checked')
                         }
@@ -244,17 +259,18 @@
                     },
                 },
                 messages: {
-                    'customer_id': 'Pilih salah satu.',
-                    'total': 'Total harus diisi.',
-                    'receiver': 'Penerima harus diisi.',
-                    'armada': 'Pilih salah satu armada.',
-                    'service': 'Pilih jenis barang.',
-                    'destination_id': 'Pilih salah satu destinasi.',
-                    'address': 'Alamat harus diisi.',
-                    'weight': 'Berat harus diisi.',
-                    'volume': 'Volume harus diisi.',
-                    'price': 'Harga harus diisi.',
-                    'estimation': 'Estimasi harus diisi.'
+                    'customer_id'     :  'Pilih salah satu.',
+                    'destination1_id'     :  'Pilih salah satu.',
+                    'total'           :  'Total harus diisi.',
+                    'receiver'        :  'Penerima harus diisi.',
+                    'armada'          :  'Pilih salah satu armada.',
+                    'service'         :  'Pilih jenis barang.',
+                    'destination_id'  :  'Pilih salah satu destinasi.',
+                    'address'         :  'Alamat harus diisi.',
+                    'weight'          :  'Berat harus diisi.',
+                    'volume'          :  'Volume harus diisi.',
+                    'price'           :  'Harga harus diisi.',
+                    'estimation'      :  'Estimasi harus diisi.'
                 },
                 errorPlacement:function (error, element) {
                     if (element.closest('.input-group').length) {
