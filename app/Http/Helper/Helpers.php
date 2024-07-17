@@ -247,6 +247,21 @@ if (!function_exists('generateAwb')) {
 }
 
 
+if (!function_exists('generateOrderCode')) {
+    function generateOrderCode()
+    {
+        $lastOrder  = Order::orderBy('id', 'desc')->first();
+        if ($lastOrder ) {
+            $number = intval(substr($lastOrder->numberorders, 2, 5)) + 1;
+            $newOrderCode = 'EL' . str_pad($number, 5 ,'0', STR_PAD_LEFT). 'OD';
+        }else{
+            $newOrderCode = 'EL00001OD';
+        }
+        return $newOrderCode;
+    }
+}
+
+
 
 
 function getAvailableRoles($user, $isAdminCabang)

@@ -64,6 +64,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/create', [OrderController::class, 'create']);
         Route::post('/', [OrderController::class, 'store']);
         Route::get('/{id}/edit', [OrderController::class, 'edit']);
+        Route::get('/{id}/detail', [OrderController::class, 'show']);
         Route::patch('/{id}', [OrderController::class, 'update']);
         Route::delete('/{id}', [OrderController::class, 'destroy']);
     });

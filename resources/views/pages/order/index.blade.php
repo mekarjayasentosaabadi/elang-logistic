@@ -20,9 +20,11 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Awb</th>
+                                    {{-- <th>Pengirim</th>
+                                    <th>Destination</th>
+                                    <th>Tanggal</th> --}}
+                                    <th>Nomor Order</th>
                                     <th>Pengirim</th>
-                                    <th>Penerima</th>
                                     <th>Tanggal</th>
                                     <th>Status</th>
                                     <th>Aksi</th>
@@ -51,33 +53,34 @@
                 },
                 columns: [{
                         data: 'DT_RowIndex',
-                        orderable: false,
+                        orderable : false,
+                        searchable: false
                     },
                     {
-                        data: 'awb',
-                        name: 'awb'
+                        data: 'numberorders',
+                        name: 'numberorders',
+                        searchable:true
                     },
                     {
                         data: 'customer',
-                        name: 'customer.name'
-                    },
-                    {
-                        data: 'receiver',
-                        name: 'receiver'
+                        name: 'customer.name',
+                        searchable:true
                     },
                     {
                         data: 'created_at',
-                        name: 'created_at'
+                        name: 'created_at',
+                        searchable:true
                     },
                     {
-                        data: 'status',
-                        name: 'status'
+                        data: 'status_orders',
+                        name: 'status_orders',
+                        searchable:true
                     },
                     {
                         data: 'aksi',
                         name: 'aksi',
-                        orderable: false,
-                        searchable: false
+                        orderable:false,
+                        searchable:false
                     }
                 ]
             });
