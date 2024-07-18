@@ -31,8 +31,8 @@ class Order extends Model
         return $this->belongsTo(Destination::class, 'destinations_id', 'id');
     }
 
-    //relation to manifests
-    function manifests(){
-        return $this->hasMany(Manifest::class, 'orders_id', 'id');
+    //relation to detailmanifests
+    function detailmanifests(){
+        return $this->hasMany(Detailmanifest::class, 'orders_id', 'id');
     }
 }

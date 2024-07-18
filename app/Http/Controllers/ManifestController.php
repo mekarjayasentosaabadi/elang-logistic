@@ -13,7 +13,7 @@ class ManifestController extends Controller
     }
     public function getAll(){
 
-        $q = Manifest::withCount('order')->get();
+        $q = Manifest::withCount('detailmanifests')->get();
         return DataTables::of($q)
             ->addIndexColumn()
             ->make(true);

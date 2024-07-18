@@ -21,8 +21,8 @@ class Manifest extends Model
     ];
     protected $table = 'manifests';
 
-    //return relation to orders
-    function order(){
-        return $this->belongsTo(Order::class, 'orders_id', 'id');
+    //relation to detail manifests
+    function detailmanifests(){
+        return $this->hasMany(Detailmanifest::class, 'manifests_id', 'id');
     }
 }
