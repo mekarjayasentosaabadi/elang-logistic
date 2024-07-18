@@ -8,6 +8,7 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OutletController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DestinationController;
 
@@ -85,6 +86,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/store', [VehicleController::class, 'store']);
         Route::get('/{id}/edit', [VehicleController::class, 'edit']);
         Route::patch('/{id}', [VehicleController::class, 'update']);
+    });
+
+    Route::prefix('manifest')->group(function(){
+        Route::get('/', [ManifestController::class, 'index'])->name('manifest.index');
+        Route::get('/getAll', [ManifestController::class, 'getAll'])->name('manifest.getAll');
     });
 
     Route::get('/logout', [AuthController::class, 'logout']);

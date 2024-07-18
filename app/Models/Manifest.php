@@ -11,25 +11,18 @@ class Manifest extends Model
     protected $fillable = [
         'manifestno',
         'orders_id',
-        'destination_from_id',
-        'destination_to_id',
-        'outlets_id',
         'receive_date_time',
         'carier',
         'commodity',
         'flight_no',
         'no_bags',
         'flight_file',
+        'status_manifest'
     ];
     protected $table = 'manifests';
 
-    //return relation to destination from
-    function destinationfrom(){
-        return $this->belongsTo(Destination::class, 'destination_from_id', 'id');
-    }
-
-    //return relation to destination to
-    function destinationto(){
-        return $this->belongsTo(Destination::class, 'destination_to_id', 'id');
+    //return relation to orders
+    function order(){
+        return $this->belongsTo(Order::class, 'orders_id', 'id');
     }
 }

@@ -30,4 +30,9 @@ class Order extends Model
     function destination(){
         return $this->belongsTo(Destination::class, 'destinations_id', 'id');
     }
+
+    //relation to manifests
+    function manifests(){
+        return $this->hasMany(Manifest::class, 'orders_id', 'id');
+    }
 }
