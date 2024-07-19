@@ -10,7 +10,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Daftar Manifest</h4>
-                    <a href="{{ url('/manifests/create') }}" class="btn btn-primary">Tambah Manifest</a>
+                    <a href="{{ url('/manifest/create') }}" class="btn btn-primary">Tambah Manifest</a>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -21,7 +21,7 @@
                                         <th>#</th>
                                         <th>Manifest No</th>
                                         <th>Destinations</th>
-                                        <th>Total Manifest</th>
+                                        <th>Jumlah AWB</th>
                                         <th>Status Manifest</th>
                                         <th>Options</th>
                                     </tr>
@@ -61,16 +61,16 @@
                         name: 'manifestno'
                     },
                     {
-                        data: 'manifestno',
-                        name: 'manifestno'
+                        data: 'jumlahawb',
+                        name: 'jumlahawb'
                     },
                     {
-                        data: 'manifestno',
-                        name: 'manifestno'
+                        data: 'status',
+                        name: 'status'
                     },
                     {
-                        data: 'manifestno',
-                        name: 'manifestno'
+                        data: 'option',
+                        name: 'option'
                     },
                 ]
             });

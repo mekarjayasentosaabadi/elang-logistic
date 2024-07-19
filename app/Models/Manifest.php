@@ -25,4 +25,14 @@ class Manifest extends Model
     function detailmanifests(){
         return $this->hasMany(Detailmanifest::class, 'manifests_id', 'id');
     }
+
+    //Make a code customer automatic
+    protected static function boot(){
+        parent::boot();
+        static::creating(function($model){
+            $lastItem = self::orderBy('manifestno', 'desc')->first();
+            $lastNumber = $lastItem ? $lastItem->manifestno : 0;
+            $model->manifestno = $lastNumber + 1;
+        });
+    }
 }
