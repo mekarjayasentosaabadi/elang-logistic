@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('manifests', function (Blueprint $table) {
             $table->id();
             $table->string('manifestno', 10)->unique();
-            $table->unsignedBigInteger('orders_id');
+            // $table->unsignedBigInteger('orders_id');
             $table->timestamp('receive_date_time')->nullable();
             $table->string('carier');
             $table->integer('commodity')->comment('1: LV, 2: HV, 3: FE, 4: MIX')->nullable();
