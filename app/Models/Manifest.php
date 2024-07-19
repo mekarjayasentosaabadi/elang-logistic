@@ -35,4 +35,8 @@ class Manifest extends Model
             $model->manifestno = $lastNumber + 1;
         });
     }
+
+    public function detailtraveldocuments(){
+        return $this->hasMany(Detailtraveldocument::class, 'manifests_id', 'id');
+    }
 }
