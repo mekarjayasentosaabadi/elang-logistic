@@ -295,9 +295,11 @@ class OrderController extends Controller
                 return redirect()->back()->withInput();
             }
 
-            $outlet = Outlet::where('ops_id', Auth::user()->id)->first();
-            $gudangLocation = Destination::find($outlet->location_id);
             $order = Order::find(Crypt::decrypt($id));
+
+            $outlet = Outlet::where('id', $order->outlet_id)->first();
+            $gudangLocation = Destination::find($outlet->location_id);
+
             $order->customer_id     = $request->customer_id;
             $order->status_orders   = 2;
             $order->penerima        = $request->receiver;
