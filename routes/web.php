@@ -77,6 +77,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/detail', [OrderController::class, 'show']);
         Route::patch('/{id}', [OrderController::class, 'update']);
         Route::delete('/{id}', [OrderController::class, 'destroy']);
+        Route::get('/{id}/print', [OrderController::class, 'printformat1']);
+        Route::get('/{id}/print-v2', [OrderController::class, 'printformat2']);
     });
 
     Route::prefix('vehicle')->group(function (){

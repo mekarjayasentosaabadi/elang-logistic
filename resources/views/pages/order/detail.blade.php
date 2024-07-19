@@ -24,7 +24,7 @@
                             <div class="mt-md-0 mt-2">
                                 <h4 class="invoice-title">
                                     Nomor Order
-                                    <span class="invoice-number">| 123223492</span>
+                                    <span class="invoice-number">| {{ $order->numberorders }}</span>
                                 </h4>
                             </div>
                         </div>
@@ -46,7 +46,7 @@
                                             </tr>
                                             <tr>
                                                 <td class="pe-1">Penerima</td>
-                                                <td>: {{ $order->outlet->name ?? '-' }}</td>
+                                                <td>: {{ $order->penerima ?? '-' }}</td>
                                             </tr>
                                             <tr>
                                                 <td class="pe-1">Destinasi</td>
@@ -106,7 +106,7 @@
                                             </tr>
                                             <tr>
                                                 <td class="pe-1">Estimasi</td>
-                                                <td>: {{ $order->estimation ?? '-' }}</td>
+                                                <td>: {{ $order->estimation.' hari' ?? '0 hari' }}</td>
                                             </tr>
                                             <tr>
                                                 <td class="pe-1">Deskripsi Barang</td>
@@ -150,74 +150,43 @@
             </div>
             <!-- /Invoice -->
 
-            <!-- Invoice Actions -->
+            <!-- Detail Order Actions -->
             <div class="col-xl-3 col-md-4 col-12 invoice-actions mt-md-0 mt-2">
                 <div class="card">
                     <div class="card-body">
-                        <a class="btn btn-outline-secondary w-100 mb-75" href="./app-invoice-print.html" target="_blank">
-                            Print</a>
-                        <button class="btn btn-primary w-100" data-bs-toggle="modal"
-                            data-bs-target="#add-payment-sidebar">
-                            Edit Langsung
-                        </button>
+                            <a class="btn btn-outline-secondary w-100 mb-75" href="/order/{{ Crypt::encrypt($order->id); }}/print" target="_blank">
+                                Print Format 1</a>
+                            <a class="btn btn-outline-secondary w-100 mb-75" href="/order/{{ Crypt::encrypt($order->id); }}/print-v2" target="_blank">
+                                Print Format 2</a>
+                            <a class="btn btn-primary w-100 mb-75" href="/order">Kemali</a>
                     </div>
                 </div>
             </div>
-            <!-- /Invoice Actions -->
-        </div>
-    </section>
-
-
-    <!-- Add Payment Sidebar -->
-    <div class="modal modal-slide-in fade" id="add-payment-sidebar" aria-hidden="true">
-        <div class="modal-dialog sidebar-lg">
-            <div class="modal-content p-0">
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">×</button>
-                <div class="modal-header mb-1">
-                    <h5 class="modal-title">
-                        <span class="align-middle">Add Payment</span>
-                    </h5>
-                </div>
-                <div class="modal-body flex-grow-1">
-                    <form>
-                        <div class="mb-1">
-                            <input id="balance" class="form-control" type="text" value="Invoice Balance: 5000.00"
-                                disabled />
-                        </div>
-                        <div class="mb-1">
-                            <label class="form-label" for="amount">Payment Amount</label>
-                            <input id="amount" class="form-control" type="number" placeholder="$1000" />
-                        </div>
-                        <div class="mb-1">
-                            <label class="form-label" for="payment-date">Payment Date</label>
-                            <input id="payment-date" class="form-control date-picker" type="text" />
-                        </div>
-                        <div class="mb-1">
-                            <label class="form-label" for="payment-method">Payment Method</label>
-                            <select class="form-select" id="payment-method">
-                                <option value="" selected disabled>Select payment method</option>
-                                <option value="Cash">Cash</option>
-                                <option value="Bank Transfer">Bank Transfer</option>
-                                <option value="Debit">Debit</option>
-                                <option value="Credit">Credit</option>
-                                <option value="Paypal">Paypal</option>
-                            </select>
-                        </div>
-                        <div class="mb-1">
-                            <label class="form-label" for="payment-note">Internal Payment Note</label>
-                            <textarea class="form-control" id="payment-note" rows="5" placeholder="Internal Payment Note"></textarea>
-                        </div>
-                        <div class="d-flex flex-wrap mb-0">
-                            <button type="button" class="btn btn-primary me-1" data-bs-dismiss="modal">Send</button>
-                            <button type="button" class="btn btn-outline-secondary"
-                                data-bs-dismiss="modal">Cancel</button>
-                        </div>
-                    </form>
+            <div class="cocard-body col-md-9  invoice-padding pt-0">
+                <div class="card">
+                    <h4 class="card-header">History Resi</h4>
+                    <div class="card-body">
+                        <ul class="timeline ms-50">
+                            @foreach ($historyAwbs as $historyAwb)
+                                <li class="timeline-item">
+                                    <span class="timeline-point timeline-point-indicator"></span>
+                                    <div class="timeline-event">
+                                        <div class="d-flex justify-content-between flex-sm-row flex-column mb-sm-0 mb-1">
+                                            <h6>No Order {{ $historyAwb->awb }}</h6>
+                                            <span class="timeline-event-time me-1">{{ $historyAwb->created_at->diffForHumans() }}</span>
+                                        </div>
+                                        <p>{{ $historyAwb->status }}</p>
+                                    </div>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
                 </div>
             </div>
+
+            <!-- /Detail Order Actions -->
         </div>
-    </div>
-    <!-- /Add Payment Sidebar -->
+    </section>
 @endsection
 
 @section('custom-js')
