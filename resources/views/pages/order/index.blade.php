@@ -20,11 +20,9 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    {{-- <th>Pengirim</th>
-                                    <th>Destination</th>
-                                    <th>Tanggal</th> --}}
-                                    <th>Nomor Order</th>
+                                    <th>No Order</th>
                                     <th>Pengirim</th>
+                                    <th>Penerima</th>
                                     <th>Tanggal</th>
                                     <th>Status</th>
                                     <th>Aksi</th>
@@ -62,8 +60,13 @@
                         searchable:true
                     },
                     {
-                        data: 'customer',
-                        name: 'customer.name',
+                        data: 'pengirim',
+                        name: 'pengirim.name',
+                        searchable:true
+                    },
+                    {
+                        data: 'penerima',
+                        name: 'penerima',
                         searchable:true
                     },
                     {

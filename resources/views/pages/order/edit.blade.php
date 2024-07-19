@@ -39,7 +39,7 @@
                                     <div class="form-group">
                                         <label for="awb">AWB</label>
                                         <input type="text" name="awb" id="awb" class="form-control" readonly
-                                            value="{{ $order->awb }}">
+                                            value="{{ $order->numberorders }}">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -121,7 +121,10 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="estimation">Estimasi</label>
-                                        <input type="text" name="estimation" id="estimation" class="form-control">
+                                        <div class="input-group">
+                                            <input type="number" name="estimation" id="estimation" class="form-control">
+                                            <span class="input-group-text">Hari</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -152,6 +155,14 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="koli">Koli</label>
+                                        <input type="number" name="koli" id="koli" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary mt-2 float-end">Update</button>
                     </form>
@@ -171,11 +182,6 @@
                 rules:{
                     'customer_id' : {
                         required: true
-                    },
-                    'receiver' : {
-                        required: function (element) {
-                            return $('#pesanan_masal')
-                        }
                     },
                     'armada' : {
                         required: function (element) {
@@ -232,10 +238,19 @@
                             return $('#pesanan_masal')
                         }
                     },
+                    'koli' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'receiver' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
                 },
                 messages: {
                     'customer_id'     :  'Pilih salah satu.',
-                    'receiver'        :  'Penerima harus diisi.',
                     'armada'          :  'Pilih salah satu armada.',
                     'service'         :  'Pilih jenis barang.',
                     'destination_id'  :  'Pilih salah satu destinasi.',
@@ -246,7 +261,8 @@
                     'payment_method'  :  'Pilih salah satu.',
                     'estimation'      :  'Estimasi harus diisi.',
                     'description'     :  'Deskripsi harus diisi.',
-                    'note'            :  'Catatan harus diisi.'
+                    'note'            :  'Catatan harus diisi.',
+                    'receiver'        :  'Penerima harus diisi.'
                 },
                 errorPlacement:function (error, element) {
                     if (element.closest('.input-group').length) {

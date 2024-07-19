@@ -142,7 +142,10 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="estimation">Estimasi</label>
-                                        <input type="number" name="estimation" id="estimation" class="form-control">
+                                        <div class="input-group">
+                                            <input type="number" name="estimation" id="estimation" class="form-control">
+                                            <span class="input-group-text">Hari</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -157,6 +160,14 @@
                                     <div class="form-group">
                                         <label for="note">Catatan</label>
                                         <textarea name="note" id="note" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="koli">Koli</label>
+                                        <input type="number" name="koli" id="koli" class="form-control">
                                     </div>
                                 </div>
                             </div>
@@ -200,11 +211,6 @@
                     'destination1_id' : {
                         required: function (element) {
                             return $('#pesanan_masal').is(':checked')
-                        }
-                    },
-                    'receiver' : {
-                        required: function (element) {
-                            return $('#pesanan_masal')
                         }
                     },
                     'armada' : {
@@ -257,12 +263,21 @@
                             return $('#pesanan_masal')
                         }
                     },
+                    'koli' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'receiver' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
                 },
                 messages: {
                     'customer_id'     :  'Pilih salah satu.',
-                    'destination1_id'     :  'Pilih salah satu.',
+                    'destination1_id' :  'Pilih salah satu.',
                     'total'           :  'Total harus diisi.',
-                    'receiver'        :  'Penerima harus diisi.',
                     'armada'          :  'Pilih salah satu armada.',
                     'service'         :  'Pilih jenis barang.',
                     'destination_id'  :  'Pilih salah satu destinasi.',
@@ -270,7 +285,9 @@
                     'weight'          :  'Berat harus diisi.',
                     'volume'          :  'Volume harus diisi.',
                     'price'           :  'Harga harus diisi.',
-                    'estimation'      :  'Estimasi harus diisi.'
+                    'estimation'      :  'Estimasi harus diisi.',
+                    'koli'            :  'Koli harus diisi.',
+                    'receiver'        :  'Penerima harus diisi.'
                 },
                 errorPlacement:function (error, element) {
                     if (element.closest('.input-group').length) {
