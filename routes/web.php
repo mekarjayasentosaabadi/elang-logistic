@@ -98,6 +98,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/getOrders', [ManifestController::class, 'getOrders'])->name('manifest.getorders');
         Route::get('/checkOrders/{id}', [ManifestController::class, 'checkOrders'])->name('manifest.checkOrders');
         Route::post('/store', [ManifestController::class, 'store'])->name('manifest.store');
+        Route::get('/{id}/edit', [ManifestController::class, 'edit'])->name('manifest.edit');
+        Route::get('/{id}/getdetail', [ManifestController::class, 'getdetail'])->name('manifest.getdetail');
     });
 
     Route::get('/logout', [AuthController::class, 'logout']);
