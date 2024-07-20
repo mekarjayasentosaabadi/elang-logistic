@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Detailmanifest;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
+use Illuminate\Support\Facades\Crypt;
 
 class ManifestController extends Controller
 {
@@ -38,9 +39,9 @@ class ManifestController extends Controller
                 }
             })
             ->addColumn('option', function($x){
-                if($x->status_manifest != 4){
+                if($x->status_manifest != 3){
                     $option = '<div>';
-                    $option .= '<a href="" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a></div>';
+                    $option .= '<a href="manifest/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a></div>';
                     return $option;
                 }
             })
@@ -54,7 +55,7 @@ class ManifestController extends Controller
     }
     function getOrders(){
         $outletId = auth()->user()->outlet->id;
-        $q = Order::where('outlet_id', $outletId)->where('status_orders', 4)->get();
+        $q = Order::where('outlet_id', $outletId)->where('status_orders', 2)->get();
         return DataTables::of($q)
             ->addColumn('namecustomer', function($query){
                 $nameCustomer = $query->customer->name;
@@ -108,5 +109,20 @@ class ManifestController extends Controller
         }
         Detailmanifest::insert($dataDetail);
         return ResponseFormatter::success([], 'Manifest berhasil di simpan.!');
+    }
+
+    //edit
+    function edit($id){
+        return view('pages.manifest.update');
+    }
+
+    //get detail
+    function getdetail($id){
+        $datamanifest           = Manifest::where('id', Crypt::decrypt($id))->firstOrFail();
+        $datadetailmanifest     = Detailmanifest::with(['order.customer', 'order.destination'])->where('manifests_id', Crypt::decrypt($id))->get();
+        return ResponseFormatter::success([
+            'manifest'          => $datamanifest,
+            'detailmanifest'    => $datadetailmanifest
+        ], 'Success get data');
     }
 }
