@@ -19,4 +19,10 @@ class CustomerPrice extends Model
     {
         return $this->belongsTo(Destination::class, 'destination_id');
     }
+    function customer(){
+        return $this->belongsTo(User::class, 'customers_id', 'id');
+    }
+    function masterprice(){
+        return $this->belongsTo(Masterprice::class, 'masterprices_id', 'id');
+    }
 }

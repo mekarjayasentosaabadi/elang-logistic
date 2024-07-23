@@ -27,7 +27,8 @@ class User extends Authenticatable
         'is_active',
         'email',
         'password',
-        'pictures'
+        'pictures',
+        'outlets_id'
     ];
 
     /**
@@ -51,7 +52,7 @@ class User extends Authenticatable
     ];
 
     function outlet(){
-        return $this->hasOne(Outlet::class, 'ops_id', 'id');
+        return $this->belongsTo(Outlet::class, 'outlets_id', 'id');
     }
 
     function orders(){
@@ -67,5 +68,9 @@ class User extends Authenticatable
                 $model->code_customer = 'C-'. str_pad($latestCode + 1, 6, '0', STR_PAD_LEFT);
             }
         });
+    }
+
+    function customerprices(){
+        return $this->hasMany(CustomerPrice::class, 'customers_id', 'id');
     }
 }

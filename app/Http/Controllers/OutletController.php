@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
@@ -26,8 +27,11 @@ class OutletController extends Controller
     public function getAll()
     {
 
-        $q = Outlet::with('operator')->get();
-
+        // $q = Outlet::with(['operators'])->get();
+        $q = DB::table('outlets')
+                ->leftJoin('users', 'outlets.id', '=', 'users.outlets_id')
+                ->select('outlets.id', 'outlets.name', 'users.name as namaoperator', 'outlets.type', 'outlets.email', 'outlets.phone', 'outlets.is_active')
+                ->get();
 
         return DataTables::of($q)
             ->editColumn('type', function ($query) {
@@ -62,21 +66,15 @@ class OutletController extends Controller
                             </div>';
                 return $toogle;
             })
-            ->addColumn('operators', function($ops){
-                $btn= $ops->operator->name;
-                return $btn;
-
-            })
-            ->rawColumns(['aksi', 'operators', 'toogle'])
+            ->rawColumns(['aksi', 'operator', 'toogle'])
             ->addIndexColumn()
             ->make(true);
     }
 
     public function create()
     {
-        $operator = User::where('role_id', '2')->where('is_active', '1')->get();
         $destination = Destination::all();
-        return view('pages.outlet.create', compact('operator','destination'));
+        return view('pages.outlet.create', compact('destination'));
     }
 
 
@@ -106,9 +104,8 @@ class OutletController extends Controller
     {
         $id = Crypt::decrypt($id);
         $outlet = Outlet::find($id);
-        $operator = User::where('role_id', '2')->where('is_active', '1')->get();
         $destination = Destination::all();
-        return view('pages.outlet.edit', compact('outlet','operator', 'destination'));
+        return view('pages.outlet.edit', compact('outlet', 'destination'));
     }
 
     function update(Request $request, $id)

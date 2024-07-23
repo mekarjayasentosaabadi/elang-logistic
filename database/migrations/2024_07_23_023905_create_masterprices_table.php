@@ -11,17 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('customer_prices', function (Blueprint $table) {
+        Schema::create('masterprices', function (Blueprint $table) {
             $table->id();
-            $table->integer('customer_id');
-            $table->integer('outlet_id');
-            $table->integer('armada')->default(1)->comment('1 = Darat, 2 = Laut, 3 = Udara');
-            $table->integer('destination_id');
-            $table->integer('price');
+            $table->unsignedBigInteger('outlets_id');
+            $table->integer('armada')->comment('1: Darat, 2: Laut, 3: Laut')->default(1);
+            $table->unsignedBigInteger('destinations_id');
+            $table->integer('price')->nullable();
             $table->integer('minweights')->default(10);
             $table->integer('nextweightprices');
             $table->integer('minimumprice');
-            $table->unsignedBigInteger('masterprices_id');
             $table->integer('estimation');
             $table->timestamps();
         });
@@ -32,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('customer_prices');
+        Schema::dropIfExists('masterprices');
     }
 };

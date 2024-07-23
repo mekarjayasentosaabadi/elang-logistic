@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\User;
+// use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -10,7 +10,7 @@ class Outlet extends Model
 {
     use HasFactory;
     protected $fillable= [
-        'ops_id',
+        // 'ops_id',
         'location_id',
         'name',
         'address',
@@ -23,8 +23,8 @@ class Outlet extends Model
     ];
     protected $table = 'outlets';
     protected $guarded = [];
-    function operator(){
-        return $this->belongsTo(User::class, 'ops_id', 'id');
+    function operators(){
+        return $this->hasMany(User::class, 'outlets_id', 'id');
     }
 
     function orders(){

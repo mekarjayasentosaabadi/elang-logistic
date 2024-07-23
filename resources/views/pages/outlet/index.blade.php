@@ -59,8 +59,8 @@
                         name: 'name'
                     },
                     {
-                        data: 'operators',
-                        name: 'operators'
+                        data: 'namaoperator',
+                        name: 'namaoperator'
                     },
                     {
                         data: 'type',

@@ -24,15 +24,6 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-2">
-                                    <label for="ops">Operator</label>
-                                    <select name="ops_id" id="ops" class="form-control">
-                                        <option value="">-- Select Operator --</option>
-                                        @foreach ($operator as $item)
-                                            <option value="{{ $item->id }}" {{ $outlet->ops_id == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="form-group mb-2">
                                     <label for="location">Location</label>
                                     <select name="location_id" id="location" class="form-control">
                                         <option value="">-- Select location --</option>
