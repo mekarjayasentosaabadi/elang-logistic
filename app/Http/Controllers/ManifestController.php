@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Detailmanifest;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 
 class ManifestController extends Controller
@@ -17,7 +18,13 @@ class ManifestController extends Controller
     }
     public function getAll(){
 
-        $q = Manifest::withCount('detailmanifests')->get();
+        $q = DB::table('manifests')
+                ->join('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
+                ->join('orders', 'detailmanifests.orders_id', '=', 'orders.id')
+                ->join('destinations', 'orders.destinations_id', '=', 'destinations.id')
+                ->select('manifests.id', 'manifests.manifestno', 'destinations.name as namadestinasi', 'manifests.status_manifest', DB::raw('COUNT(detailmanifests.id) as jumlahmamnifest'))
+                ->groupBy('manifests.id', 'destinations.name', 'manifests.manifestno')
+                ->get();
         return DataTables::of($q)
             ->addColumn('status', function($e){
                 if($e->status_manifest == 0){
@@ -45,11 +52,7 @@ class ManifestController extends Controller
                     return $option;
                 }
             })
-            ->addColumn('jumlahawb', function($x){
-                $jumlahawb = $x->detailmanifests_count;
-                return $jumlahawb;
-            })
-            ->rawColumns(['status', 'option', 'jumlahawb'])
+            ->rawColumns(['status', 'option'])
             ->addIndexColumn()
             ->make(true);
     }
@@ -119,7 +122,8 @@ class ManifestController extends Controller
     //get detail
     function getdetail($id){
         $datamanifest           = Manifest::where('id', Crypt::decrypt($id))->firstOrFail();
-        $datadetailmanifest     = Detailmanifest::with(['order.customer', 'order.destination'])->where('manifests_id', Crypt::decrypt($id))->get();
+        // $datadetailmanifest     = Detailmanifest::with(['order.customer', 'order.destination'])->where('manifests_id', Crypt::decrypt($id))->get();
+        $datadetailmanifest     = Order::with(['customer', 'destination','detailmanifests'])->where('manifests_id', $id)->firstOrFail();
         return ResponseFormatter::success([
             'manifest'          => $datamanifest,
             'detailmanifest'    => $datadetailmanifest

@@ -57,12 +57,12 @@
                         name: 'manifestno'
                     },
                     {
-                        data: 'manifestno',
-                        name: 'manifestno'
+                        data: 'namadestinasi',
+                        name: 'namadestinasi'
                     },
                     {
-                        data: 'jumlahawb',
-                        name: 'jumlahawb'
+                        data: 'jumlahmamnifest',
+                        name: 'jumlahmamnifest'
                     },
                     {
                         data: 'status',
