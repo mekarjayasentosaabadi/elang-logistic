@@ -81,6 +81,7 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         try {
+            $code_otomatis = $request->input('kodecustomer');
             $request->validate([
                 'name'          => 'required',
                 'phone'         => 'required|unique:users,phone',
@@ -95,8 +96,17 @@ class CustomerController extends Controller
                 'email'         => $request->email,
                 'photos'        => 'default.jpg',
                 'role_id'       => '4',
-                'password'      => Hash::make('elang123')
+                'password'      => Hash::make('elang123'),
+                'code_customer' => $request->code_customer,
+                'is_otomatis'   => '0'
             ];
+            if($code_otomatis == "1"){
+                $latestCustomer = User::where('role_id', '4')->where('is_otomatis', '1')->latest()->first();
+                $latesCode = $latestCustomer ? intval(substr($latestCustomer->code_customer, 2)): 0;
+                $kode_customer = 'C-'. str_pad($latesCode + 1, 6, '0', STR_PAD_LEFT);
+                $dataStored['code_customer'] = $kode_customer;
+                $dataStored['is_otomatis']  = '1';
+            }
             if($request->file('photos')){
                 $request->validate([
                     'photos'    => 'required|mimes:png,jpg|max:1024'
