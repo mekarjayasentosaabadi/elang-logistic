@@ -7,6 +7,29 @@
 @endsection
 
 @section('content')
+
+    @if (Auth::user()->role_id == '1')
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Outlet Asal</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="outlet_id_select">Outlet Asal</label>
+                            <select name="outlet_id_select" id="outlet_id_select" class="form-control">
+                                <option value="">Pilih Outlet Asal</option>
+                                @foreach ($outlets as $outlet)
+                                    <option  value="{{ $outlet->id }}" {{ old('outlet_id') == $outlet->id ? 'selected' : '' }}>{{ $outlet->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -16,6 +39,7 @@
                 <div class="card-body">
                     <form id="form-create-transaksi" action="{{ url('/order') }}" method="post">
                         @csrf
+                        <input type="hidden" name="outlet_id" id="outlet_id_hidden">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-2">
@@ -23,7 +47,7 @@
                                     <select name="customer_id" id="customer_id" class="form-control">
                                         <option value="">Pilih Customer</option>
                                         @foreach ($customers as $customer)
-                                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                            <option value="{{ $customer->id }}" value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>{{ $customer->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -32,7 +56,7 @@
                                     <select name="destination1_id" id="destination1_id" class="form-control">
                                         <option value="">Pilih Destinasi</option>
                                         @foreach ($destinations as $destination)
-                                            <option value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                            <option value="{{ $destination->id }}" value="{{ $customer->id }}" {{ old('destination1_id') == $destination->id ? 'selected' : '' }}>{{ $destination->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -50,7 +74,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="total">Total Pesanan</label>
-                                    <input type="number" name="total" id="total" class="form-control">
+                                    <input type="number" name="total" id="total" class="form-control" value="{{ old('total') }}">
                                 </div>
                             </div>
                         </div>
@@ -59,37 +83,38 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="awb">AWB</label>
-                                        <input type="text" name="awb" id="awb" class="form-control" readonly
-                                            value="{{ generateAwb() }}">
+                                        <input type="text" name="awb" id="awb" class="form-control"
+                                            value="{{ generateAwb() }}" maxlength="10" minlength="10">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="receiver">Penerima</label>
-                                        <input type="text" name="receiver" id="receiver" class="form-control">
+                                        <label for="payment_method">Metode Pembayaran</label>
+                                        <select name="payment_method" id="payment_method" class="form-control">
+                                            <option value="">Pilih Metode Pembayaran</option>
+                                            <option {{ old('payment_method') == '1' ? 'selected' : '' }} value="1">Tagih Tujuan</option>
+                                            <option {{ old('payment_method') == '2' ? 'selected' : '' }} value="2">Tagih Pada Pengirim</option>
+                                            <option {{ old('payment_method') == '3' ? 'selected' : '' }} value="3">Tunai</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
                             <div class="row mt-2">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="armada">Armada</label>
+                                        <label for="armada">Service</label>
                                         <select name="armada" id="armada" class="form-control">
-                                            <option value="">Pilih Armada</option>
-                                            <option value="1">Darat</option>
-                                            <option value="2">Laut</option>
-                                            <option value="3">Udara</option>
+                                            <option  value="">Pilih Service</option>
+                                            <option {{ old('armada') == '1' ? 'selected' : '' }} value="1">Darat</option>
+                                            <option {{ old('armada') == '2' ? 'selected' : '' }} value="2">Laut</option>
+                                            <option {{ old('armada') == '3' ? 'selected' : '' }} value="3">Udara</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="service">Jenis Barang</label>
-                                        <select name="service" id="service" class="form-control">
-                                            <option value="">Pilih Jenis</option>
-                                            <option value="1">Dokumen</option>
-                                            <option value="2">Paket</option>
-                                        </select>
+                                        <label for="receiver">Penerima</label>
+                                        <input type="text" name="receiver" id="receiver" class="form-control" value="{{ old('receiver') }}">
                                     </div>
                                 </div>
                             </div>
@@ -100,50 +125,77 @@
                                         <select name="destination_id" id="destination_id" class="form-control">
                                             <option value="">Pilih Destinasi</option>
                                             @foreach ($destinations as $destination)
-                                                <option value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                                <option {{ old('destination_id') == $destination->id ? 'selected' : '' }} value="{{ $destination->id }}">{{ $destination->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="address">Alamat</label>
-                                        <textarea name="address" id="address" class="form-control"></textarea>
+                                        <label for="service">Jenis Barang</label>
+                                        <select name="service" id="service" class="form-control">
+                                            <option value="">Pilih Jenis</option>
+                                            <option {{ old('service') == '1' ? 'selected' : '' }} value="1">Dokumen</option>
+                                            <option {{ old('service') == '2' ? 'selected' : '' }} value="2">Paket</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
                             <div class="row mt-2">
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="select_option_berat_volume">Berat / Volume</label>
+                                        <select name="select_option_berat_volume" id="select_option_berat_volume" class="form-control">
+                                            <option value="berat">Berat</option>
+                                            <option value="volume">Volume</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="address">Alamat</label>
+                                        <textarea name="address" id="address" class="form-control">{{ old('address') }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6 weight">
+                                    <div class="form-group ">
                                         <label for="weight">Berat</label>
                                         <div class="input-group">
-                                            <input type="text" name="weight" id="weight" class="form-control">
+                                            <input type="number" name="weight" id="weight" class="form-control" value="{{ old('weight') }}">
                                             <span class="input-group-text">Kg</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-6 volume">
                                     <div class="form-group">
                                         <label for="volume">Volume</label>
                                         <div class="input-group">
-                                            <input type="text" name="volume" id="volume" class="form-control">
+                                            <input type="number" name="volume" id="volume" class="form-control" value="{{ old('volume') }}">
                                             <span class="input-group-text">M<sup>3</sup></span>
                                         </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="price">Harga</label>
+                                        <input type="text" name="price" id="price" class="form-control" value="{{ old('price') }}">
                                     </div>
                                 </div>
                             </div>
                             <div class="row mt-2">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="price">Harga</label>
-                                        <input type="text" name="price" id="price" class="form-control">
+                                        <label for="koli">Koli</label>
+                                        <input type="number" name="koli" id="koli" class="form-control" value="{{ old('koli') }}">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="estimation">Estimasi</label>
                                         <div class="input-group">
-                                            <input type="number" name="estimation" id="estimation" class="form-control">
+                                            <input type="number" name="estimation" id="estimation" class="form-control" value="{{ old('estimation') }}">
                                             <span class="input-group-text">Hari</span>
                                         </div>
                                     </div>
@@ -153,24 +205,17 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="description">Deskripsi Barang</label>
-                                        <textarea name="description" id="description" class="form-control"></textarea>
+                                        <textarea name="description" id="description" class="form-control">{{ old('description') }}</textarea>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="note">Catatan</label>
-                                        <textarea name="note" id="note" class="form-control"></textarea>
+                                        <textarea name="note" id="note" class="form-control">{{ old('note') }}</textarea>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row mt-2">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="koli">Koli</label>
-                                        <input type="number" name="koli" id="koli" class="form-control">
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                         <button type="submit" class="btn btn-primary mt-2 float-end">Simpan</button>
                     </form>
@@ -183,6 +228,26 @@
 @section('custom-js')
     <script>
         $(document).ready(function() {
+            // Saat elemen outlet_id_select berubah
+            $('#outlet_id_select').change(function() {
+                var selectedValue = $(this).val();
+                $('#outlet_id_hidden').val(selectedValue);
+            });
+
+            $('.volume').hide();
+            $('#select_option_berat_volume').change(function () {
+                var weightOrVolume = $('#select_option_berat_volume').val();
+                if (weightOrVolume == "berat") {
+                    $('.weight').show()
+                    $('.volume').hide()
+                }else if(weightOrVolume == "volume"){
+                    $('.weight').hide()
+                    $('.volume').show()
+                }
+            })
+
+
+
             $('#customer_id').select2();
             $('#destination1_id').select2();
             $('#destination_id').select2();

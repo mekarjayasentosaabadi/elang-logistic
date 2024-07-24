@@ -30,9 +30,6 @@
                                             <option value="2">Admin</option>
                                             <option value="3">Courier</option>
                                             <option value="5">Driver</option>
-                                        @elseif ($isAdminCabang == true)
-                                            <option value="3">Courier</option>
-                                            <option value="5">Driver</option>
                                         @elseif(Auth::user()->role_id == "2")
                                             <option value="3">Courier</option>
                                         @endif
@@ -40,10 +37,22 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <div class="form-group mb-3">
+                                <div class="form-group mb-2">
                                     <label for="email">Email</label>
                                     <input type="text" name="email" id="email" class="form-control">
                                 </div>
+                                @if (Auth::user()->role_id == "1")
+                                    <div class="form-group mb-3 outlet_id">
+                                        <label for="outlet_id">Outlet</label>
+                                        <select name="outlet_id" id="outlet_id" class="form-control">
+                                            <option value="" hidden>Pilih Outlet</option>
+                                                @foreach ($outlets as $outlet)
+                                                <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
+
+                                                @endforeach
+                                        </select>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary float-end">Simpan</button>
@@ -58,6 +67,17 @@
     <script src="{{ asset('assets/app-assets/vendors/js/forms/validation/jquery.validate.min.js') }}"></script>
     <script>
         $(document).ready(function () {
+            $('.outlet_id').hide()
+            $('#role_id').change(function () {
+                var role = $('#role_id').val()
+                console.log(role);
+                if (role == "2") {
+                    $('.outlet_id').show()
+                }else{
+                    $('.outlet_id').hide()
+                }
+            })
+
             $('#form-create-user').validate({
                 rules:{
                     'name'       : 'required',

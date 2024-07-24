@@ -26,18 +26,17 @@
                                 </div>
                                 <div class="form-group mb-2">
                                     <label for="role_id">Role</label>
-                                    @if (count($roles) === 1)
-                                        <input type="text" name="role_id" id="role_id" class="form-control"
-                                            value="{{ reset($roles) }}" disabled readonly>
-                                    @else
-                                        <select name="role_id" id="role_id" class="form-control">
-                                            @foreach ($roles as $key => $value)
-                                                <option value="{{ $key }}"
-                                                    {{ $user->role_id == $key ? 'selected' : '' }}>{{ $value }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    @endif
+                                    <select name="role_id" id="role_id" class="form-control">
+                                        <option value="" hidden>Pilih Role</option>
+                                        @if (Auth::user()->role_id == "1")
+                                            <option {{ $user->role_id == '1' ? 'selected' : '' }} value="1">Superadmin</option>
+                                            <option {{ $user->role_id == '2' ? 'selected' : '' }} value="2">Admin</option>
+                                            <option {{ $user->role_id == '3' ? 'selected' : '' }} value="3">Courier</option>
+                                            <option {{ $user->role_id == '5' ? 'selected' : '' }} value="5">Driver</option>
+                                        @elseif(Auth::user()->role_id == "2")
+                                            <option value="3">Courier</option>
+                                        @endif
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -57,6 +56,19 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                @if (Auth::user()->role_id == "1")
+                                    <div class="form-group mb-3 outlet_id">
+                                        <label for="outlet_id">Outlet</label>
+                                        <select name="outlet_id" id="outlet_id" class="form-control">
+                                            <option value="" hidden>Pilih Outlet</option>
+                                                @foreach ($outlets as $outlet)
+                                                    <option {{ $user->outlets_id == $outlet->id ? 'selected' : '' }} value="{{ $outlet->id }}">{{ $outlet->name }}</option>
+                                                @endforeach
+                                        </select>
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary float-end">Simpan</button>
                     </form>
@@ -70,6 +82,24 @@
     <script src="{{ asset('assets/app-assets/vendors/js/forms/validation/jquery.validate.min.js') }}"></script>
     <script>
         $(document).ready(function() {
+
+            $('.outlet_id').hide()
+
+            var role = $('#role_id').val()
+            if (role == "2") {
+                $('.outlet_id').show()
+            }else{
+                $('.outlet_id').hide()
+            }
+            $('#role_id').change(function () {
+                var role = $('#role_id').val()
+                if (role == "2") {
+                    $('.outlet_id').show()
+                }else{
+                    $('.outlet_id').hide()
+                }
+            })
+
             $('#form-edit-user').validate({
                 rules: {
                     'name': 'required',

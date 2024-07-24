@@ -78,8 +78,9 @@ class UserController extends Controller
      */
     public function create()
     {
-        $isAdminCabang = Outlet::where('ops_id', Auth::user()->id)->exists();
-        return view('pages.user.create', compact('isAdminCabang'));
+        // $isAdminCabang = Outlet::where('ops_id', Auth::user()->id)->exists();
+        $outlets = Outlet::all();
+        return view('pages.user.create', compact('outlets'));
     }
 
     /**
@@ -113,6 +114,10 @@ class UserController extends Controller
             'password'  => Hash::make("elang123")
         ];
 
+        if ($request->outlet_id) {
+            $dataUser['outlets_id'] = $request->outlet_id;
+        }
+
         $user = User::create($dataUser);
 
         if ($user) {
@@ -144,9 +149,8 @@ class UserController extends Controller
             abort(404);
         }
         $user      = User::find($decrypted);
-        $isAdminCabang = Outlet::where('ops_id', Auth::user()->id)->exists();
-        $roles = getAvailableRoles($user, $isAdminCabang);
-        return view('pages.user.edit', compact('user', 'isAdminCabang', 'roles'));
+        $outlets   = Outlet::all();
+        return view('pages.user.edit', compact('user', 'outlets'));
     }
 
     /**
@@ -187,6 +191,10 @@ class UserController extends Controller
             ];
             if ($request->role_id) {
                 $dataUser['role_id'] = $request->role_id;
+            }
+
+            if ($request->outlet_id) {
+                $dataUser['outlets_id'] = $request->outlet_id;
             }
 
             $user = User::find($decrypted)->update($dataUser);
