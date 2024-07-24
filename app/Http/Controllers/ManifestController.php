@@ -48,7 +48,8 @@ class ManifestController extends Controller
             ->addColumn('option', function($x){
                 if($x->status_manifest != 3){
                     $option = '<div>';
-                    $option .= '<a href="manifest/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a></div>';
+                    $option .= '<a href="manifest/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a> ';
+                    $option .= '<button class="btn btn-danger btn-sm" onclick="deleteManifest(this, '.$x->id.')"><i class="fa fa-trash"></i></button></div>';
                     return $option;
                 }
             })
@@ -126,5 +127,12 @@ class ManifestController extends Controller
             'manifest'          => $datamanifest,
             'detailmanifest'    => $datadetailmanifest
         ], 'Success get data');
+    }
+
+    //delete
+    function delete(Request $request, $id){
+        Detailmanifest::where('manifests_id', $id)->delete();
+        Manifest::where('id', $id)->delete();
+        return ResponseFormatter::success([],'Success menghapus data');
     }
 }

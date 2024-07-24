@@ -100,6 +100,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/store', [ManifestController::class, 'store'])->name('manifest.store');
         Route::get('/{id}/edit', [ManifestController::class, 'edit'])->name('manifest.edit');
         Route::get('/{id}/getdetail', [ManifestController::class, 'getdetail'])->name('manifest.getdetail');
+        Route::post('/{id}/delete',[ManifestController::class, 'delete'])->name('manifest.delete');
     });
 
     Route::get('/logout', [AuthController::class, 'logout']);

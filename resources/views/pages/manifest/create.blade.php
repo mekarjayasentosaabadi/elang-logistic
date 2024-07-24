@@ -64,7 +64,8 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Detail Manifest</h3>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter"> Add
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#exampleModalCenter"> Add
                             Order</button>
                     </div>
                     <div class="card-body">
@@ -120,7 +121,8 @@
                                             </div>
                                             <div class="row mt-2">
                                                 <div class="col-md-6">
-                                                    <button class="btn btn-primary btn-md" onclick="saveManifest()" > Simpan</button>
+                                                    <button class="btn btn-primary btn-md" onclick="saveManifest()">
+                                                        Simpan</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -207,10 +209,15 @@
                 ]
             });
         });
-        function checkcarrier(){
+
+        function checkcarrier() {
             var carrier = $('#carrier').val();
-            carrier == "3" ? $('#form-commodity').removeClass("hidden") && $('#form-flight-no').removeClass("hidden") && $('#form-no-bags').removeClass("hidden") && $('#form-flags-file').removeClass("hidden")  : $('#form-commodity').addClass("hidden") && $('#form-flight-no').addClass("hidden") && $('#form-no-bags').addClass("hidden") && $('#form-flags-file').addClass("hidden");
+            carrier == "3" ? $('#form-commodity').removeClass("hidden") && $('#form-flight-no').removeClass("hidden") && $(
+                    '#form-no-bags').removeClass("hidden") && $('#form-flags-file').removeClass("hidden") : $(
+                    '#form-commodity').addClass("hidden") && $('#form-flight-no').addClass("hidden") && $('#form-no-bags')
+                .addClass("hidden") && $('#form-flags-file').addClass("hidden");
         }
+
         function check(x, id) {
             var baseUrl = window.location.origin + '/' + listRoutes['manifest.checkOrders'].replace('{id}', id);
             $.getJSON(baseUrl, function() {
@@ -297,7 +304,7 @@
         }
 
         //save manifest
-        function saveManifest(){
+        function saveManifest() {
             $('#form-add-manifest').validate({
                 rules: {
                     'manifestno': 'required',
@@ -307,7 +314,7 @@
                     // 'nobags': 'required',
                     // 'flagsfile': 'required'
                 },
-                submitHandler:function(){
+                submitHandler: function() {
                     $.ajax({
                         url: window.location.origin + '/manifest/store',
                         type: "POST",
@@ -315,11 +322,11 @@
                         data: new FormData($('#form-add-manifest')[0]),
                         processData: false,
                         contentType: false,
-                        success: function(e){
+                        success: function(e) {
                             notifSweetAlertSuccess(e.meta.message);
-                            location.replace(window.location.origin +'/manifest');
+                            location.replace(window.location.origin + '/manifest');
                         },
-                        error: function(e){
+                        error: function(e) {
                             notifSweetAlertErrors(e.meta.message);
                         }
                     })
