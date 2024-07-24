@@ -58,24 +58,22 @@ class ManifestController extends Controller
     }
     function getOrders(){
         $outletId = auth()->user()->outlet->id;
-        $q = Order::where('outlet_id', $outletId)->where('status_orders', 2)->get();
+        $q = DB::table('orders')
+                ->join('users', 'orders.customer_id', '=', 'users.id')
+                ->join('destinations', 'orders.destinations_id', '=', 'destinations.id')
+                ->select('orders.id', 'orders.outlet_id', 'orders.status_orders', 'orders.numberorders', 'users.name as namacustomer', 'destinations.name as destination')
+                ->where('outlet_id', $outletId)
+                ->where('status_orders', '2')
+                ->get();
         return DataTables::of($q)
-            ->addColumn('namecustomer', function($query){
-                $nameCustomer = $query->customer->name;
-                return $nameCustomer;
-            })
-            ->addColumn('destination', function($d){
-                $destination = $d->destination->name;
-                return $destination;
-            })
             ->addColumn('check', function($cek){
                 $valueCheck = $cek->id;
                 $check = '<div>';
-                $check .= '<input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="'.$valueCheck.'" onclick="check(this, '.$valueCheck.')"/>';
+                $check .= '<input class="form-check-input" name="checkbox'.$valueCheck.'" type="checkbox" id="checkbox[]" value="'.$valueCheck.'" onchange="check(this, '.$valueCheck.')"/>';
                 $check .= '</div>';
                 return $check;
             })
-            ->rawColumns(['namecustomer', 'destination', 'check'])
+            ->rawColumns(['check'])
             ->addIndexColumn()
             ->make(true);
     }
@@ -92,8 +90,8 @@ class ManifestController extends Controller
     //stored
     function store(Request $request){
         $dataManifest = [
-            'manifestno'        => 1111112,
-            'carier'       => $request->carrier,
+            'manifestno'    => $request->manifestno,
+            'carier'        => $request->carrier,
             'commodity'     => $request->commodity,
             'flight_no'     => $request->flightno,
             'no_bags'       => $request->nobags,
