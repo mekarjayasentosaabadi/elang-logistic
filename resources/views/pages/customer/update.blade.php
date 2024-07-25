@@ -22,6 +22,17 @@
                                     <label for="code_customer">Kode Customer</label>
                                     <input type="text" name="code_customer" id="code_customer" class="form-control" placeholder="Kode Customer" value="{{ $customer->code_customer }}" disabled>
                                 </div>
+                                @if (auth()->user()->role_id == '1')
+                                <div class="form-group mt-1">
+                                    <label for="outlets">Outlets</label>
+                                    <select name="outlets" id="outlets" class="form-control">
+                                        <option value="">-- Pilih Outlet --</option>
+                                        @foreach ($outlet as $item)
+                                            <option value="{{ $item->id }}" {{ $customer->outlets_id == $item->id ? 'selected' : ''  }}>{{ $item->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @endif
                                 <div class="form-group mt-1">
                                     <label for="name">Name</label>
                                     <input type="text" name="name" id="name" class="form-control" placeholder="Ex: PT. ABCD" value="{{ $customer->name }}">

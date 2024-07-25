@@ -24,6 +24,17 @@
                                     <input type="checkbox" name="otomatiscode" id="otomatiscode" class="form-check-input" value="1" onchange="codeOtomatis(this, value)"> Kode Customer Manual
                                     <input type="hidden" name="kodecustomer" id="kodecustomer" value="1">
                                 </div>
+                                @if (auth()->user()->role_id == '1')
+                                <div class="form-group mt-1">
+                                    <label for="outlets">Outlets</label>
+                                    <select name="outlets" id="outlets" class="form-control">
+                                        <option value="">-- Pilih Outlet --</option>
+                                        @foreach ($outlet as $item)
+                                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @endif
                                 <div class="form-group mt-1">
                                     <label for="name">Name</label>
                                     <input type="text" name="name" id="name" class="form-control" placeholder="Example : PT. ABC">
