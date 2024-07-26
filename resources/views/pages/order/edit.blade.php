@@ -7,6 +7,28 @@
 @endsection
 
 @section('content')
+    @if (Auth::user()->role_id == '1')
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Outlet Asal</h4>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="outlet_id_select">Outlet Asal</label>
+                        <select name="outlet_id_select" id="outlet_id_select" class="form-control">
+                            <option value="">Pilih Outlet Asal</option>
+                            @foreach ($outlets as $outlet)
+                                <option value="{{ $outlet->id }}" {{ $outlet->id  == $order->outlet_id ? 'selected' : '' }} >{{ $outlet->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -17,6 +39,7 @@
                     <form id="form-edit-transaksi" action="{{ url('/order/' . Crypt::encrypt($order->id)) }}" method="post">
                         @csrf
                         @method('PATCH')
+                        <input type="hidden" name="outlet_id" id="outlet_id_hidden" value="{{ $order->outlet_id }}">
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -39,7 +62,7 @@
                                     <div class="form-group">
                                         <label for="awb">AWB</label>
                                         <input type="text" name="awb" id="awb" class="form-control"
-                                            value="{{ $order->numberorders }}">
+                                            value="{{ !empty(old('awb')) ? old('awb') : $order->numberorders }}"  maxlength="10" minlength="10">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -118,7 +141,7 @@
                                     <div class="form-group ">
                                         <label for="weight">Berat</label>
                                         <div class="input-group">
-                                            <input type="text" name="weight" id="weight" class="form-control" value="{{ Old('weight') }}">
+                                            <input type="number" name="weight" id="weight" class="form-control" value="{{ Old('weight') }}">
                                             <span class="input-group-text">Kg</span>
                                         </div>
                                     </div>
@@ -127,7 +150,7 @@
                                     <div class="form-group">
                                         <label for="volume">Volume</label>
                                         <div class="input-group">
-                                            <input type="text" name="volume" id="volume" class="form-control" value="{{ Old('volume') }}">
+                                            <input type="number" name="volume" id="volume" class="form-control" value="{{ Old('volume') }}">
                                             <span class="input-group-text">M<sup>3</sup></span>
                                         </div>
                                     </div>
@@ -183,6 +206,13 @@
 @section('custom-js')
     <script>
         $(document).ready(function() {
+
+            $('#outlet_id_select').change(function() {
+                var selectedValue = $(this).val();
+                $('#outlet_id_hidden').val(selectedValue);
+                console.log($('#outlet_id_hidden').val())  ;
+            });
+
             $('.volume').hide();
             $('#select_option_berat_volume').change(function () {
                 var weightOrVolume = $('#select_option_berat_volume').val();

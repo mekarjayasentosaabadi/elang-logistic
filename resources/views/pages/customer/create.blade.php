@@ -21,7 +21,20 @@
                                 <div class="form-group">
                                     <label for="code_customer">Kode Customer</label>
                                     <input type="text" name="code_customer" id="code_customer" class="form-control" placeholder="" disabled>
+                                    <input type="checkbox" name="otomatiscode" id="otomatiscode" class="form-check-input" value="1" onchange="codeOtomatis(this, value)"> Kode Customer Manual
+                                    <input type="hidden" name="kodecustomer" id="kodecustomer" value="1">
                                 </div>
+                                @if (auth()->user()->role_id == '1')
+                                <div class="form-group mt-1">
+                                    <label for="outlets">Outlets</label>
+                                    <select name="outlets" id="outlets" class="form-control">
+                                        <option value="">-- Pilih Outlet --</option>
+                                        @foreach ($outlet as $item)
+                                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @endif
                                 <div class="form-group mt-1">
                                     <label for="name">Name</label>
                                     <input type="text" name="name" id="name" class="form-control" placeholder="Example : PT. ABC">
@@ -71,7 +84,7 @@
             },
             submitHandler:function(){
                 $.ajax({
-                    url: window.location.origin+'/customer/save',
+                    url: baseUrl+'/customer/save',
                     type: "POST",
                     dataType: "JSON",
                     data: new FormData($('#form-add-customer')[0]),
@@ -79,7 +92,9 @@
                     contentType: false,
                     success: function(e){
                         notifSweetAlertSuccess(e.meta.message);
-                        detailCustomer(e);
+                        setTimeout(function(){
+                            location.replace(baseUrl + '/customer' );
+                        }, 1500)
                     },
                     error: function(e){
                         if(e.status== 422){
@@ -91,6 +106,11 @@
         })
         function detailCustomer(e){
             $('#code_customer').val(e.data[0].code_customer)
+        }
+
+        function codeOtomatis(x, val){
+            var id = $('#kodecustomer').val();
+            id == "1" ? $('#code_customer').prop("disabled", false) && $('#kodecustomer').prop("value", "2") : $('#code_customer').prop("disabled", true) && $('#kodecustomer').prop("value", "1")
         }
     </script>
 

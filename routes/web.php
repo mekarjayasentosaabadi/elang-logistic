@@ -46,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}', [DestinationController::class, 'edit'])->name('destination.edit');
         Route::post('/', [DestinationController::class, 'stored'])->name('destination.stored');
         Route::post('/{id}', [DestinationController::class, 'update'])->name('destination.update');
+        Route::get('/listoutlet/{id}', [DestinationController::class, 'listoutlet'])->name('destination.listoutlet');
     });
     Route::prefix('customer')->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('customer.index');
@@ -100,6 +101,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/store', [ManifestController::class, 'store'])->name('manifest.store');
         Route::get('/{id}/edit', [ManifestController::class, 'edit'])->name('manifest.edit');
         Route::get('/{id}/getdetail', [ManifestController::class, 'getdetail'])->name('manifest.getdetail');
+        Route::post('/{id}/delete',[ManifestController::class, 'delete'])->name('manifest.delete');
+        Route::post('/{id}/deletedetailold', [ManifestController::class, 'deletedetailold'])->name('manifest.deletedetailold');
+        Route::post('/{id}/update', [ManifestController::class, 'update'])->name('manifest.update');
+        Route::post('/{id}/addDetail/{ordersid}', [ManifestController::class, 'addDetail'])->name('manifest.addDetail');
     });
 
     Route::get('/logout', [AuthController::class, 'logout']);

@@ -88,6 +88,25 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+
+        if ($request->outlet_id) {
+
+            $validator   = Validator::make($request->all(), [
+                'outlet_id'   => 'required'
+            ],[
+                'outlet_id.required'     => 'Outlet harus diisi',
+            ]);
+
+            if ($validator->fails()) {
+                $errors       = $validator->errors()->all();
+                $errorMessage = implode(', ', $errors);
+
+                Alert::error('Gagal', $errorMessage);
+                return redirect()->back()->withInput();
+            }
+
+        }
+
         $validator   = Validator::make($request->all(), [
             'name'   => 'required',
             'role_id'=> 'required',
@@ -162,6 +181,24 @@ class UserController extends Controller
                 $decrypted = Crypt::decrypt($id);
             } catch (DecryptException $e) {
                 abort(404);
+            }
+
+            if ($request->outlet_id) {
+
+                $validator   = Validator::make($request->all(), [
+                    'outlet_id'   => 'required'
+                ],[
+                    'outlet_id.required'     => 'Outlet harus diisi',
+                ]);
+
+                if ($validator->fails()) {
+                    $errors       = $validator->errors()->all();
+                    $errorMessage = implode(', ', $errors);
+
+                    Alert::error('Gagal', $errorMessage);
+                    return redirect()->back()->withInput();
+                }
+
             }
 
             $validator   = Validator::make($request->all(), [

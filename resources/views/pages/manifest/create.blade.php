@@ -19,13 +19,10 @@
                             <div class="col-md-6 col-lg-6 col-xs-12">
                                 <div class="form-group">
                                     <label for="manifestsno">Manifest No</label>
-                                    <input type="text" name="manifestno" id="manifestno" class="form-control" disabled>
+                                    <input type="text" name="manifestno" id="manifestno" class="form-control" required>
                                 </div>
-                                <div class="form-group mt-1">
-                                    <label for="carrier">Carrier</label>
-                                    <input type="text" name="carrier" id="carrier" class="form-control">
-                                </div>
-                                <div class="form-group mt-1">
+
+                                <div class="form-group mt-1 hidden" id="form-commodity">
                                     <label for="commodity">Commodity</label>
                                     <select name="commodity" id="commodity" class="form-control">
                                         <option value="">-- Select Commodity --</option>
@@ -35,17 +32,27 @@
                                         <option value="4">MIX</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="col-md-6 col-lg-6 col-xs-12">
-                                <div class="form-group">
+                                <div class="form-group mt-1 hidden" id="form-flight-no">
                                     <label for="flightno">Flight No</label>
                                     <input type="text" name="flightno" id="flightno" class="form-control">
                                 </div>
-                                <div class="form-group mt-1">
+                            </div>
+                            <div class="col-md-6 col-lg-6 col-xs-12">
+                                <div class="form-group">
+                                    <label for="carrier">Carrier</label>
+                                    <select name="carrier" id="carrier" class="form-control" onchange="checkcarrier()">
+                                        <option value="">-- Pilih Carrier --</option>
+                                        <option value="1">Darat</option>
+                                        <option value="2">Laut</option>
+                                        <option value="3">Udara</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group mt-1 hidden" id="form-no-bags">
                                     <label for="nobags">No Bags</label>
                                     <input type="text" name="nobags" id="nobags" class="form-control">
                                 </div>
-                                <div class="form-group mt-1">
+                                <div class="form-group mt-1 hidden" id="form-flags-file">
                                     <label for="flagsfile">Flags File</label>
                                     <input type="text" name="flagsfile" id="flagsfile" class="form-control">
                                 </div>
@@ -57,7 +64,8 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Detail Manifest</h3>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter"> Add
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#exampleModalCenter"> Add
                             Order</button>
                     </div>
                     <div class="card-body">
@@ -113,7 +121,8 @@
                                             </div>
                                             <div class="row mt-2">
                                                 <div class="col-md-6">
-                                                    <button class="btn btn-primary btn-md" onclick="saveManifest()" > Simpan</button>
+                                                    <button class="btn btn-primary btn-md" onclick="saveManifest()">
+                                                        Simpan</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -167,6 +176,7 @@
     {{-- <script src="{{ asset('assets/app-assets/vendor/js/forms/validation/jquery.validate.min.js') }}"></script> --}}
     <script>
         let arrOrders = [];
+        let arrOrdersTemp = [];
         var table
         $(document).ready(function() {
             table = $('#tbl-orders').DataTable({
@@ -185,8 +195,8 @@
                         name: 'numberorders'
                     },
                     {
-                        data: 'namecustomer',
-                        name: 'namecustomer'
+                        data: 'namacustomer',
+                        name: 'namacustomer'
                     },
                     {
                         data: 'destination',
@@ -199,6 +209,14 @@
                 ]
             });
         });
+
+        function checkcarrier() {
+            var carrier = $('#carrier').val();
+            carrier == "3" ? $('#form-commodity').removeClass("hidden") && $('#form-flight-no').removeClass("hidden") && $(
+                    '#form-no-bags').removeClass("hidden") && $('#form-flags-file').removeClass("hidden") : $(
+                    '#form-commodity').addClass("hidden") && $('#form-flight-no').addClass("hidden") && $('#form-no-bags')
+                .addClass("hidden") && $('#form-flags-file').addClass("hidden");
+        }
 
         function check(x, id) {
             var baseUrl = window.location.origin + '/' + listRoutes['manifest.checkOrders'].replace('{id}', id);
@@ -222,6 +240,14 @@
                 console.log(e)
             })
         }
+
+        // function check(x, i){
+        //     let checkedvalue = [];
+        //     // let checkboxes = $('input[name="checkbox'+i+'"]').prop()
+        //     let checkboxes = document.getElementById('checkbox'+i);
+        //     // checkedvalue.push(checkboxes, checkboxes.val())
+        //     console.log(checkboxes.prop("chekced"));
+        // }
 
         const getDataDetailOrders = () => {
             $('#tbl-detail-manifests').html('')
@@ -278,17 +304,17 @@
         }
 
         //save manifest
-        function saveManifest(){
+        function saveManifest() {
             $('#form-add-manifest').validate({
                 rules: {
-                    // 'manifestno': 'required',
+                    'manifestno': 'required',
                     'carrier': 'required',
-                    'commodity': 'required',
-                    'flightno': 'required',
-                    'nobags': 'required',
-                    'flagsfile': 'required'
+                    // 'commodity': 'required',
+                    // 'flightno': 'required',
+                    // 'nobags': 'required',
+                    // 'flagsfile': 'required'
                 },
-                submitHandler:function(){
+                submitHandler: function() {
                     $.ajax({
                         url: window.location.origin + '/manifest/store',
                         type: "POST",
@@ -296,11 +322,11 @@
                         data: new FormData($('#form-add-manifest')[0]),
                         processData: false,
                         contentType: false,
-                        success: function(e){
+                        success: function(e) {
                             notifSweetAlertSuccess(e.meta.message);
-                            location.replace(window.location.origin +'/manifest');
+                            location.replace(window.location.origin + '/manifest');
                         },
-                        error: function(e){
+                        error: function(e) {
                             notifSweetAlertErrors(e.meta.message);
                         }
                     })

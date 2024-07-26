@@ -45,16 +45,47 @@
             </div>
         </div>
     </div>
+    {{-- Modal List Outlet --}}
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalCenterTitle">List Data Outlet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table " id="tbl-orders">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nama Outlet</th>
+                                    <th>Alamat</th>
+                                    <th>Phone</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbl-list">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('custom-js')
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('assets/js/notifsweetalert.js') }}"></script>
     <script src="{{ asset('assets/app-assets/vendors/js/forms/validation/jquery.validate.min.js') }}"></script>
     <script>
-
-        let idDestination=undefined;
+        let idDestination = undefined;
+        let list = [];
         var table
         $(document).ready(function() {
             table = $('#tbl-destinations').DataTable({
@@ -82,32 +113,33 @@
             });
         });
 
-        function editData(txt, id, name){
-            idDestination=undefined;
-            $.getJSON(window.location.origin + '/'+listRoutes['destination.edit'].replace('{id}', id), function(){
-            }).done(function(e){
-                idDestination=e.data[0].id;
-                $('#name').val(e.data[0].name);
-            }).fail(function(e){
-                alert('gagal')
-            })
+        function editData(txt, id, name) {
+            idDestination = undefined;
+            $.getJSON(window.location.origin + '/' + listRoutes['destination.edit'].replace('{id}', id), function() {})
+                .done(function(e) {
+                    idDestination = e.data[0].id;
+                    $('#name').val(e.data[0].name);
+                }).fail(function(e) {
+                    alert('gagal')
+                })
         }
 
         $('#form-add-update-data').validate({
-            rules:{
-                'name':'required'
+            rules: {
+                'name': 'required'
             },
             message: {
                 name: {
                     required: 'Name destination tidak boleh kosong.!'
                 }
             },
-            submitHandler: function(){
+            submitHandler: function() {
                 var urlStored;
-                if(idDestination != undefined){
-                    urlStored = window.location.origin +'/'+ listRoutes['destination.update'].replace('{id}', idDestination);
+                if (idDestination != undefined) {
+                    urlStored = window.location.origin + '/' + listRoutes['destination.update'].replace('{id}',
+                        idDestination);
                 } else {
-                    urlStored = window.location.origin +'/'+ listRoutes['destination.stored'];
+                    urlStored = window.location.origin + '/' + listRoutes['destination.stored'];
                 }
                 $.ajax({
                     url: urlStored,
@@ -116,14 +148,14 @@
                     data: new FormData($('#form-add-update-data')[0]),
                     processData: false,
                     contentType: false,
-                    success: function(e){
+                    success: function(e) {
                         notifSweetAlertSuccess(e.meta.message);
-                        idDestination=undefined;
+                        idDestination = undefined;
                         $('#name').val('');
                         $('#tbl-destinations').DataTable().ajax.reload(null, false);
                     },
-                    error: function(e){
-                        if(e.status== 422){
+                    error: function(e) {
+                        if (e.status == 422) {
                             notifSweetAlertErrors(e.responseJSON.errors);
                         }
                     }
@@ -131,5 +163,41 @@
             }
 
         })
+        function showOutlet(x){
+            $.getJSON(window.location.origin + '/'+ listRoutes['destination.listoutlet'].replace('{id}', x), function(){
+
+            }).done(function(x){
+                if(x.data.listoutlet.length > 0){
+                    list=[]
+                    x.data.listoutlet.map((x)=>{
+                        listDataOutlet = {
+                            outletname: x.name,
+                            address: x.address,
+                            phone: x.phone
+                        }
+                        list.push(listDataOutlet);
+                    })
+                    getList();
+                } else {
+                    $('#tbl-list').html('')
+                }
+            });
+        }
+        const getList=()=>{
+            $('#tbl-list').html('')
+            let no = 1;
+            list.map((x,i)=>{
+                $('#tbl-list').append(
+                    `
+                    <tr>
+                        <td>${no++}</td>
+                        <td>${x.outletname}</td>
+                        <td>${x.address}</td>
+                        <td>${x.phone}</td>
+                    </tr>
+                    `
+                )
+            })
+        }
     </script>
 @endsection

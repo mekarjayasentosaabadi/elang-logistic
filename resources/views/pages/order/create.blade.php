@@ -228,6 +228,40 @@
 @section('custom-js')
     <script>
         $(document).ready(function() {
+
+            function sendEstimationRequest() {
+                var customer_id     = $('#customer_id').val();
+                var armada          = $('#armada').val();
+                var awb             = $('#awb').val();
+                var destination_id  = $('#destination_id').val();
+
+                if (armada && destination_id) {
+                    $.ajax({
+                        url: '{{ url('/order/get-estimation') }}',
+                        type: 'GET',
+                        data: {
+                            customer_id     : customer_id,
+                            awb             : awb,
+                            armada          : armada,
+                            destination_id  : destination_id,
+                        },
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                console.log(response.data.estimation);
+                                $('#estimation').val(response.data.estimation);
+                            } else {
+                                console.error('Error: ', response);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error: ', xhr.responseText);
+                        }
+                    });
+                }
+            }
+
+            $('#armada, #destination_id').change(sendEstimationRequest);
+
             // Saat elemen outlet_id_select berubah
             $('#outlet_id_select').change(function() {
                 var selectedValue = $(this).val();

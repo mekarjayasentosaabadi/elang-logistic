@@ -1,68 +1,59 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <style>
-        #customers {
-            font-family: Arial, Helvetica, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        #customers td,
-        #customers th {
-            border: 1px solid #ddd;
-            padding: 8px;
-        }
-
-        /* #customers tr:nth-child(even){background-color: #f2f2f2;} */
-
-        #customers th {
-            padding-top: 12px;
-            padding-bottom: 12px;
-            text-align: left;
-            color: white;
-        }
-        #barcode-style{
-            text-align: center !important;
-            display: flex !important;
-            justify-content: center !important;
-        }
-    </style>
-</head>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+    .p-10{
+        padding: 10px;
+    }
+    .text-center{
+        text-align: center
+    }
+</style>
 <body>
-    <table id="customers">
-        <tr>
-            <td colspan="2">
-                <div id="barcode-style">
-                    {!! DNS1D::getBarcodeHTML("$cleanOrderNumber", 'PHARMA'); !!}
-                </div>
-                <div style="text-align: center">
-                    {{$order->numberorders}}
-                </div>
-            </td>
-            <td rowspan="2">
-                <div>Tanggal : {{ $order->created_at }}</div>
-                <div>No Order : {{ $order->numberorders }}</div>
-                <div>Servis : {{ $order->service == '1' ? 'Document' : 'Package' }}</div>
-                <div>Deskripsi : {{ $order->description }}</div>
-                <div>Berat : {{ $order->weight }}</div>
-                <div>Jumlah Kiriman : {{ $order->koli }}</div>
-                <div>Kota Tujuan : {{ $order->destination->name }}</div>
-            </td>
-        </tr>
-        <tr>
-            <td style="max-width: 40px"><img src="{{asset('assets/img/logo.png')}}" width="170" alt=""></td>
-            <td>
-                <div>Pengirim </div>
-                <div>{{ $order->customer->name }}</div>
-                <div>Penrima </div>
-                <div>{{ $order->penerima }}</div>
-            </td>
-        </tr>
-    </table>
-
+    <div>
+        <table border="1" class="p-10">
+            <tr>
+                <th colspan="2">
+                    <div class="text-center">
+                        {!! '<img  width="120" height="30" src="data:image/png;base64,' . DNS1D::getBarcodePNG("$order->numberorders", 'C39+') .'" alt="barcode"   />' !!}
+                        <div>{{ $order->numberorders }}</div>
+                    </div>
+                </th>
+                <th rowspan="3">
+                    <div>Tanggal : {{ $order->created_at }}</div>
+                    <div>No. Pelanggan : {{ $order->numberorders }}</div>
+                    <div>Servis :
+                    @if ($order->armada == 1)
+                        Darat
+                    @elseif($order->armada == 2)
+                        Udara
+                    @else
+                        Laut
+                    @endif
+                    </div>
+                    <div>Deskripsi : {{ $order->description }}</div>
+                    <div>Berat : {{ $order->weight }}</div>
+                    <div>Jumlah Kiriman : {{ $order->koli }}</div>
+                    <div>Biaya Kirim : {{ $order->price }}</div>
+                    <div>Kota Tujuan : {{ $order->destination->name }} </div>
+                </th>
+            </tr>
+            <tr>
+                <td rowspan="2">
+                    <img src="{{ $imagePath }}" alt="Logo" width="120">
+                </td>
+                <td rowspan="2">
+                    <div>Pengirim: </div>
+                    <div>{{ $order->customer->name }}</div>
+                    <div>Penrima:</div>
+                    <div>{{ $order->penerima }}</div>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
+    </div>
 </body>
 
 </html>

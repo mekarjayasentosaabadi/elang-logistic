@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Outlet;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -24,9 +25,7 @@ class CustomerController extends Controller
 
     public function getAll()
     {
-
-        $q = User::where('role_id', '4')->get();
-
+        $q = auth()->user()->role_id == '1' ? User::where('role_id', '4')->get() : User::where('role_id', '4')->where('outlets_id', auth()->user()->outlets_id)->get();
 
         return DataTables::of($q)
             ->addColumn('aksi', function ($query) {
@@ -72,7 +71,8 @@ class CustomerController extends Controller
      */
     public function create()
     {
-        return view('pages.customer.create');
+        $outlet = Outlet::where('is_active', '1')->get();
+        return view('pages.customer.create', compact('outlet'));
     }
 
     /**
@@ -81,6 +81,8 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
         try {
+            $auth = auth()->user()->role_id;
+            $code_otomatis = $request->input('kodecustomer');
             $request->validate([
                 'name'          => 'required',
                 'phone'         => 'required|unique:users,phone',
@@ -95,8 +97,25 @@ class CustomerController extends Controller
                 'email'         => $request->email,
                 'photos'        => 'default.jpg',
                 'role_id'       => '4',
-                'password'      => Hash::make('elang123')
+                'password'      => Hash::make('elang123'),
+                'code_customer' => $request->code_customer,
+                'is_otomatis'   => '0'
             ];
+            if($auth == '1'){
+                $request->validate([
+                    'outlets'   => 'required'
+                ]);
+                $dataStored['outlets_id']   = $request->outlets;
+            } else {
+                $dataStored['outlets_id']   = auth()->user()->outlets_id;
+            }
+            if($code_otomatis == "1"){
+                $latestCustomer = User::where('role_id', '4')->where('is_otomatis', '1')->latest()->first();
+                $latesCode = $latestCustomer ? intval(substr($latestCustomer->code_customer, 2)): 0;
+                $kode_customer = 'C-'. str_pad($latesCode + 1, 6, '0', STR_PAD_LEFT);
+                $dataStored['code_customer'] = $kode_customer;
+                $dataStored['is_otomatis']  = '1';
+            }
             if($request->file('photos')){
                 $request->validate([
                     'photos'    => 'required|mimes:png,jpg|max:1024'
@@ -141,8 +160,9 @@ class CustomerController extends Controller
      */
     public function edit($id)
     {
-        $customer = User::where('id', Crypt::decrypt($id))->where('role_id', '4')->firstOrFail();
-        return view('pages.customer.update', compact('customer'));
+        $customer   = User::where('id', Crypt::decrypt($id))->where('role_id', '4')->firstOrFail();
+        $outlet     = Outlet::where('is_active', '1')->get();
+        return view('pages.customer.update', compact('customer', 'outlet'));
     }
 
     /**
@@ -151,6 +171,7 @@ class CustomerController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $auth = auth()->user()->role_id;
             $request->validate([
                 'name'          => 'required',
                 'phone'         => 'required|unique:users,phone,'.Crypt::decrypt($id).',id',
@@ -165,6 +186,14 @@ class CustomerController extends Controller
                 'email'         => $request->email,
                 // 'picures'        => 'default.jpg',
             ];
+            if($auth == '1'){
+                $request->validate([
+                    'outlets'   => 'required'
+                ]);
+                $dataStored['outlets_id']   = $request->outlets;
+            } else {
+                $dataStored['outlets_id']   = auth()->user()->outlets_id;
+            }
             if($request->file('photos')){
                 $request->validate([
                     'photos'        => 'required|mimes:jpg,png',

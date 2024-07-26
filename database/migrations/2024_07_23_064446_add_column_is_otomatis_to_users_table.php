@@ -11,11 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('customer_prices', function (Blueprint $table) {
-            $table->integer('minweights')->default(10);
-            $table->integer('nextweightprices');
-            $table->integer('minimumprice');
-            $table->unsignedBigInteger('masterprices_id');
+        Schema::table('users', function (Blueprint $table) {
+            $table->enum('is_otomatis', ['0','1'])->default('1')->comment('0: Not Otomatis, 1: Otomatis');
         });
     }
 
@@ -24,7 +21,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('customer_prices', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             //
         });
     }

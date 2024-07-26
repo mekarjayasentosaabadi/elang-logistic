@@ -47,8 +47,7 @@
                                         <select name="outlet_id" id="outlet_id" class="form-control">
                                             <option value="" hidden>Pilih Outlet</option>
                                                 @foreach ($outlets as $outlet)
-                                                <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
-
+                                                    <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
                                                 @endforeach
                                         </select>
                                     </div>
@@ -82,13 +81,15 @@
                 rules:{
                     'name'       : 'required',
                     'role_id'    : 'required',
-                    'email'      : 'required'
+                    'email'      : 'required',
+                    'outlet_id'  : 'required',
 
                 },
                 messages:{
-                    'name'    : "Nama harus diisi.",
-                    'role_id' : "Pilih salah satu.",
-                    'email'   : "Email harus diisi."
+                    'name'      : "Nama harus diisi.",
+                    'role_id'   : "Pilih salah satu role.",
+                    'email'     : "Email harus diisi.",
+                    'outlet_id' : "Pilih salah outlet."
                 },
             })
         });

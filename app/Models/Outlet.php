@@ -30,4 +30,9 @@ class Outlet extends Model
     function orders(){
         return $this->hasMany(Outlet::class, 'outlet_id', 'id');
     }
+
+    //return relation to destinations
+    function destination(){
+        return $this->belongsTo(Destination::class, 'location_id', 'id');
+    }
 }

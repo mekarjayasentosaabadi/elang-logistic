@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Detailmanifest;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 
 class ManifestController extends Controller
@@ -17,7 +18,13 @@ class ManifestController extends Controller
     }
     public function getAll(){
 
-        $q = Manifest::withCount('detailmanifests')->get();
+        $q = DB::table('manifests')
+                ->join('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
+                ->join('orders', 'detailmanifests.orders_id', '=', 'orders.id')
+                ->join('destinations', 'orders.destinations_id', '=', 'destinations.id')
+                ->select('manifests.id', 'manifests.manifestno', 'destinations.name as namadestinasi', 'manifests.status_manifest', DB::raw('COUNT(detailmanifests.id) as jumlahmamnifest'))
+                ->groupBy('manifests.id', 'destinations.name', 'manifests.manifestno')
+                ->get();
         return DataTables::of($q)
             ->addColumn('status', function($e){
                 if($e->status_manifest == 0){
@@ -41,38 +48,33 @@ class ManifestController extends Controller
             ->addColumn('option', function($x){
                 if($x->status_manifest != 3){
                     $option = '<div>';
-                    $option .= '<a href="manifest/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a></div>';
+                    $option .= '<a href="manifest/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a> ';
+                    $option .= '<button class="btn btn-danger btn-sm" onclick="deleteManifest(this, '.$x->id.')"><i class="fa fa-trash"></i></button></div>';
                     return $option;
                 }
             })
-            ->addColumn('jumlahawb', function($x){
-                $jumlahawb = $x->detailmanifests_count;
-                return $jumlahawb;
-            })
-            ->rawColumns(['status', 'option', 'jumlahawb'])
+            ->rawColumns(['status', 'option'])
             ->addIndexColumn()
             ->make(true);
     }
     function getOrders(){
         $outletId = auth()->user()->outlet->id;
-        $q = Order::where('outlet_id', $outletId)->where('status_orders', 2)->get();
+        $q = DB::table('orders')
+                ->join('users', 'orders.customer_id', '=', 'users.id')
+                ->join('destinations', 'orders.destinations_id', '=', 'destinations.id')
+                ->select('orders.id', 'orders.outlet_id', 'orders.status_orders', 'orders.numberorders', 'users.name as namacustomer', 'destinations.name as destination')
+                ->where('outlet_id', $outletId)
+                ->where('status_orders', '2')
+                ->get();
         return DataTables::of($q)
-            ->addColumn('namecustomer', function($query){
-                $nameCustomer = $query->customer->name;
-                return $nameCustomer;
-            })
-            ->addColumn('destination', function($d){
-                $destination = $d->destination->name;
-                return $destination;
-            })
             ->addColumn('check', function($cek){
                 $valueCheck = $cek->id;
                 $check = '<div>';
-                $check .= '<input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="'.$valueCheck.'" onclick="check(this, '.$valueCheck.')"/>';
+                $check .= '<input class="form-check-input" name="checkbox'.$valueCheck.'" type="checkbox" id="checkbox[]" value="'.$valueCheck.'" onchange="check(this, '.$valueCheck.')"/>';
                 $check .= '</div>';
                 return $check;
             })
-            ->rawColumns(['namecustomer', 'destination', 'check'])
+            ->rawColumns(['check'])
             ->addIndexColumn()
             ->make(true);
     }
@@ -89,8 +91,8 @@ class ManifestController extends Controller
     //stored
     function store(Request $request){
         $dataManifest = [
-            'manifestno'        => 1111112,
-            'carier'       => $request->carrier,
+            'manifestno'    => $request->manifestno,
+            'carier'        => $request->carrier,
             'commodity'     => $request->commodity,
             'flight_no'     => $request->flightno,
             'no_bags'       => $request->nobags,
@@ -119,10 +121,18 @@ class ManifestController extends Controller
     //get detail
     function getdetail($id){
         $datamanifest           = Manifest::where('id', Crypt::decrypt($id))->firstOrFail();
-        $datadetailmanifest     = Detailmanifest::with(['order.customer', 'order.destination'])->where('manifests_id', Crypt::decrypt($id))->get();
+        // $datadetailmanifest     = Detailmanifest::with(['order.customer', 'order.destination'])->where('manifests_id', Crypt::decrypt($id))->get();
+        $datadetailmanifest     = Order::with(['customer', 'destination','detailmanifests'])->where('manifests_id', $id)->firstOrFail();
         return ResponseFormatter::success([
             'manifest'          => $datamanifest,
             'detailmanifest'    => $datadetailmanifest
         ], 'Success get data');
+    }
+
+    //delete
+    function delete(Request $request, $id){
+        Detailmanifest::where('manifests_id', $id)->delete();
+        Manifest::where('id', $id)->delete();
+        return ResponseFormatter::success([],'Success menghapus data');
     }
 }

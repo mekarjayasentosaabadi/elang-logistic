@@ -102,14 +102,16 @@
 
             $('#form-edit-user').validate({
                 rules: {
-                    'name': 'required',
-                    'status_id': 'required',
-                    'email': 'required',
+                    'name'      : 'required',
+                    'status_id' : 'required',
+                    'email'     : 'required',
+                    'outlet_id' : 'required',
                 },
                 messages: {
-                    'name': 'Nama harus diisi.',
-                    'status_id': 'Pilih salah satu.',
-                    'email': 'Email harus diisi',
+                    'name'      : 'Nama harus diisi.',
+                    'status_id' : 'Pilih salah satu.',
+                    'email'     : 'Email harus diisi.',
+                    'outlet_id' : 'Pilih salah outlet.',
                 },
             })
         });

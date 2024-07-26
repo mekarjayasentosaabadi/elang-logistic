@@ -27,14 +27,14 @@ class Manifest extends Model
     }
 
     //Make a code customer automatic
-    protected static function boot(){
-        parent::boot();
-        static::creating(function($model){
-            $lastItem = self::orderBy('manifestno', 'desc')->first();
-            $lastNumber = $lastItem ? $lastItem->manifestno : 0;
-            $model->manifestno = $lastNumber + 1;
-        });
-    }
+    // protected static function boot(){
+    //     parent::boot();
+    //     static::creating(function($model){
+    //         $lastItem = self::orderBy('manifestno', 'desc')->first();
+    //         $lastNumber = $lastItem ? $lastItem->manifestno : 0;
+    //         $model->manifestno = $lastNumber + 1;
+    //     });
+    // }
 
     public function detailtraveldocuments(){
         return $this->hasMany(Detailtraveldocument::class, 'manifests_id', 'id');
