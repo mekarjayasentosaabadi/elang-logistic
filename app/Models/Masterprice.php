@@ -23,4 +23,12 @@ class Masterprice extends Model
     function customerprices(){
         return $this->hasMany(Customerprice::class, 'masterprices_id', 'id');
     }
+    //return relation to destination table
+    function destination(){
+        return $this->belongsTo(Destination::class, 'destinations_id', 'id');
+    }
+    //return relation to outlets
+    function outlet(){
+        return $this->belongsTo(Outlet::class, 'outlets_id', 'id');
+    }
 }

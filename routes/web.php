@@ -11,6 +11,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DestinationController;
+use App\Http\Controllers\MasterpriceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -105,6 +106,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}/deletedetailold', [ManifestController::class, 'deletedetailold'])->name('manifest.deletedetailold');
         Route::post('/{id}/update', [ManifestController::class, 'update'])->name('manifest.update');
         Route::post('/{id}/addDetail/{ordersid}', [ManifestController::class, 'addDetail'])->name('manifest.addDetail');
+    });
+
+    //Price
+    Route::prefix('masterprice')->group(function(){
+        Route::get('/', [MasterpriceController::class, 'index'])->name('masterprice.index');
+        Route::get('/getAll', [MasterpriceController::class, 'getAll'])->name('masterprice.getAll');
+        Route::get('/create', [MasterpriceController::class, 'create'])->name('masterprice.create');
+        Route::post('/', [MasterpriceController::class, 'store'])->name('masterprice.store');
     });
 
     Route::get('/logout', [AuthController::class, 'logout']);
