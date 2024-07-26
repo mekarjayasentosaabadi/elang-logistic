@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Outlet;
 use App\Models\Destination;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -19,10 +20,10 @@ class DestinationController extends Controller
             ->addColumn('aksi', function ($query) {
                 $btn = '';
                 $btn .= '<div>';
-                $btn .= '<button class="btn btn-primary btn-sm" onclick="editData(this, '.$query->id.')"> Edit';
-                $btn .= '</button>';
-
+                $btn .= '<button class="btn btn-primary btn-sm" onclick="editData(this, '.$query->id.')" title="Edit Destination"><li class="fa fa-edit"></li>';
+                $btn .= '</button> <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModalCenter" onclick="showOutlet('.$query->id.')"><li class="fa fa-list"></li></button> </div>';
                 return $btn;
+
             })
             ->rawColumns(['aksi'])
             ->addIndexColumn()
@@ -47,5 +48,15 @@ class DestinationController extends Controller
             'name'      => $request->name
         ]);
         return ResponseFormatter::success([], 'Data Destination berhasil di perbaharui.!');
+    }
+
+    function listoutlet($id){
+        $list = Outlet::with('operators')->where('location_id', $id)->get();
+        if(!$list){
+            return ResponseFormatter::error([], 'Data tidak ditemukan');
+        }
+        return ResponseFormatter::success([
+            'listoutlet'    => $list
+        ],'Success mengambil data');
     }
 }

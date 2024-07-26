@@ -18,4 +18,9 @@ class Destination extends Model
     function orders(){
         return $this->hasMany(Order::class, 'destinations_id', 'id');
     }
+
+    //relation to outlets
+    function outlets(){
+        return $this->hasMany(Outlet::class, 'location_id', 'id');
+    }
 }
