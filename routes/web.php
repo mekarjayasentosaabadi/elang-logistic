@@ -58,6 +58,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [CustomerController::class, 'edit']);
         Route::post('/{id}', [CustomerController::class, 'update'])->name('customer.update');
         Route::post('/{id}/changeStatus',[CustomerController::class, 'changeStatus'])->name('customer.changestatus');
+        Route::get('/{id}/getcustomerprice', [CustomerController::class, 'getcustomerprice'])->name('customer.getcustomerprice');
+        Route::post('/{id}/generatecustomerprice', [CustomerController::class, 'generatecustomerprice'])->name('customer.generatecustomerprice');
     });
 
     Route::prefix('outlet')->group(function () {

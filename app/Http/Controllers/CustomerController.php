@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Outlet;
 use App\Models\Customer;
+use App\Models\Masterprice;
 use Illuminate\Http\Request;
+use App\Models\CustomerPrice;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
 use Illuminate\Support\Facades\Hash;
@@ -152,7 +154,7 @@ class CustomerController extends Controller
         //     $customer_prices[] = $cs;
         // }
 
-        return view('pages.customer.show', compact('customer'));
+        return view('pages.customer.show2', compact('customer'));
     }
 
     /**
@@ -236,5 +238,35 @@ class CustomerController extends Controller
         } catch (Exception $error) {
             return ResponseFormatter::error([$error], 'Gagal Memperbaharui data');
         }
+    }
+
+    function getcustomerprice($id){
+        $customerprice = CustomerPrice::with('destination')->where('customer_id', Crypt::decrypt($id))->get();
+        return ResponseFormatter::success([
+            'customerprice'     => $customerprice
+        ], 'get customer price successfuly');
+    }
+
+    function generatecustomerprice($id){
+        $customer = User::where('id', Crypt::decrypt($id))->where('role_id', '4')->firstOrFail();
+        $masterprice = Masterprice::where('outlets_id', $customer->outlets_id)->get();
+        $customerprice = [];
+        foreach ($masterprice as $key => $value) {
+            $dataCustomer = [
+                'customer_id'       => $customer->id,
+                'outlet_id'         => $value->outlets_id,
+                'armada'            => $value->armada,
+                'destination_id'    => $value->destinations_id,
+                'price'             => $value->price,
+                'minweights'        => $value->minweights,
+                'nextweightprices'  => $value->nextweightprices,
+                'minimumprice'     => $value->minimumprice,
+                'masterprices_id'   => $value->id,
+                'estimation'        => $value->estimation
+            ];
+            $customerprice[]=$dataCustomer;
+        }
+        CustomerPrice::insert($customerprice);
+        return ResponseFormatter::success([], 'Generate Customer Prices Successfuly');
     }
 }
