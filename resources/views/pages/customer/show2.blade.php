@@ -75,6 +75,34 @@
             </div>
         </div>
     </div>
+    {{-- Modal edit price --}}
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" aria-labelledby="exampleModalCenterTitle"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form action="" id="form-change-pricecustomer">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalCenterTitle">Ubah Harga / Price</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="price">Price</label>
+                                    <input type="text" name="price" id="price" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary btn-md" type="submit" ><i class="fa fa-save"></i> Perbaharui</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {{-- End Modal Edit Price --}}
 @endsection
 @section('custom-js')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -86,6 +114,7 @@
         let segment = path.split("/");
         let customerId = segment["2"];
         let listPriceCustomer = [];
+        var icustomerprice;
         $(document).ready(function(){
             //get data customer price
             $.getJSON(window.location.origin +'/'+listRoutes['customer.getcustomerprice'].replace('{id}',customerId), function(e){
@@ -171,11 +200,47 @@
                         <td>${x.destination}</td>
                         <td>${x.price}</td>
                         <td>${x.estimation}</td>
-                        <td><button class="btn btn-primary btn-sm"><i class="fa fa-edit"></i></button></td>
+                        <td><button data-bs-toggle="modal" data-bs-target="#exampleModalCenter" class="btn btn-primary btn-sm" onclick="changePrice(${x.icustomerprice}, ${x.price})"><i class="fa fa-edit"></i></button></td>
                     </tr>
                     `
                 )
             })
         }
+
+        function changePrice(x, p){
+            $('#form-change-pricecustomer')[0].reset();
+            icustomerprice='';
+            $('#price').val('')
+            $('#price').val(p)
+            icustomerprice=x;
+        }
+
+        $('#form-change-pricecustomer').validate({
+                rules: {
+                    price: {
+                        'required': true,
+                        'number': true
+                    }
+                },
+                submitHandler:function(){
+                    $.ajax({
+                        url: window.location.origin + '/' + listRoutes['customer.changeprice'].replace('{id}', icustomerprice),
+                        type: "POST",
+                        dataType: "JSON",
+                        data: new FormData($('#form-change-pricecustomer')[0]),
+                        processData: false,
+                        contentType: false,
+                        success: function(e){
+                            notifSweetAlertSuccess(e.meta.message);
+                            setTimeout(function(){
+                                location.reload()
+                            }, 1500)
+                        },
+                        error: function(e){
+                            console.log(e)
+                        }
+                    })
+                }
+            })
     </script>
 @endsection

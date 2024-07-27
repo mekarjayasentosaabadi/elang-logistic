@@ -269,4 +269,11 @@ class CustomerController extends Controller
         CustomerPrice::insert($customerprice);
         return ResponseFormatter::success([], 'Generate Customer Prices Successfuly');
     }
+
+    function changeprice(Request $request, $id){
+        CustomerPrice::where('id', $id)->update([
+            'price'     => $request->price
+        ]);
+        return ResponseFormatter::success([], 'Berhasil memperbaharui Data Harga');
+    }
 }
