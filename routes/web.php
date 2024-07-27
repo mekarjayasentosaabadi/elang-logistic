@@ -114,6 +114,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/getAll', [MasterpriceController::class, 'getAll'])->name('masterprice.getAll');
         Route::get('/create', [MasterpriceController::class, 'create'])->name('masterprice.create');
         Route::post('/', [MasterpriceController::class, 'store'])->name('masterprice.store');
+        Route::get('/{id}/edit', [MasterpriceController::class, 'edit'])->name('masterprice.edit');
+        Route::post('/{id}', [MasterpriceController::class, 'update'])->name('masterprice.update');
     });
 
     Route::get('/logout', [AuthController::class, 'logout']);

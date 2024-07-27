@@ -10,7 +10,9 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Harga Public</h4>
-                    <a href="{{ route('masterprice.create') }}" class="btn btn-primary"><i class="fa fa-plus"></i> Add Price</a>
+                    @if (auth()->user()->role_id == '1')
+                        <a href="{{ route('masterprice.create') }}" class="btn btn-primary"><i class="fa fa-plus"></i> Add Price</a>
+                    @endif
                 </div>
                 <div class="card-body">
                     <div class="row">

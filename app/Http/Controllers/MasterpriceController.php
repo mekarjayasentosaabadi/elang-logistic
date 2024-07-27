@@ -8,6 +8,7 @@ use App\Models\Masterprice;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
+use Illuminate\Support\Facades\Crypt;
 
 class MasterpriceController extends Controller
 {
@@ -38,10 +39,14 @@ class MasterpriceController extends Controller
                 return $destination;
             })
             ->addColumn('option', function($x){
-                $html = '<div>';
-                $html .= '<a href="" class="btn btn-primary btn-sm" title="Edit"><i class="fa fa-edit"></i></a>';
-                $html .= '</div>';
-                return $html;
+                $role = auth()->user()->role_id;
+                if($role == '1'){
+                    $html = '<div>';
+                    $html .= '<a href="'.url('/masterprice/'.Crypt::encrypt($x->id).'/edit').'" class="btn btn-primary btn-sm" title="Edit"><i class="fa fa-edit"></i></a>';
+                    $html .= '</div>';
+                    return $html;
+                }
+                return '-';
             })
             ->editColumn('estimation', function($x){
                 $estimation = $x->estimation .' Hari';
@@ -80,6 +85,45 @@ class MasterpriceController extends Controller
             ];
             Masterprice::create($dataStored);
             return ResponseFormatter::success(['validate'=>true], 'Master price berhasil di simpan.!');
+        } catch (\Throwable $th) {
+            return ResponseFormatter::error([$th], 'Something went wrong');
+        }
+    }
+
+    function edit($id){
+        $outlet         = Outlet::where('is_active', '1')->get();
+        $destination    = Destination::all();
+        $masterprice    = Masterprice::where('id', Crypt::decrypt($id))->firstOrFail();
+        return view('pages.masterprice.edit', compact('outlet', 'destination', 'masterprice'));
+    }
+
+    function update(Request $request, $id){
+        try {
+            $search = [
+                'outlets_id'    => $request->outlet,
+                'armada'        => $request->armada,
+                'destinations_id'=> $request->destination
+            ];
+            //search id
+            $masterPrice = Masterprice::where('id', Crypt::decrypt($id))->first();
+            //search same
+            $filter = Masterprice::where($search)->first();
+
+            if($filter->id != $masterPrice->id){
+                return ResponseFormatter::success(['validate'=>false], 'Data Masterprice tersebut sudah ada.!, Mohon periksa kembali');
+            }
+            $dataStored = [
+                'outlets_id'    => $request->outlet,
+                'armada'        => $request->armada,
+                'destinations_id'   => $request->destination,
+                'price'             => $request->price,
+                'minweights'         => $request->minweight,
+                'nextweightprices'  => $request->pricenext,
+                'minimumprice'      => $request->minimumprice,
+                'estimation'        => $request->estimation
+            ];
+            Masterprice::where('id', Crypt::decrypt($id))->update($dataStored);
+            return ResponseFormatter::success(['validate'=>true], 'Master price berhasil diperbaharui.!');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([$th], 'Something went wrong');
         }

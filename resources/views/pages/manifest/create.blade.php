@@ -324,7 +324,9 @@
                         contentType: false,
                         success: function(e) {
                             notifSweetAlertSuccess(e.meta.message);
-                            location.replace(window.location.origin + '/manifest');
+                            setTimeout(function(){
+                                location.replace(window.location.origin + '/manifest');
+                            }, 15000);
                         },
                         error: function(e) {
                             notifSweetAlertErrors(e.meta.message);
