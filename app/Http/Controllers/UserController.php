@@ -30,7 +30,11 @@ class UserController extends Controller
     public function getAll()
     {
 
-        $q = User::query();
+        if (Auth::user()->role_id == '1') {
+            $q = User::query();
+        }else{
+            $q = User::where('outlets_id', Auth::user()->outlets_id)->get();
+        }
 
 
         return DataTables::of($q)
@@ -78,8 +82,9 @@ class UserController extends Controller
      */
     public function create()
     {
-        $isAdminCabang = Outlet::where('ops_id', Auth::user()->id)->exists();
-        return view('pages.user.create', compact('isAdminCabang'));
+        $isAdmin = Outlet::where('id', Auth::user()->outlets_id)->first();
+        $outlets = Outlet::all();
+        return view('pages.user.create', compact('outlets', 'isAdmin'));
     }
 
     /**
@@ -87,6 +92,25 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+
+        if ($request->outlet_id) {
+
+            $validator   = Validator::make($request->all(), [
+                'outlet_id'   => 'required'
+            ],[
+                'outlet_id.required'     => 'Outlet harus diisi',
+            ]);
+
+            if ($validator->fails()) {
+                $errors       = $validator->errors()->all();
+                $errorMessage = implode(', ', $errors);
+
+                Alert::error('Gagal', $errorMessage);
+                return redirect()->back()->withInput();
+            }
+
+        }
+
         $validator   = Validator::make($request->all(), [
             'name'   => 'required',
             'role_id'=> 'required',
@@ -112,6 +136,10 @@ class UserController extends Controller
             'email'     => $request->email,
             'password'  => Hash::make("elang123")
         ];
+
+        if ($request->outlet_id) {
+            $dataUser['outlets_id'] = $request->outlet_id;
+        }
 
         $user = User::create($dataUser);
 
@@ -143,10 +171,10 @@ class UserController extends Controller
         } catch (DecryptException $e) {
             abort(404);
         }
+        $isAdmin   = Outlet::where('id', Auth::user()->outlets_id)->first();
         $user      = User::find($decrypted);
-        $isAdminCabang = Outlet::where('ops_id', Auth::user()->id)->exists();
-        $roles = getAvailableRoles($user, $isAdminCabang);
-        return view('pages.user.edit', compact('user', 'isAdminCabang', 'roles'));
+        $outlets   = Outlet::all();
+        return view('pages.user.edit', compact('user', 'outlets', 'isAdmin'));
     }
 
     /**
@@ -158,6 +186,24 @@ class UserController extends Controller
                 $decrypted = Crypt::decrypt($id);
             } catch (DecryptException $e) {
                 abort(404);
+            }
+
+            if ($request->outlet_id) {
+
+                $validator   = Validator::make($request->all(), [
+                    'outlet_id'   => 'required'
+                ],[
+                    'outlet_id.required'     => 'Outlet harus diisi',
+                ]);
+
+                if ($validator->fails()) {
+                    $errors       = $validator->errors()->all();
+                    $errorMessage = implode(', ', $errors);
+
+                    Alert::error('Gagal', $errorMessage);
+                    return redirect()->back()->withInput();
+                }
+
             }
 
             $validator   = Validator::make($request->all(), [
@@ -187,6 +233,10 @@ class UserController extends Controller
             ];
             if ($request->role_id) {
                 $dataUser['role_id'] = $request->role_id;
+            }
+
+            if ($request->outlet_id) {
+                $dataUser['outlets_id'] = $request->outlet_id;
             }
 
             $user = User::find($decrypted)->update($dataUser);

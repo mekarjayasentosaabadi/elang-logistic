@@ -89,7 +89,7 @@
                                                 <td>: {{ $order->content ?? '-' }}</td>
                                             </tr>
                                             <tr>
-                                                <td class="pe-1">Armada</td>
+                                                <td class="pe-1">Service</td>
                                                 @if ($order->armada == '1')
                                                     <td>: Darat</td>
                                                 @elseif ($order->armada == '2')
@@ -154,10 +154,12 @@
             <div class="col-xl-3 col-md-4 col-12 invoice-actions mt-md-0 mt-2">
                 <div class="card">
                     <div class="card-body">
-                            <a class="btn btn-outline-secondary w-100 mb-75" href="/order/{{ Crypt::encrypt($order->id); }}/print" target="_blank">
-                                Print Format 1</a>
-                            <a class="btn btn-outline-secondary w-100 mb-75" href="/order/{{ Crypt::encrypt($order->id); }}/print-v2" target="_blank">
-                                Print Format 2</a>
+                            @if ($order->status_orders == "2" || $order->status_orders == "3" )
+                                <a class="btn btn-outline-secondary w-100 mb-75" href="/order/{{ Crypt::encrypt($order->id); }}/print" target="_blank">
+                                    Print Format 1</a>
+                                <a class="btn btn-outline-secondary w-100 mb-75" href="/order/{{ Crypt::encrypt($order->id); }}/print-v2" target="_blank">
+                                    Print Format 2</a>
+                            @endif
                             <a class="btn btn-primary w-100 mb-75" href="/order">Kemali</a>
                     </div>
                 </div>

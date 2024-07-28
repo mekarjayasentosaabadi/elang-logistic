@@ -1,111 +1,59 @@
 <!DOCTYPE html>
-<html class="loading" lang="en" data-textdirection="ltr">
-<!-- BEGIN: Head-->
-
-<head>
-    <title>Elang Logistics</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    @include('layout.css')
-    <style>
-        .fs-8px {
-            font-size: 8px;
-        }
-
-        .fs-6px {
-            font-size: 6px;
-        }
-
-        .text-top {
-            vertical-align: top;
-        }
-
-        .align-left {
-            text-align: left;
-        }
-
-        @media print {
-            .no-print {
-                display: none;
-            }
-        }
-
-        .centered-logo {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-    </style>
-</head>
-<!-- END: Head-->
-
-<!-- BEGIN: Body-->
-
-<body class="vertical-layout vertical-menu-modern blank-page navbar-floating footer-static" data-open="click" data-menu="vertical-menu-modern" data-col="blank-page">
-    <!-- BEGIN: Content-->
-    <div class="app-content content ">
-        <div class="content-overlay"></div>
-        <div class="header-navbar-shadow"></div>
-        <div class="content-wrapper">
-            <div class="content-header row">
-            </div>
-            <div class="content-body">
-                <div class="invoice-print p-3">
-
-                    <div class="table-responsive">
-                        <table class="border w-100">
-                            <tbody>
-                                <tr class="border-bottom">
-                                    <td class="border" rowspan="2" colspan="2">
-                                        <div style="display: flex; justify-content: center">
-                                            <img src="{{asset('assets/img/barcode.jpg')}}" width="180" alt="">
-                                        </div>
-                                    </td>
-                                    <td class="" rowspan="3">
-                                        <div class="ms-1">
-                                            <div>Tanggal : {{ $order->created_at }}</div>
-                                            <div>No Order : {{ $order->numberorders }}</div>
-                                            <div>Service : {{ $order->service == '1' ? 'document' : 'package' }}</div>
-                                            <div>Deskripsi : {{ $order->description }}</div>
-                                            <div>Berat : {{ $order->weight }}</div>
-                                            <div>Jumlah Kiriman : {{ $order->koli }} </div>
-                                            <div>Kota Tujuan : {{ $order->destination->name }}</div>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="border-bottom"></tr>
-                                <tr class="border-bottom">
-                                    <td class="centered-logo">
-                                        <img class="mt-3" src="{{asset('assets/img/logo.png')}}" width="120" alt="">
-                                    </td>
-                                    <td class="border">
-                                        <div class="ms-1">
-                                            <div>Pengirim</div>
-                                            <div>{{ $order->customer->name }}</div>
-                                            <div>Penerima</div>
-                                            <div>{{ $order->penerima ?? '.'}} </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+    .p-10{
+        padding: 10px;
+    }
+    .text-center{
+        text-align: center
+    }
+</style>
+<body>
+    <div>
+        <table border="1" class="p-10">
+            <tr>
+                <th colspan="2">
+                    <div class="text-center">
+                        {!! '<img  width="120" height="30" src="data:image/png;base64,' . DNS1D::getBarcodePNG("$order->numberorders", 'C39+') .'" alt="barcode"   />' !!}
+                        <div>{{ $order->numberorders }}</div>
                     </div>
-                </div>
-
-            </div>
-        </div>
+                </th>
+                <th rowspan="3">
+                    <div>Tanggal : {{ $order->created_at }}</div>
+                    <div>No. Pelanggan : {{ $order->numberorders }}</div>
+                    <div>Servis :
+                    @if ($order->armada == 1)
+                        Darat
+                    @elseif($order->armada == 2)
+                        Udara
+                    @else
+                        Laut
+                    @endif
+                    </div>
+                    <div>Deskripsi : {{ $order->description }}</div>
+                    <div>Berat : {{ $order->weight }}</div>
+                    <div>Jumlah Kiriman : {{ $order->koli }}</div>
+                    <div>Biaya Kirim : {{ $order->price }}</div>
+                    <div>Kota Tujuan : {{ $order->destination->name }} </div>
+                </th>
+            </tr>
+            <tr>
+                <td rowspan="2">
+                    <img src="{{ $imagePath }}" alt="Logo" width="120">
+                </td>
+                <td rowspan="2">
+                    <div>Pengirim: </div>
+                    <div>{{ $order->customer->name }}</div>
+                    <div>Penrima:</div>
+                    <div>{{ $order->penerima }}</div>
+                </td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
     </div>
-
-    <script>
-        $(window).on('load', function() {
-            if (feather) {
-                feather.replace({
-                    width: 14,
-                    height: 14
-                });
-            }
-        })
-    </script>
 </body>
-<!-- END: Body-->
 
 </html>
