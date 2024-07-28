@@ -56,7 +56,7 @@
                                     <select name="destination1_id" id="destination1_id" class="form-control">
                                         <option value="">Pilih Destinasi</option>
                                         @foreach ($destinations as $destination)
-                                            <option value="{{ $destination->id }}" value="{{ $customer->id }}" {{ old('destination1_id') == $destination->id ? 'selected' : '' }}>{{ $destination->name }}</option>
+                                            <option value="{{ $destination->id }}" {{ old('destination1_id') == $destination->id ? 'selected' : '' }}>{{ $destination->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -114,7 +114,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="receiver">Penerima</label>
-                                        <input type="text" name="receiver" id="receiver" class="form-control" value="{{ old('receiver') }}">
+                                        <input type="text" name="receiver" id="receiver" class="form-control" value="{{ old('receiver') }}" placeholder="masukan penerima">
                                     </div>
                                 </div>
                             </div>
@@ -154,7 +154,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="address">Alamat</label>
-                                        <textarea name="address" id="address" class="form-control">{{ old('address') }}</textarea>
+                                        <textarea name="address" id="address" class="form-control" placeholder="masukan alamat lengkap">{{ old('address') }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -163,10 +163,11 @@
                                     <div class="form-group ">
                                         <label for="weight">Berat</label>
                                         <div class="input-group">
-                                            <input type="number" name="weight" id="weight" class="form-control" value="{{ old('weight') }}">
+                                            <input type="number" name="weight" id="weight" class="form-control" value="{{ old('weight') }}" placeholder="masukan berat kg">
                                             <span class="input-group-text">Kg</span>
                                         </div>
                                     </div>
+                                    <span class="text-danger" id="error-minweight"></span>
                                 </div>
                                 <div class="col-md-6 volume">
                                     <div class="form-group">
@@ -180,7 +181,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="price">Harga</label>
-                                        <input type="text" name="price" id="price" class="form-control" value="{{ old('price') }}">
+                                        <input type="text" name="price" id="price" class="form-control" value="{{ old('price') }}" placeholder="masukan harga">
                                     </div>
                                 </div>
                             </div>
@@ -188,14 +189,14 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="koli">Koli</label>
-                                        <input type="number" name="koli" id="koli" class="form-control" value="{{ old('koli') }}">
+                                        <input type="number" name="koli" id="koli" class="form-control" value="{{ old('koli') }}" placeholder="masukan koli">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="estimation">Estimasi</label>
                                         <div class="input-group">
-                                            <input type="number" name="estimation" id="estimation" class="form-control" value="{{ old('estimation') }}">
+                                            <input type="number" name="estimation" id="estimation" class="form-control" value="{{ old('estimation') }}" placeholder="masukan estimasi">
                                             <span class="input-group-text">Hari</span>
                                         </div>
                                     </div>
@@ -205,13 +206,13 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="description">Deskripsi Barang</label>
-                                        <textarea name="description" id="description" class="form-control">{{ old('description') }}</textarea>
+                                        <textarea name="description" id="description" class="form-control" placeholder="masukan deskripsi">{{ old('description') }}</textarea>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="note">Catatan</label>
-                                        <textarea name="note" id="note" class="form-control">{{ old('note') }}</textarea>
+                                        <textarea name="note" id="note" class="form-control" placeholder="masukan catatan">{{ old('note') }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -230,37 +231,56 @@
         $(document).ready(function() {
 
             function sendEstimationRequest() {
-                var customer_id     = $('#customer_id').val();
-                var armada          = $('#armada').val();
-                var awb             = $('#awb').val();
-                var destination_id  = $('#destination_id').val();
+                var outletasal      = $('#outlet_id_hidden').val()
+                var customer_id     = $('#customer_id').val()
+                var armada          = $('#armada').val()
+                var awb             = $('#awb').val()
+                var destination_id  = $('#destination_id').val()
 
                 if (armada && destination_id) {
                     $.ajax({
                         url: '{{ url('/order/get-estimation') }}',
                         type: 'GET',
                         data: {
+                            outletasal      : outletasal,
                             customer_id     : customer_id,
                             awb             : awb,
                             armada          : armada,
                             destination_id  : destination_id,
                         },
                         success: function(response) {
-                            if (response.status === 'success') {
-                                console.log(response.data.estimation);
-                                $('#estimation').val(response.data.estimation);
-                            } else {
-                                console.error('Error: ', response);
-                            }
+                            var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data.minweights)
+                            var minimumweight = response.data.minweights
+                            $('#price').val(response.data.price)
+                            $('#estimation').val(response.data.estimation)
+                            $('#weight').val(response.data.minweights)
+
+
+                            $('#weight').off('keyup').on('keyup', function () {
+                                var weight = parseFloat($('#weight').val()) || 0
+                                if ( weight > 0 && weight < minimumweight) {
+                                    $('#error-minweight').text('minimim berat '+minimumweight+' kg')
+                                    $('#weight').addClass('border border-danger')
+                                    $('#price').val(response.data.price);
+                                }else{
+                                    var newPrice = weight * pricePerKg;
+                                    $('#price').val(newPrice)
+                                    $('#weight').removeClass('border border-danger')
+                                    $('#error-minweight').text('')
+                                }
+                            })
                         },
                         error: function(xhr, status, error) {
-                            console.error('AJAX Error: ', xhr.responseText);
+                            console.error('AJAX Error: ', xhr.responseText)
                         }
                     });
                 }
             }
 
-            $('#armada, #destination_id').change(sendEstimationRequest);
+            $('#armada, #destination_id, #outlet_id_hidden').change(sendEstimationRequest);
+
+
+
 
             // Saat elemen outlet_id_select berubah
             $('#outlet_id_select').change(function() {
@@ -347,6 +367,11 @@
                             return $('#pesanan_masal')
                         }
                     },
+                    'payment_method' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
                     'estimation' : {
                         required: function (element) {
                             return $('#pesanan_masal')
@@ -386,7 +411,8 @@
                     'price'           :  'Harga harus diisi.',
                     'estimation'      :  'Estimasi harus diisi.',
                     'koli'            :  'Koli harus diisi.',
-                    'receiver'        :  'Penerima harus diisi.'
+                    'receiver'        :  'Penerima harus diisi.',
+                    'payment_method'  :  'Pilih salah satu.'
                 },
                 errorPlacement:function (error, element) {
                     if (element.closest('.input-group').length) {

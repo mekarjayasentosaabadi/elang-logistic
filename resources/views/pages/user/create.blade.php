@@ -30,8 +30,11 @@
                                             <option value="2">Admin</option>
                                             <option value="3">Courier</option>
                                             <option value="5">Driver</option>
-                                        @elseif(Auth::user()->role_id == "2")
+                                        @elseif(Auth::user()->role_id == "2" && $isAdmin->type == '1')
+                                            <option value="5">Driver</option>
                                             <option value="3">Courier</option>
+                                        @elseif(Auth::user()->role_id == "2" && $isAdmin->type == '2')
+                                            <option value="5">Driver</option>
                                         @endif
                                     </select>
                                 </div>

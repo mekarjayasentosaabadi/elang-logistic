@@ -30,7 +30,11 @@ class UserController extends Controller
     public function getAll()
     {
 
-        $q = User::query();
+        if (Auth::user()->role_id == '1') {
+            $q = User::query();
+        }else{
+            $q = User::where('outlets_id', Auth::user()->outlets_id)->get();
+        }
 
 
         return DataTables::of($q)
@@ -78,9 +82,9 @@ class UserController extends Controller
      */
     public function create()
     {
-        // $isAdminCabang = Outlet::where('ops_id', Auth::user()->id)->exists();
+        $isAdmin = Outlet::where('id', Auth::user()->outlets_id)->first();
         $outlets = Outlet::all();
-        return view('pages.user.create', compact('outlets'));
+        return view('pages.user.create', compact('outlets', 'isAdmin'));
     }
 
     /**
@@ -167,9 +171,10 @@ class UserController extends Controller
         } catch (DecryptException $e) {
             abort(404);
         }
+        $isAdmin   = Outlet::where('id', Auth::user()->outlets_id)->first();
         $user      = User::find($decrypted);
         $outlets   = Outlet::all();
-        return view('pages.user.edit', compact('user', 'outlets'));
+        return view('pages.user.edit', compact('user', 'outlets', 'isAdmin'));
     }
 
     /**

@@ -26,17 +26,32 @@
                                 </div>
                                 <div class="form-group mb-2">
                                     <label for="role_id">Role</label>
-                                    <select name="role_id" id="role_id" class="form-control">
-                                        <option value="" hidden>Pilih Role</option>
-                                        @if (Auth::user()->role_id == "1")
-                                            <option {{ $user->role_id == '1' ? 'selected' : '' }} value="1">Superadmin</option>
-                                            <option {{ $user->role_id == '2' ? 'selected' : '' }} value="2">Admin</option>
-                                            <option {{ $user->role_id == '3' ? 'selected' : '' }} value="3">Courier</option>
-                                            <option {{ $user->role_id == '5' ? 'selected' : '' }} value="5">Driver</option>
-                                        @elseif(Auth::user()->role_id == "2")
-                                            <option value="3">Courier</option>
+                                    @if (Auth::user()->role_id == "2" && ($user->role_id == '1' || $user->role_id == '2' || $user->role_id == '4' || $user->role_id == '6'))
+                                        @if ($user->role_id == '1')
+                                            <input type="text" class="form-control" value="Superadmin" readonly>
+                                        @elseif ($user->role_id == '2')
+                                            <input type="text" class="form-control" value="Admin" readonly>
+                                        @elseif ($user->role_id == '4')
+                                            <input type="text" class="form-control" value="Customer" readonly>
+                                        @elseif ($user->role_id == '6')
+                                            <input type="text" class="form-control" value="Directur" readonly>
                                         @endif
-                                    </select>
+                                    @else
+                                        <select name="role_id" id="role_id" class="form-control">
+                                            <option value="" hidden>Pilih Role</option>
+                                            @if (Auth::user()->role_id == "1")
+                                                <option {{ $user->role_id == '1' ? 'selected' : '' }} value="1">Superadmin</option>
+                                                <option {{ $user->role_id == '2' ? 'selected' : '' }} value="2">Admin</option>
+                                                <option {{ $user->role_id == '3' ? 'selected' : '' }} value="3">Courier</option>
+                                                <option {{ $user->role_id == '5' ? 'selected' : '' }} value="5">Driver</option>
+                                            @elseif(Auth::user()->role_id == "2" && $isAdmin->type == '1')
+                                                <option {{ $user->role_id == '5' ? 'selected' : '' }} value="5">Driver</option>
+                                                <option {{ $user->role_id == '3' ? 'selected' : '' }} value="3">Courier</option>
+                                            @elseif(Auth::user()->role_id == "2" && $isAdmin->type == '2')
+                                                <option {{ $user->role_id == '5' ? 'selected' : '' }} value="5">Driver</option>
+                                            @endif
+                                        </select>
+                                    @endif
                                 </div>
                             </div>
                             <div class="col-md-6">
