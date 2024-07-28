@@ -61,6 +61,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/getcustomerprice', [CustomerController::class, 'getcustomerprice'])->name('customer.getcustomerprice');
         Route::post('/{id}/generatecustomerprice', [CustomerController::class, 'generatecustomerprice'])->name('customer.generatecustomerprice');
         Route::post('/{id}/changeprice', [CustomerController::class, 'changeprice'])->name('customer.changeprice');
+        Route::post('/{id}/addmanualprice', [CustomerController::class, 'addmanualprice'])->name('customer.addmanualprice');
     });
 
     Route::prefix('outlet')->group(function () {

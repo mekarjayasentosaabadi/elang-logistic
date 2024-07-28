@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Outlet;
 use App\Models\Customer;
+use App\Models\Destination;
 use App\Models\Masterprice;
 use Illuminate\Http\Request;
 use App\Models\CustomerPrice;
@@ -140,8 +141,9 @@ class CustomerController extends Controller
      */
     public function show($id)
     {
-        $customer = User::where('id', Crypt::decrypt($id))->firstOrFail();
-
+        $customer       = User::where('id', Crypt::decrypt($id))->firstOrFail();
+        $outlet         = Outlet::where('is_active', '1')->get();
+        $destination    = Destination::all();
         // $customer_prices_outlet = $customer->customer_prices->load('destination')->groupBy('outlet_id');
 
 
@@ -154,7 +156,7 @@ class CustomerController extends Controller
         //     $customer_prices[] = $cs;
         // }
 
-        return view('pages.customer.show2', compact('customer'));
+        return view('pages.customer.show2', compact('customer', 'outlet', 'destination'));
     }
 
     /**
@@ -275,5 +277,43 @@ class CustomerController extends Controller
             'price'     => $request->price
         ]);
         return ResponseFormatter::success([], 'Berhasil memperbaharui Data Harga');
+    }
+
+    function addmanualprice(Request $request, $id){
+        $customer = User::with('outlet')->where('id', Crypt::decrypt($id))->firstOrFail();
+        $search = [
+            'outlets_id'    => $request->outlet,
+            'armada'        => $request->armada,
+            'destinations_id'=> $request->destination
+        ];
+        $filter = Masterprice::where($search)->first();
+        if($filter){
+            return ResponseFormatter::success(['validate'=>false], 'Data Masterprice tersebut sudah ada.!, Mohon periksa kembali');
+        }
+        $dataStoredMasterPrice = [
+            'outlets_id'    => $request->outlet,
+            'armada'        => $request->armada,
+            'destinations_id'   => $request->destination,
+            'price'             => $request->price,
+            'minweight'         => $request->minweight,
+            'nextweightprices'  => $request->pricenext,
+            'minimumprice'      => $request->minimumprice,
+            'estimation'        => $request->estimation
+        ];
+        $masterprice = Masterprice::create($dataStoredMasterPrice);
+        $dataStoredCustomerPrice = [
+            'customer_id'       => $customer->id,
+            'outlet_id'         => $request->outlet,
+            'armada'            => $request->armada,
+            'destination_id'    => $request->destination,
+            'price'             => $request->price,
+            'minweights'        => $request->minweight,
+            'nextweightprices'  => $request->pricenext,
+            'minimumprice'      => $request->minimumprice,
+            'masterprices_id'   => $masterprice->id,
+            'estimation'        => $request->estimation
+        ];
+        CustomerPrice::create($dataStoredCustomerPrice);
+        return ResponseFormatter::success(['validate'=>true], 'Berhasil menambahkan data hargamanual price.!');
     }
 }
