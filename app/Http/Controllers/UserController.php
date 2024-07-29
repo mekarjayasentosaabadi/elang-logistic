@@ -31,9 +31,9 @@ class UserController extends Controller
     {
 
         if (Auth::user()->role_id == '1') {
-            $q = User::query();
+            $q = User::where('role_id', '!=', '4')->where('role_id', '!=', '1')->get();
         }else{
-            $q = User::where('outlets_id', Auth::user()->outlets_id)->get();
+            $q = User::where('outlets_id', Auth::user()->outlets_id)->where('role_id', '!=', '4')->get();
         }
 
 

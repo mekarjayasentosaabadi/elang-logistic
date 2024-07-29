@@ -1,7 +1,7 @@
 @extends('layout.app')
 
 @section('title')
-    <span>Tranasksi</span>
+    <span>Transaksi</span>
     <small>/</small>
     <small>Index</small>
 @endsection
@@ -11,7 +11,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Daftar Tranasksi</h4>
+                    <h4 class="card-title">Daftar Transaksi</h4>
                     <a href="{{ url('/order/create') }}" class="btn btn-primary">Tambah Tansaksi</a>
                 </div>
                 <div class="card-body">

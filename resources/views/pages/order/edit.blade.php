@@ -13,6 +13,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Outlet Asal</h4>
+                    <a href="{{ url('/order') }}" class="btn btn-warning">Kembali</a>
                 </div>
                 <div class="card-body">
                     <div class="form-group">
@@ -34,6 +35,9 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Update Tranasksi</h4>
+                    @if (Auth::user()->role_id != "1")
+                        <a href="{{ url('/order') }}" class="btn btn-warning">Kembali</a>
+                    @endif
                 </div>
                 <div class="card-body">
                     <form id="form-edit-transaksi" action="{{ url('/order/' . Crypt::encrypt($order->id)) }}" method="post">
@@ -196,7 +200,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary mt-2 float-end">Update</button>
+                        <button type="submit" class="btn btn-primary mt-2 float-end btn-send-update">Update</button>
                     </form>
                 </div>
             </div>
@@ -210,18 +214,19 @@
 
 
             function sendEstimationRequest() {
-                var customer_id     = $('#customer_id').val();
-                var armada          = $('#armada').val();
-                var awb             = $('#awb').val();
-                var destination_id  = $('#destination_id').val();
+                var outletasal      = $('#outlet_id_hidden').val()
+                var customer_id     = $('#customer_id').val()
+                var armada          = $('#armada').val()
+                var destination_id  = $('#destination_id').val()
 
-                if (armada && destination_id) {
+
+                if (armada || destination_id || customer_id || outletasal) {
                     $.ajax({
                         url: '{{ url('/order/get-estimation') }}',
                         type: 'GET',
                         data: {
+                            outletasal      : outletasal,
                             customer_id     : customer_id,
-                            awb             : awb,
                             armada          : armada,
                             destination_id  : destination_id,
                         },
@@ -232,46 +237,39 @@
                             $('#estimation').val(response.data.estimation)
                             $('#weight').val(response.data.minweights)
 
+                            console.log(response.data.ou);
 
                             $('#weight').off('keyup').on('keyup', function () {
                                 var weight = parseFloat($('#weight').val()) || 0
                                 if ( weight > 0 && weight < minimumweight) {
                                     $('#error-minweight').text('minimim berat '+minimumweight+' kg')
                                     $('#weight').addClass('border border-danger')
+                                    $('.btn-send-update').attr('type', 'button');
                                     $('#price').val(response.data.price);
                                 }else{
-                                    var newPrice = weight * pricePerKg;
-                                    $('#price').val(newPrice)
+                                    $('.btn-send-update').attr('type', 'submit');
+                                    if (pricePerKg) {
+                                        var newPrice = weight * pricePerKg;
+                                        $('#price').val(newPrice)
+                                    }
                                     $('#weight').removeClass('border border-danger')
                                     $('#error-minweight').text('')
                                 }
                             })
                         },
-                        error: function(response) {
-                            $('#price').val('')
-                            $('#weight').val('')
-                            $('#estimation').val('');
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error: ', xhr.responseText)
                         }
                     });
                 }
             }
 
-
-            $('#armada, #customer_id, #destination_id').change(function() {
-                var customer_id     = $('#customer_id').val();
-                var armada          = $('#armada').val();
-                var destination_id  = $('#destination_id').val();
-
-                if (customer_id && armada && destination_id) {
-                    sendEstimationRequest();
-                }
-            });
+            $('#armada, #destination_id, #customer_id, #outlet_id_select').change(sendEstimationRequest);
 
 
             $('#outlet_id_select').change(function() {
                 var selectedValue = $(this).val();
                 $('#outlet_id_hidden').val(selectedValue);
-                console.log($('#outlet_id_hidden').val())  ;
             });
 
             $('.volume').hide();

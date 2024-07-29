@@ -11,6 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Edit Vehicle</h4>
+                    <a href="{{ url('/vehicle') }}" class="btn btn-warning">Kembali</a>
                 </div>
                 <div class="card-body">
                     <form id="form-select-driver" action="{{ url('/vehicle/' . Crypt::encrypt($vehicle->id)) }}" method="post" autocomplete="off">
