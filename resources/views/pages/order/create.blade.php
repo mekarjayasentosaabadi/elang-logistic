@@ -1,7 +1,7 @@
 @extends('layout.app')
 
 @section('title')
-    <span>Tranasksi</span>
+    <span>Transaksi</span>
     <small>/</small>
     <small>Create</small>
 @endsection
@@ -14,6 +14,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Outlet Asal</h4>
+                        <a href="{{ url('/order') }}" class="btn btn-warning">Kembali</a>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
@@ -34,7 +35,10 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Tambah Tranasksi</h4>
+                    <h4 class="card-title">Tambah Transaksi</h4>
+                    @if (Auth::user()->role_id != "1")
+                        <a href="{{ url('/order') }}" class="btn btn-warning">Kembali</a>
+                    @endif
                 </div>
                 <div class="card-body">
                     <form id="form-create-transaksi" action="{{ url('/order') }}" method="post">
@@ -45,7 +49,7 @@
                                 <div class="form-group mb-2">
                                     <label for="customer_id">Pengirim</label>
                                     <select name="customer_id" id="customer_id" class="form-control">
-                                        <option value="">Pilih Customer</option>
+                                        <option value="0" hidden>Pilih Customer</option>
                                         @foreach ($customers as $customer)
                                             <option value="{{ $customer->id }}" value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>{{ $customer->name }}</option>
                                         @endforeach
@@ -218,7 +222,7 @@
                             </div>
 
                         </div>
-                        <button type="submit" class="btn btn-primary mt-2 float-end">Simpan</button>
+                        <button type="submit" class="btn btn-primary mt-2 float-end btn-send-update">Simpan</button>
                     </form>
                 </div>
             </div>
@@ -234,17 +238,16 @@
                 var outletasal      = $('#outlet_id_hidden').val()
                 var customer_id     = $('#customer_id').val()
                 var armada          = $('#armada').val()
-                var awb             = $('#awb').val()
                 var destination_id  = $('#destination_id').val()
 
-                if (armada && destination_id) {
+
+                if (armada || destination_id || customer_id || outletasal) {
                     $.ajax({
                         url: '{{ url('/order/get-estimation') }}',
                         type: 'GET',
                         data: {
                             outletasal      : outletasal,
                             customer_id     : customer_id,
-                            awb             : awb,
                             armada          : armada,
                             destination_id  : destination_id,
                         },
@@ -255,6 +258,7 @@
                             $('#estimation').val(response.data.estimation)
                             $('#weight').val(response.data.minweights)
 
+                            console.log(response.data.ou);
 
                             $('#weight').off('keyup').on('keyup', function () {
                                 var weight = parseFloat($('#weight').val()) || 0
@@ -262,9 +266,13 @@
                                     $('#error-minweight').text('minimim berat '+minimumweight+' kg')
                                     $('#weight').addClass('border border-danger')
                                     $('#price').val(response.data.price);
+                                    $('.btn-send-update').attr('type', 'button');
                                 }else{
-                                    var newPrice = weight * pricePerKg;
-                                    $('#price').val(newPrice)
+                                    $('.btn-send-update').attr('type', 'submit');
+                                    if (pricePerKg) {
+                                        var newPrice = weight * pricePerKg;
+                                        $('#price').val(newPrice)
+                                    }
                                     $('#weight').removeClass('border border-danger')
                                     $('#error-minweight').text('')
                                 }
@@ -277,7 +285,7 @@
                 }
             }
 
-            $('#armada, #destination_id, #outlet_id_hidden').change(sendEstimationRequest);
+            $('#armada, #destination_id, #customer_id, #outlet_id_select').change(sendEstimationRequest);
 
 
 

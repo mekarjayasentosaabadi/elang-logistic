@@ -160,7 +160,7 @@
                                 <a class="btn btn-outline-secondary w-100 mb-75" href="/order/{{ Crypt::encrypt($order->id); }}/print-v2" target="_blank">
                                     Print Format 2</a>
                             @endif
-                            <a class="btn btn-primary w-100 mb-75" href="/order">Kemali</a>
+                            <a class="btn btn-warning w-100 mb-75" href="/order">Kemali</a>
                     </div>
                 </div>
             </div>

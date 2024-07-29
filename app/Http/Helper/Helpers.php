@@ -42,7 +42,7 @@ if (!function_exists('listMenu')) {
                         ],
                         [
                             'title' => 'Harga Public',
-                            'url' => '/price',
+                            'url' => '/masterprice',
                             'icon' => 'circle'
                         ],
                         [

@@ -11,6 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Tambah Pengguna</h4>
+                    <a href="{{ url('/user') }}" class="btn btn-warning">Kembali</a>
                 </div>
                 <div class="card-body">
                     <form id="form-create-user" action="{{ url('user/store') }}" method="post">
