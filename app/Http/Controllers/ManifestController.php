@@ -19,11 +19,12 @@ class ManifestController extends Controller
     public function getAll(){
 
         $q = DB::table('manifests')
-                ->join('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
-                ->join('orders', 'detailmanifests.orders_id', '=', 'orders.id')
-                ->join('destinations', 'orders.destinations_id', '=', 'destinations.id')
-                ->select('manifests.id', 'manifests.manifestno', 'destinations.name as namadestinasi', 'manifests.status_manifest', DB::raw('COUNT(detailmanifests.id) as jumlahmamnifest'))
-                ->groupBy('manifests.id', 'destinations.name', 'manifests.manifestno')
+                ->leftJoin('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
+                ->leftJoin('orders', 'detailmanifests.orders_id', '=', 'orders.id')
+                ->leftJoin('destinations', 'orders.destinations_id', '=', 'destinations.id')
+                ->select('manifests.id', 'manifests.manifestno', 'destinations.name as namadestinasi', 'orders.outlet_id', 'manifests.status_manifest', DB::raw('COUNT(detailmanifests.id) as jumlahmamnifest'))
+                ->where('orders.outlet_id', auth()->user()->outlets_id)
+                ->groupBy('manifests.id', 'destinations.name', 'manifests.manifestno', 'orders.outlet_id')
                 ->get();
         return DataTables::of($q)
             ->addColumn('status', function($e){
@@ -121,11 +122,17 @@ class ManifestController extends Controller
     //get detail
     function getdetail($id){
         $datamanifest           = Manifest::where('id', Crypt::decrypt($id))->firstOrFail();
-        // $datadetailmanifest     = Detailmanifest::with(['order.customer', 'order.destination'])->where('manifests_id', Crypt::decrypt($id))->get();
-        $datadetailmanifest     = Order::with(['customer', 'destination','detailmanifests'])->where('manifests_id', $id)->firstOrFail();
+        $q = DB::table('orders')
+                ->join('users', 'orders.customer_id', '=', 'users.id')
+                ->join('destinations', 'orders.destinations_id', '=', 'destinations.id')
+                ->join('detailmanifests', 'orders.id', '=', 'detailmanifests.orders_id')
+                ->select('orders.id', 'orders.outlet_id', 'orders.status_orders', 'orders.numberorders', 'users.name as namacustomer', 'destinations.name as destination', 'detailmanifests.manifests_id', 'orders.weight', 'detailmanifests.id as detailmanifestid')
+                ->where('detailmanifests.manifests_id', Crypt::decrypt($id))
+                ->where('status_orders', '2')
+                ->get();
         return ResponseFormatter::success([
             'manifest'          => $datamanifest,
-            'detailmanifest'    => $datadetailmanifest
+            'detailmanifest'    => $q
         ], 'Success get data');
     }
 
@@ -134,5 +141,34 @@ class ManifestController extends Controller
         Detailmanifest::where('manifests_id', $id)->delete();
         Manifest::where('id', $id)->delete();
         return ResponseFormatter::success([],'Success menghapus data');
+    }
+
+    function deletedetailold(Request $request, $id){
+        DetailManifest::where('id', $id)->delete();
+        return ResponseFormatter::success([], 'Berhasil menghaputs data');
+    }
+
+    function update(Request $request, $id){
+        $dataManifest = [
+            'manifestno'    => $request->manifestno,
+            'carier'        => $request->carrier,
+            'commodity'     => $request->commodity,
+            'flight_no'     => $request->flightno,
+            'no_bags'       => $request->nobags,
+            'flight_file'   => $request->flagsfile
+        ];
+        // $manifest = Manifest::create($dataManifest);
+        Manifest::where('id', Crypt::decrypt($id))->update($dataManifest);
+        return ResponseFormatter::success([], 'Manifest berhasil di perbaharui.!');
+    }
+
+    function adddetail(Request $request, $id, $ordersid){
+        $manifest = Manifest::where('id', Crypt::decrypt($id))->first();
+        $dataUpdate = [
+            'manifests_id'      => $manifest->id,
+            'orders_id'         => $ordersid
+        ];
+        Detailmanifest::insert($dataUpdate);
+        return ResponseFormatter::success([], 'Berhasil menambahkan data');
     }
 }

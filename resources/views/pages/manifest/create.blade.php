@@ -309,10 +309,6 @@
                 rules: {
                     'manifestno': 'required',
                     'carrier': 'required',
-                    // 'commodity': 'required',
-                    // 'flightno': 'required',
-                    // 'nobags': 'required',
-                    // 'flagsfile': 'required'
                 },
                 submitHandler: function() {
                     $.ajax({
@@ -326,7 +322,7 @@
                             notifSweetAlertSuccess(e.meta.message);
                             setTimeout(function(){
                                 location.replace(window.location.origin + '/manifest');
-                            }, 15000);
+                            }, 1500);
                         },
                         error: function(e) {
                             notifSweetAlertErrors(e.meta.message);

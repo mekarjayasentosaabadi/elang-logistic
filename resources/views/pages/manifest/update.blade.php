@@ -64,7 +64,8 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Detail Manifest</h3>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter"> Add
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#exampleModalCenter"> Add
                             Order</button>
                     </div>
                     <div class="card-body">
@@ -120,7 +121,8 @@
                                             </div>
                                             <div class="row mt-2">
                                                 <div class="col-md-6">
-                                                    <button class="btn btn-primary btn-md" onclick="saveManifest()" > Simpan</button>
+                                                    <button class="btn btn-primary btn-md" onclick="updateManifest()">
+                                                        Simpan</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -179,29 +181,12 @@
         let manifestId = segment["2"];
         let arrOrders = [];
         var table
-        $(document).ready(function(){
-            $.getJSON(window.location.origin + '/' + listRoutes['manifest.getdetail'].replace('{id}', manifestId), function(){
+        $(document).ready(function() {
+            $.getJSON(window.location.origin + '/' + listRoutes['manifest.getdetail'].replace('{id}', manifestId),
+                function() {
 
-            }).done(function(e){
-                console.log(e)
-                // getDetailOrders(e.data.detailmanifest)
-                if(e.data.detailmanifest.length > 0) {
-                    e.data.detailmanifest.map((x)=>{
-                        let dataArrOrders = {
-                            idorders: x.id,
-                            orders_number: x.numberorders,
-                            namacustomer: x.namacustomer,
-                            destination: x.destination,
-                            kg: x.weight,
-                            items: 1,
-                            status: "old",
-                            detailManifestId: x.detailmanifestid
-                        }
-                        arrOrders.push(dataArrOrders);
-                    });
-                }
-                getDetailOrders();
-                getDetailManifest(e.data.manifest);
+                }).done(function(e) {
+                listDetail(e)
             })
 
             table = $('#tbl-orders').DataTable({
@@ -234,14 +219,41 @@
                 ]
             });
         })
+        const loadNewData = () =>{
+            $.getJSON(window.location.origin + '/' + listRoutes['manifest.getdetail'].replace('{id}', manifestId),
+                function() {
 
-        const getDetailManifest=(e)=>{
-            // console.log(e)
+                }).done(function(e) {
+                listDetail(e)
+            })
+        }
+        const listDetail = (e) => {
+            if (e.data.detailmanifest.length > 0) {
+                e.data.detailmanifest.map((x) => {
+                    let dataArrOrders = {
+                        idorders: x.id,
+                        orders_number: x.numberorders,
+                        namacustomer: x.namacustomer,
+                        destination: x.destination,
+                        kg: x.weight,
+                        items: 1,
+                        status: "old",
+                        detailManifestId: x.detailmanifestid
+                    }
+                    arrOrders.push(dataArrOrders);
+                });
+            }
+            getDetailOrders();
+            getDetailManifest(e.data.manifest);
+        }
+        const getDetailManifest = (e) => {
             $('#manifestno').val(e.manifestno);
             $('#carrier').val(e.carier);
-            e.carier == "3" ? $('#form-commodity').removeClass("hidden") && $('#form-flight-no').removeClass("hidden") && $(
+            e.carier == "3" ? $('#form-commodity').removeClass("hidden") && $('#form-flight-no').removeClass(
+                "hidden") && $(
                     '#form-no-bags').removeClass("hidden") && $('#form-flags-file').removeClass("hidden") : $(
-                    '#form-commodity').addClass("hidden") && $('#form-flight-no').addClass("hidden") && $('#form-no-bags')
+                    '#form-commodity').addClass("hidden") && $('#form-flight-no').addClass("hidden") && $(
+                    '#form-no-bags')
                 .addClass("hidden") && $('#form-flags-file').addClass("hidden");
         }
 
@@ -253,10 +265,10 @@
                 .addClass("hidden") && $('#form-flags-file').addClass("hidden");
         }
 
-        const getDetailOrders = () =>{
+        const getDetailOrders = () => {
             $('#tbl-detail-manifests').html('');
             let noUrutDetailOrders = 1;
-            arrOrders.map((x,i)=>{
+            arrOrders.map((x, i) => {
                 $('#tbl-detail-manifests').append(
                     `
                     <tr>
@@ -277,44 +289,21 @@
         }
 
         function check(x, id) {
-            console.log(id)
-            // var baseUrl = window.location.origin + '/' + listRoutes['manifest.checkOrders'].replace('{id}', id);
-            // $.getJSON(baseUrl, function() {
+            $.ajax({
+                url: window.location.origin + '/manifest/' + manifestId + '/addDetail/' + id,
+                type: "POST",
+                dataType: "JSON",
+                processData: false,
+                contentType: false,
+                success: function(e) {
+                    console.log(e)
+                    loadNewData()
+                },
+                error: function(e) {
+                    console.log(e)
+                }
+            })
 
-            // }).done(function(e) {
-                $.ajax({
-                    url: window.location.origin + '/manifest/' + manifestId + '/addDetail/' + id,
-                    type: "POST",
-                    dataType: "JSON",
-                    processData: false,
-                    contentType: false,
-                    success: function(e){
-                        console.log(e)
-                    },
-                    error: function(e){
-                        console.log(e)
-                    }
-                })
-                // console.log(e)
-                // if(e.data.length > 0){
-                //     e.data.map((x)=>{
-                //         let dataArrOrders = {
-                //             idorders: x.id,
-                //             orders_number: x.numberorders,
-                //             namacustomer: x.customer.name,
-                //             destination: x.destination.name,
-                //             items: 1,
-                //             kg: x.weight,
-                //             status: "new",
-                //             detailManifestId: "new"
-                //         }
-                //         arrOrders.push(dataArrOrders);
-                //     })
-                // }
-                    // getDetailOrders();
-            // }).fail(function(e) {
-            //     console.log(e)
-            // })
         }
 
         function totalItems() {
@@ -329,6 +318,7 @@
             }
             $('#total-item').html(totalItem);
         }
+
         function totalKg() {
             let jumlahKg = []
             totalKgs = 0;
@@ -343,49 +333,66 @@
         }
 
         const removeDetail = (i) => {
-            let pencarian = arrOrders[i];
-            console.log(pencarian)
-            if(pencarian.status == "old"){
-                $.ajax({
-                    url: window.location.origin+'/'+ listRoutes['manifest.deletedetailold'].replace('{id}', pencarian.detailManifestId),
-                    type: "POST",
-                    dataType: "JSON",
-                    processData: false,
-                    contentType: false,
-                    success: function(e){
-                        console.log(e)
-                    },
-                    error: function(e){
-                        console.log(e)
-                    }
-                })
-                arrOrders.splice(i, 1)
-                getDetailOrders()
-            } else {
-                arrOrders.splice(i, 1)
-                getDetailOrders()
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Apakah Anda yakin akan menghapus nya.?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Lanjutkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let pencarian = arrOrders[i];
+                    console.log(pencarian)
+                    if (pencarian.status == "old") {
+                        $.ajax({
+                            url: window.location.origin + '/' + listRoutes['manifest.deletedetailold']
+                                .replace('{id}', pencarian.detailManifestId),
+                            type: "POST",
+                            dataType: "JSON",
+                            processData: false,
+                            contentType: false,
+                            success: function(e) {
+                                // console.log(e)
+                            },
+                            error: function(e) {
+                                // console.log(e)
+                            }
+                        })
+                        arrOrders.splice(i, 1)
+                        getDetailOrders()
+                    } else {
+                        arrOrders.splice(i, 1)
+                        getDetailOrders()
 
-            }
+                    }
+                }
+            })
+
         }
 
         //update manifest
-        function updateManifest(){
+        function updateManifest() {
             $('#form-update-manifest').validate({
                 rules: {
                     'manifestno': 'required'
                 },
-                submitHandler: function(){
+                submitHandler: function() {
                     $.ajax({
-                        url: window.location.origin + '/' + listRoutes['manifest.update'].replace('{id}', manifestId),
+                        url: window.location.origin + '/' + listRoutes['manifest.update'].replace(
+                            '{id}', manifestId),
                         type: "POST",
                         dataType: "JSON",
                         data: new FormData($('#form-update-manifest')[0]),
                         processData: false,
                         contentType: false,
-                        success: function(e){
-                            console.log(e)
+                        success: function(e) {
+                            notifSweetAlertSuccess(e.meta.message);
+                            setTimeout(function(){
+                                location.replace(window.location.origin + '/manifest');
+                            }, 1500);
                         },
-                        error: function(e){
+                        error: function(e) {
                             console.log(e)
                         }
                     })
