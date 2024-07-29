@@ -21,7 +21,7 @@
                 </th>
                 <th rowspan="3">
                     <div>Tanggal : {{ $order->created_at }}</div>
-                    <div>No. Pelanggan : {{ $order->numberorders }}</div>
+                    <div>No. Order : {{ $order->numberorders }}</div>
                     <div>Servis :
                     @if ($order->armada == 1)
                         Darat
