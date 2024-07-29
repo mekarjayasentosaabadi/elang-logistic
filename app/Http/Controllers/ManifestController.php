@@ -50,7 +50,8 @@ class ManifestController extends Controller
                 if($x->status_manifest != 3){
                     $option = '<div>';
                     $option .= '<a href="manifest/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a> ';
-                    $option .= '<button class="btn btn-danger btn-sm" onclick="deleteManifest(this, '.$x->id.')"><i class="fa fa-trash"></i></button></div>';
+                    $option .= '<button class="btn btn-danger btn-sm" onclick="deleteManifest(this, '.$x->id.')"><i class="fa fa-trash"></i></button> ';
+                    $option .= '<a href="manifest/'.Crypt::encrypt($x->id).'/print" target="_blank" class="btn btn-success btn-sm" title="Cetak Resi Manifest"><i class="fa fa-print"></i></a></div>';
                     return $option;
                 }
             })
@@ -170,5 +171,9 @@ class ManifestController extends Controller
         ];
         Detailmanifest::insert($dataUpdate);
         return ResponseFormatter::success([], 'Berhasil menambahkan data');
+    }
+
+    function printresi($id){
+        return view('pages.manifest.resi');
     }
 }

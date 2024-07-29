@@ -111,6 +111,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}/deletedetailold', [ManifestController::class, 'deletedetailold'])->name('manifest.deletedetailold');
         Route::post('/{id}/update', [ManifestController::class, 'update'])->name('manifest.update');
         Route::post('/{id}/addDetail/{ordersid}', [ManifestController::class, 'addDetail'])->name('manifest.addDetail');
+        Route::get('/{id}/print', [ManifestController::class, 'printresi'])->name('manifest.cetakresi');
     });
 
     //Price
