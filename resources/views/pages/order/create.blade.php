@@ -49,10 +49,12 @@
                                 <div class="form-group mb-2">
                                     <label for="customer_id">Pengirim</label>
                                     <select name="customer_id" id="customer_id" class="form-control">
-                                        <option value="0" hidden>Pilih Customer</option>
-                                        @foreach ($customers as $customer)
-                                            <option value="{{ $customer->id }}" value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>{{ $customer->name }}</option>
-                                        @endforeach
+                                     <option value="0" hidden>Pilih Customer</option>
+                                       @if (Auth::user()->role_id != '1')
+                                            @foreach ($customers as $customer)
+                                                <option value="{{ $customer->id }}" value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>{{ $customer->name }}</option>
+                                            @endforeach
+                                       @endif
                                     </select>
                                 </div>
                                 <div class="form-group pesanan_pengambilan">
@@ -234,6 +236,14 @@
     <script>
         $(document).ready(function() {
 
+
+            // Saat elemen outlet_id_select berubah
+            $('#outlet_id_select').change(function() {
+                var selectedValue = $(this).val();
+                $('#outlet_id_hidden').val(selectedValue);
+            });
+
+            // send and get estimations
             function sendEstimationRequest() {
                 var outletasal      = $('#outlet_id_hidden').val()
                 var customer_id     = $('#customer_id').val()
@@ -288,13 +298,38 @@
             $('#armada, #destination_id, #customer_id, #outlet_id_select').change(sendEstimationRequest);
 
 
+            // get customer
+            $('#outlet_id_select').change(function () {
+                $.ajax({
+                    url:'{{ url('/order/get-customer') }}',
+                    type: 'GET',
+                    data : {
+                        outletasal : $('#outlet_id_hidden').val()
+                    },
+
+                    success: function (response) {
+                            var customers = response.customers;
+                            var customerSelect = $('#customer_id')
+                            customerSelect.empty();
+
+                            customerSelect.append('<option value="0" hidden>Pilih Customer</option>');
+
+                            if (customers != null) {
+                                customers.forEach(function (customer) {
+                                customerSelect.append('<option value="'+ customer.id +'" hidden>'+customer.name+'</option>')
+                            });
+                        }
+                    },
+
+                    error: function (xhr, status, error) {
+                        // console.error('AJAX Error: ', xhr.responseText)
+                        console.log('error');
+                    }
+
+                })
+            })
 
 
-            // Saat elemen outlet_id_select berubah
-            $('#outlet_id_select').change(function() {
-                var selectedValue = $(this).val();
-                $('#outlet_id_hidden').val(selectedValue);
-            });
 
             $('.volume').hide();
             $('#select_option_berat_volume').change(function () {
