@@ -87,6 +87,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/print', [OrderController::class, 'printformat1']);
         Route::get('/{id}/print-v2', [OrderController::class, 'printformat2']);
         Route::get('/get-estimation', [OrderController::class, 'getEstimation']);
+        Route::get('/get-customer', [OrderController::class, 'getCunstomer']);
     });
 
     Route::prefix('vehicle')->group(function (){
