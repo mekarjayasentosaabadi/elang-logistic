@@ -139,6 +139,8 @@ class UserController extends Controller
 
         if ($request->outlet_id) {
             $dataUser['outlets_id'] = $request->outlet_id;
+        }else{
+            $dataUser['outlets_id'] = Auth::user()->role_id;
         }
 
         $user = User::create($dataUser);
@@ -237,6 +239,8 @@ class UserController extends Controller
 
             if ($request->outlet_id) {
                 $dataUser['outlets_id'] = $request->outlet_id;
+            }else{
+                $dataUser['outlets_id'] = Auth::user()->role_id;
             }
 
             $user = User::find($decrypted)->update($dataUser);
