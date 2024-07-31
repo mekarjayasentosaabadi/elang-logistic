@@ -12,6 +12,7 @@ use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\MasterpriceController;
+use App\Http\Controllers\ShippingcourirController;
 
 /*
 |--------------------------------------------------------------------------
@@ -113,6 +114,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}/update', [ManifestController::class, 'update'])->name('manifest.update');
         Route::post('/{id}/addDetail/{ordersid}', [ManifestController::class, 'addDetail'])->name('manifest.addDetail');
         Route::get('/{id}/print', [ManifestController::class, 'printresi'])->name('manifest.cetakresi');
+    });
+
+    Route::prefix('shipping-courir')->group(function () {
+        Route::get('/', [ShippingcourirController::class, 'index'])->name('shipping.index');
+        Route::get('/getAll', [ShippingcourirController::class, 'getAll'])->name('shipping.getAll');
+        Route::get('/create', [ShippingcourirController::class, 'create'])->name('shipping.create');
     });
 
     //Price

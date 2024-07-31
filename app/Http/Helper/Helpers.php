@@ -82,6 +82,12 @@ if (!function_exists('listMenu')) {
                     ]
                 ],
                 [
+                    'title' => 'Shipping Courir',
+                    'url' => '/shipping-courir',
+                    'hasChild' => false,
+                    'icon' => 'truck'
+                ],
+                [
                     'title' => 'Cek Resi',
                     'url' => '/cek-resi',
                     'hasChild' => false,

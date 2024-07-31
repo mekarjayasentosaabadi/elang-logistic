@@ -74,7 +74,7 @@
             $('#role_id').change(function () {
                 var role = $('#role_id').val()
                 console.log(role);
-                if (role == "2") {
+                if (role == "2" || role == '3') {
                     $('.outlet_id').show()
                 }else{
                     $('.outlet_id').hide()
