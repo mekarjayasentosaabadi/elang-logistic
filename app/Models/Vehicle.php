@@ -15,4 +15,9 @@ class Vehicle extends Model
         'is_active'
     ];
     protected $table = 'vehicles';
+
+    //relation to traveldocument
+    public function traveldocuments(){
+        return $this->hasMany(Traveldocument::class, 'vehicle_id', 'id');
+    }
 }

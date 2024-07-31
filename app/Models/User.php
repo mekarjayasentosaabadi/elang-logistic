@@ -63,4 +63,8 @@ class User extends Authenticatable
     function customerprices(){
         return $this->hasMany(CustomerPrice::class, 'customers_id', 'id');
     }
+
+    public function traveldocuments(){
+        return $this->hasMany(Traveldocument::class, 'driver_id', 'id');
+    }
 }

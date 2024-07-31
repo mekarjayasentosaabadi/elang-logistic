@@ -13,6 +13,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\MasterpriceController;
 use App\Http\Controllers\ShippingcourirController;
+use App\Http\Controllers\TraveldocumentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -132,6 +133,15 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}', [MasterpriceController::class, 'update'])->name('masterprice.update');
     });
 
+    //Delivery
+    Route::prefix('delivery')->group(function(){
+        Route::get('/', [TraveldocumentController::class, 'index'])->name('traveldocument.index');
+        Route::get('/create', [TraveldocumentController::class, 'create'])->name('traveldocument.create');
+        Route::get('/getAll', [TraveldocumentController::class, 'getAll'])->name('traveldocument.getAll');
+        Route::get('/{id}/manifestorder', [TraveldocumentController::class, 'manifestorder'])->name('traveldocument.manifestorder');
+        Route::post('/',[TraveldocumentController::class, 'store'])->name('traveldocument.store');
+        Route::get('/{id}/cetak', [TraveldocumentController::class, 'print'])->name('traveldocument.cetak');
+    });
     Route::get('/logout', [AuthController::class, 'logout']);
 
     Route::prefix('cek-resi')->group(function () {
