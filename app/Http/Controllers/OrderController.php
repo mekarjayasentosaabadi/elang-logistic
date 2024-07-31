@@ -140,6 +140,15 @@ class OrderController extends Controller
         return response()->json($response);
     }
 
+    function getCunstomer(Request $request) {
+        if ($request->outletasal) {
+            $customers = User::where('outlets_id', $request->outletasal)->where('role_id', '4')->get(['id', 'name']);
+            return response()->json(['customers'=>$customers]);
+        }
+
+        return response()->json(['customers', []]);
+    }
+
 
 
     function create()

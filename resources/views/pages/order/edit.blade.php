@@ -50,12 +50,14 @@
                                     <label for="customer_id">Pengirim</label>
                                     <select name="customer_id" id="customer_id" class="form-control">
                                         <option value="">Pilih Customer</option>
-                                        @foreach ($customers as $customer)
-                                            <option value="{{ $customer->id }}"
-                                                {{ $customer->id == $order->customer_id ? 'selected' : '' }}>
-                                                {{ $customer->name }}
-                                            </option>
-                                        @endforeach
+                                        @if (Auth::user()->role_id != '1')
+                                            @foreach ($customers as $customer)
+                                                <option value="{{ $customer->id }}"
+                                                    {{ $customer->id == $order->customer_id ? 'selected' : '' }}>
+                                                    {{ $customer->name }}
+                                                </option>
+                                            @endforeach
+                                       @endif
                                     </select>
                                 </div>
                             </div>
@@ -213,6 +215,52 @@
         $(document).ready(function() {
 
 
+
+            $('#outlet_id_select').attr('data-outlet-id', '{{ $order->outlet_id }}');
+            $('#customer_id').attr('data-customer-id', '{{ $order->customer_id }}'); // [Perbaikan] Menambahkan atribut data-customer-id
+
+            var initialOutletId = $('#outlet_id_select').data('outlet-id');
+            loadCustomers(initialOutletId);
+
+            $('#outlet_id_select').change(function() {
+                var selectedValue = $(this).val();
+                $('#outlet_id_hidden').val(selectedValue);
+                loadCustomers(selectedValue);
+            });
+
+            function loadCustomers(outletId) {
+                if (!outletId) return;
+
+                $.ajax({
+                    url: '{{ url('/order/get-customer') }}',
+                    type: 'GET',
+                    data: {
+                        outletasal: outletId
+                    },
+                    success: function(response) {
+                        var customers = response.customers;
+                        var customerSelect = $('#customer_id');
+                        var initialCustomerId = customerSelect.data('customer-id'); // [Perbaikan] Mendapatkan customer_id awal
+                        customerSelect.empty();
+
+                        customerSelect.append('<option value="">Pilih Customer</option>');
+
+                        if (customers && Array.isArray(customers)) {
+                            customers.forEach(function(customer) {
+                                var selected = (customer.id == initialCustomerId) ? 'selected' : ''; // [Perbaikan] Menandai option yang sesuai
+                                customerSelect.append('<option value="' + customer.id + '" ' + selected + '>' + customer.name + '</option>');
+                            });
+                        } else {
+                            console.error('Unexpected response format: customers is not an array');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ', xhr.responseText);
+                    }
+                });
+            }
+
+
             function sendEstimationRequest() {
                 var outletasal      = $('#outlet_id_hidden').val()
                 var customer_id     = $('#customer_id').val()
@@ -266,11 +314,6 @@
 
             $('#armada, #destination_id, #customer_id, #outlet_id_select').change(sendEstimationRequest);
 
-
-            $('#outlet_id_select').change(function() {
-                var selectedValue = $(this).val();
-                $('#outlet_id_hidden').val(selectedValue);
-            });
 
             $('.volume').hide();
             $('#select_option_berat_volume').change(function () {
