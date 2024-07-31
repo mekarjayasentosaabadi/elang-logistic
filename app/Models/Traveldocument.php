@@ -11,7 +11,8 @@ class Traveldocument extends Model
     protected $fillable = [
         'travelno',
         'vehicle_id',
-        'driver_id'
+        'driver_id',
+        'destinations_id'
     ];
 
     protected $table = 'traveldocuments';
@@ -22,5 +23,9 @@ class Traveldocument extends Model
 
     public function driver(){
         return $this->belongsTo(User::class, 'driver_id', 'id');
+    }
+    //return value vechicle
+    public function vehicle(){
+        return $this->belongsTo(Vehicle::class, 'vehicle_id', 'id');
     }
 }
