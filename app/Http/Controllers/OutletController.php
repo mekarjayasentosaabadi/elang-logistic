@@ -31,6 +31,7 @@ class OutletController extends Controller
         $q = DB::table('outlets')
                 ->leftJoin('users', 'outlets.id', '=', 'users.outlets_id')
                 ->select('outlets.id', 'outlets.name', 'users.name as namaoperator', 'outlets.type', 'outlets.email', 'outlets.phone', 'outlets.is_active')
+                ->where('users.role_id', 2)
                 ->get();
 
         return DataTables::of($q)
