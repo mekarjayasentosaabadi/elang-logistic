@@ -58,7 +58,7 @@ class TraveldocumentController extends Controller
     //create
     function create(){
         $vehicle        = Vehicle::where('is_active', '1')->get();
-        $driver         = User::where('role_id', '5' )->get();
+        $driver         = User::where('role_id', '5' )->where('outlets_id', auth()->user()->outlets_id)->get();
         $destination    = Destination::all();
         return view('pages.traveldocument.create', compact(['vehicle', 'driver', 'destination']));
     }
