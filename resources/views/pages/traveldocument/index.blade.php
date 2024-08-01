@@ -75,5 +75,33 @@
                 ]
             });
         });
+        //delete Surat jalan
+        function deleteTravelDocument(x,i){
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Apakah Anda yakin ingin akan menghapus surat jalan tersebut.?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Lanjutkan!',
+                cancelButtonText: 'Batal'
+            }).then((result)=>{
+                if(result.isConfirmed){
+                    $.ajax({
+                        url: window.location.origin + '/' + listRoutes['traveldocument.delete'].replace('{id}',i),
+                        type: "POST",
+                        dataType: "JSON",
+                        processData: false,
+                        contentType: false,
+                        success: function(e){
+                            notifSweetAlertSuccess(e.meta.message);
+                            table.ajax.reload()
+                        },
+                        error: function(e){
+                            console.log(e)
+                        }
+                    })
+                }
+            })
+        }
     </script>
 @endsection

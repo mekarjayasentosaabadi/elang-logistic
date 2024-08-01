@@ -33,7 +33,7 @@ class TraveldocumentController extends Controller
                 $btn .= '<div>';
                 $btn .= '<a class="btn btn-warning btn-sm" title="Edit"><li class="fa fa-edit"></li></a> ';
                 $btn .= '<a href="'.url('/delivery/'.$encryptId.'/cetak').'" class="btn btn-primary btn-sm" title="Cetak"><li class="fa fa-print"></li></a> ';
-                $btn .= '<a class="btn btn-danger btn-sm" title="Cancel"><li class="fa fa-trash"></li></a>';
+                $btn .= '<a class="btn btn-danger btn-sm" title="Cancel" onclick="deleteTravelDocument(this,'.$query->id.')"><li class="fa fa-trash"></li></a>';
                 $btn .= '</div>';
                 return $btn;
             })
@@ -105,5 +105,12 @@ class TraveldocumentController extends Controller
 
     function print($id){
         return '';
+    }
+    //delete
+    function delete($id){
+        //delete detail shipping
+        Detailtraveldocument::where('traveldocuments_id', $id)->delete();
+        Traveldocument::where('id', $id)->delete();
+        return ResponseFormatter::success([], 'Berhasil menghapus data Surat jalan');
     }
 }

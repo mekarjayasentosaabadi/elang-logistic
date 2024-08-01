@@ -141,6 +141,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/manifestorder', [TraveldocumentController::class, 'manifestorder'])->name('traveldocument.manifestorder');
         Route::post('/',[TraveldocumentController::class, 'store'])->name('traveldocument.store');
         Route::get('/{id}/cetak', [TraveldocumentController::class, 'print'])->name('traveldocument.cetak');
+        Route::post('{id}/delete',[TraveldocumentController::class, 'delete'])->name('traveldocument.delete');
     });
     Route::get('/logout', [AuthController::class, 'logout']);
 
