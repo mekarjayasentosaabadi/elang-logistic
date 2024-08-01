@@ -52,7 +52,10 @@ class MasterpriceController extends Controller
                 $estimation = $x->estimation .' Hari';
                 return $estimation;
             })
-            ->rawColumns(['outlet', 'namaarmada', 'destination', 'option', 'estimation'])
+            ->editColumn('price', function($x){
+                return 'Rp. '.number_format($x->price, 0,',', '.');
+            })
+            ->rawColumns(['outlet', 'namaarmada', 'destination', 'option', 'estimation', 'price'])
             ->addIndexColumn()
             ->make(true);
     }

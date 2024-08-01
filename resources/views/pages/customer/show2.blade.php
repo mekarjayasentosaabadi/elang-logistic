@@ -212,6 +212,10 @@
         let customerId = segment["2"];
         let listPriceCustomer = [];
         var icustomerprice;
+        const formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR'
+        });
         $(document).ready(function() {
             //get data customer price
             $.getJSON(window.location.origin + '/' + listRoutes['customer.getcustomerprice'].replace('{id}',
@@ -234,7 +238,7 @@
                             icustomerprice: x.id,
                             armada: x.armada,
                             destination: x.destination.name,
-                            price: x.price,
+                            price: formatter.format(x.price),
                             estimation: x.estimation
                         }
                         listPriceCustomer.push(dataPriceCustomer)
