@@ -1,7 +1,7 @@
 @extends('layout.app')
 
 @section('title')
-    <span>Shipping Courir</span>
+    <span>Shipping Courier</span>
     <small>/</small>
     <small>Index</small>
 @endsection
@@ -11,9 +11,9 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Shipping Courir</h4>
+                    <h4 class="card-title">Shipping Courier</h4>
                     @if (Auth::user()->role_id == '1' || Auth::user()->role_id == '2')
-                        <a href="{{ url('/shipping-courir/create') }}" class="btn btn-primary">Tambah Pengiriman</a>
+                        <a href="{{ url('/shipping-courier/create') }}" class="btn btn-primary">Tambah Pengiriman</a>
                     @endif
                 </div>
                 <div class="card-body">
@@ -22,10 +22,10 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Nama Courier</th>
-                                    <th>Nama Penerima</th>
-                                    <th>Jumlah Barang</th>
-                                    <th>Status Aktif</th>
+                                    <th>No Pengiriman</th>
+                                    <th>Nama Kurir</th>
+                                    <th>Paket Yang dikirim</th>
+                                    <th>Status</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -47,7 +47,7 @@
                 processing: true,
                 serverSide: true,
                 ajax: {
-                    url: "{{ url('/shipping-courir/getAll') }}",
+                    url: "{{ url('/shipping-courier/getAll') }}",
                     type: 'GET'
                 },
                 columns: [{
@@ -56,23 +56,23 @@
                         searchable: false
                     },
                     {
-                        data: 'name',
-                        name: 'name',
+                        data: 'shippingno',
+                        name: 'shippingno',
                         searchable:true
                     },
                     {
-                        data: 'email',
-                        name: 'email',
+                        data: 'nama_kurir',
+                        name: 'nama_kurir',
                         searchable:true
                     },
                     {
-                        data: 'role_id',
-                        name: 'role_id',
+                        data: 'order_id',
+                        name: 'order_id',
                         searchable:true
                     },
                     {
-                        data: 'is_active',
-                        name: 'is_active',
+                        data: 'status',
+                        name: 'status',
                         searchable:true
                     },
                     {

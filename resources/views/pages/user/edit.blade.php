@@ -102,14 +102,14 @@
             $('.outlet_id').hide()
 
             var role = $('#role_id').val()
-            if (role == "2" || role == "3") {
+            if (role == "2" || role == "3" || role == "5") {
                 $('.outlet_id').show()
             }else{
                 $('.outlet_id').hide()
             }
             $('#role_id').change(function () {
                 var role = $('#role_id').val()
-                if (role == "2" || role == "3") {
+                if (role == "2" || role == "3"|| role == "5") {
                     $('.outlet_id').show()
                 }else{
                     $('.outlet_id').hide()

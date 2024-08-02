@@ -12,6 +12,7 @@ use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\MasterpriceController;
+use App\Http\Controllers\ShippingcourierController;
 use App\Http\Controllers\ShippingcourirController;
 use App\Http\Controllers\TraveldocumentController;
 
@@ -117,10 +118,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/print', [ManifestController::class, 'printresi'])->name('manifest.cetakresi');
     });
 
-    Route::prefix('shipping-courir')->group(function () {
-        Route::get('/', [ShippingcourirController::class, 'index'])->name('shipping.index');
-        Route::get('/getAll', [ShippingcourirController::class, 'getAll'])->name('shipping.getAll');
-        Route::get('/create', [ShippingcourirController::class, 'create'])->name('shipping.create');
+    Route::prefix('shipping-courier')->group(function () {
+        Route::get('/', [ShippingcourierController::class, 'index'])->name('shipping.index');
+        Route::get('/getAll', [ShippingcourierController::class, 'getAll'])->name('shipping.getAll');
+        Route::get('/getOrders', [ShippingcourierController::class, 'getOrder'])->name('shipping.getOrder');
+        Route::get('/getOrderDetail', [ShippingcourierController::class, 'getOrderDetail'])->name('shipping.getOrderDetail');
+        Route::get('/create', [ShippingcourierController::class, 'create'])->name('shipping.create');
+        Route::post('/store', [ShippingcourierController::class, 'store'])->name('shipping.store');
+        Route::get('/{id}/edit', [ShippingcourierController::class, 'edit'])->name('shipping.edit');
+        Route::patch('/{id}/update', [ShippingcourierController::class, 'update'])->name('shipping.update');
     });
 
     //Price
