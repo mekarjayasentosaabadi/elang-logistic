@@ -34,4 +34,9 @@ class Traveldocument extends Model
     function destination(){
         return $this->belongsTo(Destination::class, 'destinations_id', 'id');
     }
+
+    //return relasion to outlet
+    function outlet(){
+        return $this->belongsTo(Outlet::class, 'outlets_id', 'id');
+    }
 }
