@@ -35,4 +35,8 @@ class Order extends Model
     function detailmanifests(){
         return $this->hasMany(Detailmanifest::class, 'orders_id', 'id');
     }
+
+    function detailshippingcourier() {
+        return $this->hasMany(DetailShippingCourier::class, 'orders_id', 'id');
+    }
 }

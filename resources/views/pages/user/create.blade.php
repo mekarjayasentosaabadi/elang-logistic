@@ -43,7 +43,7 @@
                             <div class="col-md-6">
                                 <div class="form-group mb-2">
                                     <label for="email">Email</label>
-                                    <input type="text" name="email" id="email" class="form-control">
+                                    <input type="email" name="email" id="email" class="form-control">
                                 </div>
                                 @if (Auth::user()->role_id == "1")
                                     <div class="form-group mb-3 outlet_id">
@@ -74,7 +74,7 @@
             $('#role_id').change(function () {
                 var role = $('#role_id').val()
                 console.log(role);
-                if (role == "2" || role == '3') {
+                if (role == "2" || role == '3' || role == '5') {
                     $('.outlet_id').show()
                 }else{
                     $('.outlet_id').hide()

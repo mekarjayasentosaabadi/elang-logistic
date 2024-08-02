@@ -82,8 +82,8 @@ if (!function_exists('listMenu')) {
                     ]
                 ],
                 [
-                    'title' => 'Shipping Courir',
-                    'url' => '/shipping-courir',
+                    'title' => 'Shipping Courier',
+                    'url' => '/shipping-courier',
                     'hasChild' => false,
                     'icon' => 'truck'
                 ],

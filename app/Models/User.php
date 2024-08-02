@@ -67,4 +67,8 @@ class User extends Authenticatable
     public function traveldocuments(){
         return $this->hasMany(Traveldocument::class, 'driver_id', 'id');
     }
+
+    function shippingcourier() {
+        return $this->hasMany(ShippingCourier::class, 'driver_id', 'id');
+    }
 }
