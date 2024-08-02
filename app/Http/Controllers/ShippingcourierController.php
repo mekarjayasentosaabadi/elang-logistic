@@ -25,7 +25,12 @@ class ShippingcourierController extends Controller
     public function getAll()
     {
 
-        if (Auth::user()->role_id == '2') {
+        // superadmin
+        if (Auth::user()->role_id == '1') {
+            $q = ShippingCourier::with(['detailshippingcourier.order', 'driver']);
+        }
+        // admin
+        else if (Auth::user()->role_id == '2') {
 
              $dataUser = User::where('id', Auth::user()->id)->first();
              $userOutlet = Outlet::where('id', $dataUser->outlets_id)->first();
@@ -33,15 +38,22 @@ class ShippingcourierController extends Controller
              $q = ShippingCourier::with(['detailshippingcourier.order', 'driver'])
                     ->whereHas('detailshippingcourier.order', function($query) use ($userOutlet) {
                         $query->where('destinations_id', $userOutlet->location_id);
-             });
+                     });
 
 
-        }else if(Auth::user()->role_id == '3'){
+        }
+        // courier
+        else if(Auth::user()->role_id == '3'){
+            $dataUser = User::where('id', Auth::user()->id)->first();
+            $userOutlet = Outlet::where('id', $dataUser->outlets_id)->first();
+
             $q = ShippingCourier::with(['detailshippingcourier.order', 'driver'])
                 ->where('driver_id', Auth::user()->id)
-
-            ->get();
+                ->whereHas('detailshippingcourier.order', function($query) use ($userOutlet) {
+                    $query->where('destinations_id', $userOutlet->location_id);
+                 });
         }
+
 
         return DataTables::of($q)
             ->editColumn('shippingno', function ($query) {
@@ -86,12 +98,17 @@ class ShippingcourierController extends Controller
     public function getOrder(){
         $outletsByUser = Outlet::where('id', Auth::user()->outlets_id)->first();
 
-        $q   = Order::where('destinations_id', $outletsByUser->location_id)
+        if (Auth::user()->role_id == '1') {
+            $q   = Order::where('status_orders', 2)
+                    ->whereDoesntHave('detailshippingcourier');
+        }else{
+            $q   = Order::where('destinations_id', $outletsByUser->location_id)
                     ->where('status_orders', 2)
                     ->whereDoesntHave('detailshippingcourier')
                     ->whereHas('detailmanifests.manifest', function ($query){
                         $query->where('status_manifest', '3');
                     })->get();
+        }
 
         return DataTables::of($q)
             ->addColumn('numberorders', function ($query){
@@ -124,6 +141,11 @@ class ShippingcourierController extends Controller
             'destination'   => $order->destination->name,
             'id'            => $order->id
         ]);
+    }
+
+    public function getCourier(Request $request){
+        $couriers = User::where('role_id', '3')->where('outlets_id', $request->outletasal)->get();
+        return response()->json(['couriers'=>$couriers]);
     }
 
     public function create() {
