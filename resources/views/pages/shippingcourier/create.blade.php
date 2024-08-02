@@ -42,6 +42,7 @@
                     </div>
                     <div class="card-body mb-5">
                         @csrf
+                        <input type="hidden" name="outlet_id" id="outlet_id_hidden">
                         <div id="hidden-inputs-container"></div>
                         <div class="row">
                             <div class="col-md-6">
@@ -54,9 +55,11 @@
                                     <label for="courier">Kurir</label>
                                     <select name="courier" id="courier" class="form-control">
                                         <option value="" hidden>Pilih Kurir</option>
-                                        @foreach ($couriers as $courier)
-                                            <option value="{{ $courier->id }}">{{ $courier->name }}</option>
-                                        @endforeach
+                                        @if (Auth::user()->role_id != '1')
+                                            @foreach ($couriers as $courier)
+                                                <option value="{{ $courier->id }}">{{ $courier->name }}</option>
+                                            @endforeach
+                                        @endif
                                     </select>
                                 </div>
                             </div>
@@ -180,18 +183,52 @@
                 ]
             });
 
+            // Saat elemen outlet_id_select berubah
+            $('#outlet_id_select').change(function() {
+                var selectedValue = $(this).val();
+                $('#outlet_id_hidden').val(selectedValue);
+            });
 
 
-             // Definisikan fungsi check
+            $('#outlet_id_select').change(function () {
+                $.ajax({
+                    url:'{{ url('/shipping-courier/getCourier') }}',
+                    type: 'GET',
+                    data : {
+                        outletasal : $('#outlet_id_hidden').val()
+                    },
+
+                    success: function (response) {
+                            var couriers = response.couriers;
+                            var courierSelect = $('#courier')
+                            courierSelect.empty();
+
+                            courierSelect.append('<option value="0" hidden>Pilih Kurir</option>');
+
+                            if (couriers != null) {
+                                couriers.forEach(function (couriers) {
+                                    courierSelect.append('<option value="'+ couriers.id +'" >'+couriers.name+'</option>')
+                                });
+                            }
+                    },
+
+                    error: function (xhr, status, error) {
+                        // console.error('AJAX Error: ', xhr.responseText)
+                        console.log('error');
+                    }
+
+                })
+            })
+
+
              window.check = function(checkbox) {
                 let rowNumber = 1 ;
                 const orderId = $(checkbox).val();
                 const isChecked = $(checkbox).is(':checked');
 
                 if (isChecked) {
-                    // Mengambil detail pesanan dan menambahkannya ke tabel
                     $.ajax({
-                        url: "{{ url('/shipping-courier/getOrderDetail') }}", // Route untuk mengambil detail pesanan
+                        url: "{{ url('/shipping-courier/getOrderDetail') }}",
                         type: 'GET',
                         data: { id: orderId },
                         success: function(response) {

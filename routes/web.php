@@ -123,6 +123,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/getAll', [ShippingcourierController::class, 'getAll'])->name('shipping.getAll');
         Route::get('/getOrders', [ShippingcourierController::class, 'getOrder'])->name('shipping.getOrder');
         Route::get('/getOrderDetail', [ShippingcourierController::class, 'getOrderDetail'])->name('shipping.getOrderDetail');
+        Route::get('/getCourier', [ShippingcourierController::class, 'getCourier'])->name('shipping.getCourier');
         Route::get('/create', [ShippingcourierController::class, 'create'])->name('shipping.create');
         Route::post('/store', [ShippingcourierController::class, 'store'])->name('shipping.store');
         Route::get('/{id}/edit', [ShippingcourierController::class, 'edit'])->name('shipping.edit');
