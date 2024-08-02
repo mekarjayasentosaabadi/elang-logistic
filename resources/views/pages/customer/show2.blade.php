@@ -60,7 +60,7 @@
                                     <thead>
                                         <tr>
                                             <th>#</th>
-                                            <th>Armada</th>
+                                            <th>Service</th>
                                             <th>Tujuan / Destination</th>
                                             <th>Price</th>
                                             <th>Estimation</th>
@@ -91,6 +91,14 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-12">
+                                <div class="form-group">
+                                    <label for="service">Service</label>
+                                    <input type="text" name="service" id="service" class="form-control" disabled>
+                                </div>
+                                <div class="form-group">
+                                    <label for="destination">Destination</label>
+                                    <input type="text" name="destination" id="destination" class="form-control" disabled>
+                                </div>
                                 <div class="form-group">
                                     <label for="price">Price</label>
                                     <input type="text" name="price" id="price" class="form-control">
@@ -220,6 +228,7 @@
             //get data customer price
             $.getJSON(window.location.origin + '/' + listRoutes['customer.getcustomerprice'].replace('{id}',
                 customerId), function(e) {}).done(function(e) {
+                    console.log(e)
                 if (e.data.customerprice.length == 0) {
                     $('#tbody-price-customer').html(
                         `
@@ -238,7 +247,7 @@
                             icustomerprice: x.id,
                             armada: x.armada,
                             destination: x.destination.name,
-                            price: formatter.format(x.price),
+                            price: x.price,
                             estimation: x.estimation
                         }
                         listPriceCustomer.push(dataPriceCustomer)
@@ -300,19 +309,23 @@
                         <td>${no++}</td>
                         <td>${armada}</td>
                         <td>${x.destination}</td>
-                        <td>${x.price}</td>
+                        <td>${ formatter.format(x.price)}</td>
                         <td>${x.estimation}</td>
-                        <td><button data-bs-toggle="modal" data-bs-target="#exampleModalCenter" class="btn btn-primary btn-sm" onclick="changePrice(${x.icustomerprice}, ${x.price})"><i class="fa fa-edit"></i></button></td>
+                        <td><button data-bs-toggle="modal" data-bs-target="#exampleModalCenter" class="btn btn-primary btn-sm" onclick="changePrice(${x.icustomerprice},${x.price}, '${armada}', '${x.destination}')"><i class="fa fa-edit"></i></button></td>
                     </tr>
                     `
                 )
             })
         }
 
-        function changePrice(x, p) {
+        function changePrice(x, p, a, d) {
             $('#form-change-pricecustomer')[0].reset();
             icustomerprice = '';
             $('#price').val('')
+            $('#service').val('')
+            $('#destination').val('')
+            $('#destination').val(d)
+            $('#service').val(a)
             $('#price').val(p)
             icustomerprice = x;
         }
