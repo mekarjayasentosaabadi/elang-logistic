@@ -22,7 +22,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Asal Outlet</th>
-                                        <th>Armada</th>
+                                        <th>Service</th>
                                         <th>Tujuan / Destination</th>
                                         <th>Price</th>
                                         <th>Estimation</th>
