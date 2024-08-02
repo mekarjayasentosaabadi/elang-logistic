@@ -23,4 +23,9 @@ class Destination extends Model
     function outlets(){
         return $this->hasMany(Outlet::class, 'location_id', 'id');
     }
+
+    //relation to traveldocument
+    function traveldocument(){
+        return $this->hasMany(Traveldocument::class, 'destinations_id', 'id');
+    }
 }

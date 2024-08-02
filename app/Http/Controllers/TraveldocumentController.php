@@ -20,19 +20,30 @@ class TraveldocumentController extends Controller
     }
 
     function getAll(){
-        $q = DB::table('traveldocuments')
-                    ->join('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
-                    ->join('destinations', 'traveldocuments.destinations_id', '=', 'destinations.id')
-                    ->select('traveldocuments.id','traveldocuments.travelno', 'destinations.name','traveldocuments.status_traveldocument', DB::raw('count(detailtraveldocuments.traveldocuments_id) as jml_manifest'))
-                    ->groupBy('traveldocuments.travelno', 'destinations.name', 'traveldocuments.status_traveldocument')
-                    ->get();
-        return DataTables::of($q)
+        if(auth()->user()->role_id == '2'){
+            $q = DB::table('traveldocuments')
+                        ->join('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
+                        ->join('destinations', 'traveldocuments.destinations_id', '=', 'destinations.id')
+                        ->select('traveldocuments.id','traveldocuments.travelno', 'destinations.name','traveldocuments.status_traveldocument', DB::raw('count(detailtraveldocuments.traveldocuments_id) as jml_manifest'))
+                        ->where('traveldocuments.outlets_id', auth()->user()->outlets_id)
+                        ->groupBy('traveldocuments.travelno', 'destinations.name', 'traveldocuments.status_traveldocument')
+                        ->get();
+        } else {
+            $q = DB::table('traveldocuments')
+                        ->join('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
+                        ->join('destinations', 'traveldocuments.destinations_id', '=', 'destinations.id')
+                        ->select('traveldocuments.id','traveldocuments.travelno', 'destinations.name','traveldocuments.status_traveldocument', DB::raw('count(detailtraveldocuments.traveldocuments_id) as jml_manifest'))
+                        ->groupBy('traveldocuments.travelno', 'destinations.name', 'traveldocuments.status_traveldocument')
+                        ->get();
+        }
+            return DataTables::of($q)
             ->addColumn('aksi', function ($query) {
                 $encryptId = Crypt::encrypt($query->id);
                 $btn = '';
                 $btn .= '<div>';
-                $btn .= '<a class="btn btn-warning btn-sm" title="Edit"><li class="fa fa-edit"></li></a> ';
+                $btn .= '<a href="'.url('/delivery/'.$encryptId.'/edit').'" class="btn btn-warning btn-sm" title="Edit"><li class="fa fa-edit"></li></a> ';
                 $btn .= '<a href="'.url('/delivery/'.$encryptId.'/cetak').'" class="btn btn-primary btn-sm" title="Cetak"><li class="fa fa-print"></li></a> ';
+                $btn .= '<button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#twoFactorAuthModal" onclick="getDetail(this,'.$query->id.')"><li class="fa fa-search"></li></button> ';
                 $btn .= '<a class="btn btn-danger btn-sm" title="Cancel" onclick="deleteTravelDocument(this,'.$query->id.')"><li class="fa fa-trash"></li></a>';
                 $btn .= '</div>';
                 return $btn;
@@ -81,14 +92,18 @@ class TraveldocumentController extends Controller
     }
 
     function store(Request $request){
-        $traveldocument = Traveldocument::create([
+        $storedTravelDocuments = [
             'travelno'                  => $request->suratJalan,
             'vehicle_id'                => $request->kendaraan,
             'driver_id'                 => $request->driver,
             'description'               => $request->description,
             'status_traveldocument'     => 1,
-            'destinations_id'           => $request->destination
-        ]);
+            'destinations_id'           => $request->destination,
+        ];
+        if(auth()->user()->role_id == '2'){
+            $storedTravelDocuments['outlets_id']=auth()->user()->outlets_id;
+        }
+        $traveldocument = Traveldocument::create($storedTravelDocuments);
         $input = $request->input();
         $dataDetail = [];
         if(@$input['manifest']){
@@ -112,5 +127,29 @@ class TraveldocumentController extends Controller
         Detailtraveldocument::where('traveldocuments_id', $id)->delete();
         Traveldocument::where('id', $id)->delete();
         return ResponseFormatter::success([], 'Berhasil menghapus data Surat jalan');
+    }
+    //edit
+    function edit($id){
+        $suratjalan     = Traveldocument::where('id', Crypt::decrypt($id))->firstOrFail();
+        $vehicle        = Vehicle::where('is_active', '1')->get();
+        $driver         = User::where('role_id', '5' )->where('outlets_id', auth()->user()->outlets_id)->get();
+        $destination    = Destination::all();
+        return view('pages.traveldocument.edit', compact(['suratjalan', 'vehicle', 'driver', 'destination']));
+    }
+
+    //listDetailTravelDocument
+    function listDetail($id){
+        $detailTravelDocument = Traveldocument::with(['driver', 'vehicle', 'destination'])->where('id', $id)->first();
+        $q = DB::table('detailtraveldocuments')
+                ->join('manifests', 'detailtraveldocuments.manifests_id', '=', 'manifests.id')
+                ->select('manifests.manifestno', DB::raw('count(detailtraveldocuments.manifests_id) as jml_awb') )
+                ->where('detailtraveldocuments.traveldocuments_id', $id)
+                ->groupBy('manifests.manifestno')
+                ->get();
+
+        return ResponseFormatter::success([
+            'traveldocument'        => $detailTravelDocument,
+            'detailtraveldocuments' => $q
+        ], 'Get data successfuly');
     }
 }
