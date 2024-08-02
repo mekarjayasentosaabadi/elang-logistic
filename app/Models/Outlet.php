@@ -35,4 +35,9 @@ class Outlet extends Model
     function destination(){
         return $this->belongsTo(Destination::class, 'location_id', 'id');
     }
+
+    //relation to surat jalan
+    function suratjalan(){
+        return $this->hasMany(Traveldocument::class, 'outlets_id', 'id');
+    }
 }

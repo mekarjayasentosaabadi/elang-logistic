@@ -119,7 +119,16 @@ class TraveldocumentController extends Controller
     }
 
     function print($id){
-        return '';
+        $suratjalan     = Traveldocument::with(['driver', 'vehicle', 'destination', 'outlet.destination'])->where('id', Crypt::decrypt($id))->first();
+        $jumlahKoliWeight   = DB::table('detailtraveldocuments')
+                                ->join('manifests', 'detailtraveldocuments.manifests_id', '=', 'manifests.id')
+                                ->join('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
+                                ->join('orders', 'detailmanifests.orders_id', '=', 'orders.id')
+                                ->select('orders.numberorders', 'detailtraveldocuments.manifests_id', DB::raw('sum(orders.weight) as jml_kilo, sum(orders.koli) as jml_koli', ))
+                                ->where('detailtraveldocuments.traveldocuments_id', Crypt::decrypt($id))
+                                ->groupBy('detailtraveldocuments.manifests_id', 'orders.numberorders')
+                                ->first();
+        return view('pages.traveldocument.suratjalan', compact('suratjalan', 'jumlahKoliWeight'));
     }
     //delete
     function delete($id){
