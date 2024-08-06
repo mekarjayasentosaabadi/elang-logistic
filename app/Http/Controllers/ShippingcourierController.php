@@ -268,12 +268,13 @@ class ShippingcourierController extends Controller
     // shipping-courier: Admin / Superadmin stored data shipping
     public function store(Request $request) {
         $validator = Validator::make($request->all(), [
-            'shipping_no' => 'required',
+            'shipping_no' => 'required|unique:shippingcouriers,shippingno',
             'courier'     => 'required',
             'order_ids'   => 'required',
             'note'        => 'required',
         ], [
             'shipping_no.required'     => 'Nomor pengiriman harus diisi',
+            'shipping_no.unique'       => 'Nomor pengiriman sudah digunakan',
             'courier.required'         => 'Pilih kurir',
             'order_ids.required'       => 'Pilih paket yang akan dikirim',
             'note.required'            => 'Catatan harus diisi',
@@ -350,12 +351,13 @@ class ShippingcourierController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'shipping_no' => 'required',
+            'shipping_no' => 'required|unique:shippingcouriers,shippingno,'.$id,
             'courier'     => 'required',
-            'order_ids'   => 'required|array',
+            'order_ids'   => 'required',
             'note'        => 'required',
         ],[
             'shipping_no.required'     => 'Nomor pengiriman harus diisi',
+            'shipping_no.unique'       => 'Nomor pengiriman sudah digunakan',
             'courier.required'         => 'Pilih kurir',
             'order_ids.required'       => 'Pilih paket yang akan dikirim',
             'note.required'            => 'Catatan harus diisi',
