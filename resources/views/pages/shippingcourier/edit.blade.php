@@ -228,41 +228,40 @@
         }
 
             $('#tbl-orders-by-outlet').DataTable({
-                        processing: true,
-                        serverSide: true,
-                        ajax: {
-                            url: "{{ url('/shipping-courier/getOrdersByOutlet') }}",
-                            type: 'GET',
-                            data : {
-                                outletasal : $('#outlet_id_select').val()
-                            },
-                        },
-                        columns: [{
-                                data: 'DT_RowIndex',
-                                orderable: false,
-                            },
-                            {
-                                data: 'numberorders',
-                                name: 'numberorders'
-                            },
-                            {
-                                data: 'namacustomer',
-                                name: 'namacustomer'
-                            },
-                            {
-                                data: 'destination',
-                                name: 'destination'
-                            },
-                            {
-                                data: 'check',
-                                name: 'check'
-                            },
-                        ]
-                    });
-
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ url('/shipping-courier/getOrdersByOutlet') }}",
+                    type: 'GET',
+                    data : {
+                        outletasal : $('#outlet_id_select').val()
+                    },
+                },
+                columns: [{
+                        data: 'DT_RowIndex',
+                        orderable: false,
+                    },
+                    {
+                        data: 'numberorders',
+                        name: 'numberorders'
+                    },
+                    {
+                        data: 'namacustomer',
+                        name: 'namacustomer'
+                    },
+                    {
+                        data: 'destination',
+                        name: 'destination'
+                    },
+                    {
+                        data: 'check',
+                        name: 'check'
+                    },
+                ]
+            });
 
         $(document).ready(function () {
-            table = $('#tbl-orders').DataTable({
+            $('#tbl-orders').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -292,41 +291,53 @@
                 ]
             });
 
-            // Saat elemen outlet_id_select berubah
-            $('#outlet_id_select').change(function() {
+             // Saat elemen outlet_id_select berubah
+               $('#outlet_id_select').change(function() {
                 var selectedValue = $(this).val();
                 $('#outlet_id_hidden').val(selectedValue);
+
+                 // Kosongkan tabel detail paket dan input tersembunyi saat outlet berubah
+                $('#tbl-detail-paket').empty();
+                $('#hidden-inputs-container').empty();
+
+                // Destroy instance datatable jika ada datanya
+                if ($.fn.DataTable.isDataTable('#tbl-orders-by-outlet')) {
+                    $('#tbl-orders-by-outlet').DataTable().destroy();
+                }
             });
 
             // get courier by outlet
-            $('#outlet_id_select').change(function () {
+            var outletId = $('#outlet_id_select').val();
+            if (outletId) {
+                getCourier(outletId);
+            }
+
+            function getCourier(outletId) {
                 $.ajax({
-                    url:'{{ url('/shipping-courier/getCourier') }}',
+                    url: '{{ url('/shipping-courier/getCourier') }}',
                     type: 'GET',
-                    data : {
-                        outletasal : $('#outlet_id_hidden').val()
-                    },
-
+                    data: { outletasal: outletId },
                     success: function (response) {
-                            var couriers = response.couriers;
-                            var courierSelect = $('#courier')
-                            courierSelect.empty();
+                        var couriers = response.couriers;
+                        var courierSelect = $('#courier');
+                        courierSelect.empty(); // Kosongkan opsi yang ada sebelumnya
 
-                            courierSelect.append('<option value="0" hidden>Pilih Kurir</option>');
+                        courierSelect.append('<option value="" hidden>Pilih Kurir</option>');
 
-                            if (couriers != null) {
-                                couriers.forEach(function (couriers) {
-                                    courierSelect.append('<option value="'+ couriers.id +'" >'+couriers.name+'</option>')
-                                });
-                            }
+                        if (couriers != null) {
+                            couriers.forEach(function (courier) {
+                                courierSelect.append('<option value="' + courier.id + '" ' + (courier.id == "{{ $shippingCourier->driver_id }}" ? 'selected' : '') + '>' + courier.name + '</option>');
+                            });
+                        }
                     },
-
                     error: function (xhr, status, error) {
-                        // console.error('AJAX Error: ', xhr.responseText)
                         console.log('error');
                     }
+                });
+            }
 
-                })
+            $('#outlet_id_select').change(function () {
+                getCourier($('#outlet_id_select').val());
             })
 
              // data order by outlet
