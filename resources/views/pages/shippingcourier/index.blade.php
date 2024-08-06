@@ -42,7 +42,7 @@
 
 @section('custom-js')
     <script>
-        $(document).ready(function() {
+       $(document).ready(function() {
             $('#tbl-user').DataTable({
                 processing: true,
                 serverSide: true,
@@ -50,39 +50,42 @@
                     url: "{{ url('/shipping-courier/getAll') }}",
                     type: 'GET'
                 },
-                columns: [{
+                columns: [
+                    {
                         data: 'DT_RowIndex',
-                        orderable : false,
+                        orderable: false,
                         searchable: false
                     },
                     {
                         data: 'shippingno',
                         name: 'shippingno',
-                        searchable:true
+                        searchable: true
                     },
                     {
                         data: 'nama_kurir',
-                        name: 'nama_kurir',
-                        searchable:true
+                        name: 'driver.name',
+                        searchable: true
                     },
                     {
-                        data: 'order_id',
-                        name: 'order_id',
-                        searchable:true
+                        data: 'jml_paket',
+                        name: 'jml_paket',
+                        searchable: false,
+                        orderColumn: 'count(detail_shipping_couriers.id)'
                     },
                     {
                         data: 'status',
                         name: 'status',
-                        searchable:true
+                        searchable: false
                     },
                     {
                         data: 'aksi',
                         name: 'aksi',
-                        orderable:false,
-                        searchable:false
+                        orderable: false,
+                        searchable: false
                     }
                 ]
             });
         });
+
     </script>
 @endsection

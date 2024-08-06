@@ -82,7 +82,15 @@
                                         <p>Estimasi: {{ $order->estimation.' hari' ?? '0 hari' }}</p>
                                         <p>Deskripsi Barang: {{ $order->description ?? '-' }}</p>
                                         <p>Catatan: {{ $order->note ?? '-' }}</p>
-                                        <p>Foto: {{ $order->photos ?? '-' }}</p>
+                                        <p>Foto bukti diterima:
+                                            @if ($order->photos)
+                                                <div class="mt-1">
+                                                        <img width="60" src="{{asset('storage/'.$order->photos)}}" alt="">
+                                                </div>
+                                            @else
+                                                -
+                                            @endif
+                                        </p>
                                         <p>Status Awb: {{ $order->status_awb ?? '-' }}</p>
                                         <p>Status:
                                             @if ($order->status_orders == '1')
