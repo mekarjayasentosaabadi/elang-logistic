@@ -18,7 +18,7 @@
                         <div class="form-group">
                             <label for="outlet_id_select">Outlet</label>
                             <select name="outlet_id_select" id="outlet_id_select" class="form-control">
-                                <option value="">Pilih Outlet</option>
+                                <option value="" hidden>Pilih Outlet</option>
                                 @foreach ($outlets as $outlet)
                                     <option value="{{ $outlet->id }}"
                                         {{ old('outlet_id') == $outlet->id ? 'selected' : '' }}>{{ $outlet->name }}</option>
@@ -118,20 +118,37 @@
                 </div>
                 <div class="modal-body">
                     <div class="table-responsive">
-                        <table class="table " id="tbl-orders">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Nomor Order / AWB</th>
-                                    <th>Customer</th>
-                                    <th>Destination</th>
-                                    <th>Options</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                        @if (Auth::user()->role_id != '1')
+                            <table class="table " id="tbl-orders">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nomor Order / AWB</th>
+                                        <th>Customer</th>
+                                        <th>Destination</th>
+                                        <th>Options</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
 
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        @elseif(Auth::user()->role_id == '1')
+                            <table class="table " id="tbl-orders-by-outlet">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nomor Order / AWB</th>
+                                        <th>Customer</th>
+                                        <th>Destination</th>
+                                        <th>Options</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                            </table>
+                        @endif
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -189,7 +206,7 @@
                 $('#outlet_id_hidden').val(selectedValue);
             });
 
-
+            // get courier by outlet
             $('#outlet_id_select').change(function () {
                 $.ajax({
                     url:'{{ url('/shipping-courier/getCourier') }}',
@@ -219,6 +236,50 @@
 
                 })
             })
+
+            // data order by outlet
+            $('#outlet_id_select').change(function () {
+
+                // destroy instance datatable jika ada datanya
+                if ($.fn.DataTable.isDataTable('#tbl-orders-by-outlet')) {
+                    $('#tbl-orders-by-outlet').DataTable().destroy()
+                }
+
+                // buat state instance datatable baru
+                $('#tbl-orders-by-outlet').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: "{{ url('/shipping-courier/getOrdersByOutlet') }}",
+                        type: 'GET',
+                        data : {
+                            outletasal : $('#outlet_id_hidden').val()
+                        },
+                    },
+                    columns: [{
+                            data: 'DT_RowIndex',
+                            orderable: false,
+                        },
+                        {
+                            data: 'numberorders',
+                            name: 'numberorders'
+                        },
+                        {
+                            data: 'namacustomer',
+                            name: 'namacustomer'
+                        },
+                        {
+                            data: 'destination',
+                            name: 'destination'
+                        },
+                        {
+                            data: 'check',
+                            name: 'check'
+                        },
+                    ]
+                });
+            })
+
 
 
              window.check = function(checkbox) {

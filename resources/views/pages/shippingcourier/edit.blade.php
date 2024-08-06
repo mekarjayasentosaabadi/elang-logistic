@@ -18,10 +18,9 @@
                         <div class="form-group">
                             <label for="outlet_id_select">Outlet</label>
                             <select name="outlet_id_select" id="outlet_id_select" class="form-control">
-                                <option value="">Pilih Outlet</option>
+                                <option hidden>Pilih Outlet</option>
                                 @foreach ($outlets as $outlet)
-                                    <option value="{{ $outlet->id }}"
-                                        {{ old('outlet_id', $shippingCourier->outlet_id) == $outlet->id ? 'selected' : '' }}>{{ $outlet->name }}</option>
+                                    <option value="{{ $outlet->id }}" {{ $shippingCourier->driver->outlets_id == $outlet->id ? 'selected' : '' }}>{{ $outlet->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -43,6 +42,7 @@
                     </div>
                     <div class="card-body mb-5">
                         @csrf
+                        <input type="hidden" name="outlet_id" id="outlet_id_hidden">
                         <div id="hidden-inputs-container">
                             @foreach ($shippingCourier->detailshippingcourier as $detail)
                                 @php
@@ -62,11 +62,13 @@
                                     <label for="courier">Kurir</label>
                                     <select name="courier" id="courier" class="form-control">
                                         <option value="" hidden>Pilih Kurir</option>
-                                        @foreach ($couriers as $courier)
-                                            <option value="{{ $courier->id }}" {{ $courier->id == $shippingCourier->driver_id ? 'selected' : '' }}>
-                                                {{ $courier->name }}
-                                            </option>
-                                        @endforeach
+                                        @if (Auth::user()->role_id != '1')
+                                            @foreach ($couriers as $courier)
+                                                <option value="{{ $courier->id }}" {{ $courier->id == $shippingCourier->driver_id ? 'selected' : '' }}>
+                                                    {{ $courier->name }}
+                                                </option>
+                                            @endforeach
+                                        @endif
                                     </select>
                                 </div>
                             </div>
@@ -136,30 +138,47 @@
                 </div>
                 <div class="modal-body">
                     <div class="table-responsive">
-                        <table class="table" id="tbl-orders">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Nomor Order / AWB</th>
-                                    <th>Customer</th>
-                                    <th>Destination</th>
-                                    <th>Options</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($orders as $order)
+                        @if (Auth::user()->role_id != '1')
+                            <table class="table" id="tbl-orders">
+                                <thead>
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $order->numberorders }}</td>
-                                        <td>{{ $order->customer->name }}</td>
-                                        <td>{{ $order->destination->name }}</td>
-                                        <td>
-                                            <input class="form-check-input" name="checkbox" type="checkbox" value="{{ $order->id }}" onchange="check(this)" {{ in_array($order->id, $shippingCourier->detailshippingcourier->pluck('orders_id')->toArray()) ? 'checked' : '' }}>
-                                        </td>
+                                        <th>#</th>
+                                        <th>Nomor Order / AWB</th>
+                                        <th>Customer</th>
+                                        <th>Destination</th>
+                                        <th>Options</th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {{-- @foreach ($orders as $order)
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $order->numberorders }}</td>
+                                            <td>{{ $order->customer->name }}</td>
+                                            <td>{{ $order->destination->name }}</td>
+                                            <td>
+                                                <input class="form-check-input" name="checkbox" type="checkbox" value="{{ $order->id }}" onchange="check(this)" {{ in_array($order->id, $shippingCourier->detailshippingcourier->pluck('orders_id')->toArray()) ? 'checked' : '' }}>
+                                            </td>
+                                        </tr>
+                                    @endforeach --}}
+                                </tbody>
+                            </table>
+                        @elseif(Auth::user()->role_id == '1')
+                            <table class="table " id="tbl-orders-by-outlet">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nomor Order / AWB</th>
+                                        <th>Customer</th>
+                                        <th>Destination</th>
+                                        <th>Options</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                            </table>
+                        @endif
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -208,7 +227,151 @@
             $('#tbl-orders input[value="' + id + '"]').prop('checked', false);
         }
 
+            $('#tbl-orders-by-outlet').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        ajax: {
+                            url: "{{ url('/shipping-courier/getOrdersByOutlet') }}",
+                            type: 'GET',
+                            data : {
+                                outletasal : $('#outlet_id_select').val()
+                            },
+                        },
+                        columns: [{
+                                data: 'DT_RowIndex',
+                                orderable: false,
+                            },
+                            {
+                                data: 'numberorders',
+                                name: 'numberorders'
+                            },
+                            {
+                                data: 'namacustomer',
+                                name: 'namacustomer'
+                            },
+                            {
+                                data: 'destination',
+                                name: 'destination'
+                            },
+                            {
+                                data: 'check',
+                                name: 'check'
+                            },
+                        ]
+                    });
+
+
         $(document).ready(function () {
+            table = $('#tbl-orders').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ url('/shipping-courier/getOrders') }}",
+                    type: 'GET'
+                },
+                columns: [{
+                        data: 'DT_RowIndex',
+                        orderable: false,
+                    },
+                    {
+                        data: 'numberorders',
+                        name: 'numberorders'
+                    },
+                    {
+                        data: 'namacustomer',
+                        name: 'namacustomer'
+                    },
+                    {
+                        data: 'destination',
+                        name: 'destination'
+                    },
+                    {
+                        data: 'check',
+                        name: 'check'
+                    },
+                ]
+            });
+
+            // Saat elemen outlet_id_select berubah
+            $('#outlet_id_select').change(function() {
+                var selectedValue = $(this).val();
+                $('#outlet_id_hidden').val(selectedValue);
+            });
+
+            // get courier by outlet
+            $('#outlet_id_select').change(function () {
+                $.ajax({
+                    url:'{{ url('/shipping-courier/getCourier') }}',
+                    type: 'GET',
+                    data : {
+                        outletasal : $('#outlet_id_hidden').val()
+                    },
+
+                    success: function (response) {
+                            var couriers = response.couriers;
+                            var courierSelect = $('#courier')
+                            courierSelect.empty();
+
+                            courierSelect.append('<option value="0" hidden>Pilih Kurir</option>');
+
+                            if (couriers != null) {
+                                couriers.forEach(function (couriers) {
+                                    courierSelect.append('<option value="'+ couriers.id +'" >'+couriers.name+'</option>')
+                                });
+                            }
+                    },
+
+                    error: function (xhr, status, error) {
+                        // console.error('AJAX Error: ', xhr.responseText)
+                        console.log('error');
+                    }
+
+                })
+            })
+
+             // data order by outlet
+             $('#outlet_id_select').change(function () {
+                // destroy instance datatable jika ada datanya
+                if ($.fn.DataTable.isDataTable('#tbl-orders-by-outlet')) {
+                    $('#tbl-orders-by-outlet').DataTable().destroy()
+                }
+
+                // buat state instance datatable baru
+                $('#tbl-orders-by-outlet').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        ajax: {
+                            url: "{{ url('/shipping-courier/getOrdersByOutlet') }}",
+                            type: 'GET',
+                            data : {
+                                outletasal : $('#outlet_id_hidden').val()
+                            },
+                        },
+                        columns: [{
+                                data: 'DT_RowIndex',
+                                orderable: false,
+                            },
+                            {
+                                data: 'numberorders',
+                                name: 'numberorders'
+                            },
+                            {
+                                data: 'namacustomer',
+                                name: 'namacustomer'
+                            },
+                            {
+                                data: 'destination',
+                                name: 'destination'
+                            },
+                            {
+                                data: 'check',
+                                name: 'check'
+                            },
+                        ]
+                    });
+                })
+
+
             $('#form-create-shipping').validate({
                 rules: {
                     'shipping_no': 'required',

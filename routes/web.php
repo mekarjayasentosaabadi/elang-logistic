@@ -121,13 +121,19 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('shipping-courier')->group(function () {
         Route::get('/', [ShippingcourierController::class, 'index'])->name('shipping.index');
         Route::get('/getAll', [ShippingcourierController::class, 'getAll'])->name('shipping.getAll');
+        Route::get('/getDetail', [ShippingcourierController::class, 'getDetail'])->name('shipping.getDetail');
         Route::get('/getOrders', [ShippingcourierController::class, 'getOrder'])->name('shipping.getOrder');
+        Route::get('/getOrdersByOutlet', [ShippingcourierController::class, 'getOrdersByOutlet'])->name('shipping.getOrdersByOutlet');
         Route::get('/getOrderDetail', [ShippingcourierController::class, 'getOrderDetail'])->name('shipping.getOrderDetail');
         Route::get('/getCourier', [ShippingcourierController::class, 'getCourier'])->name('shipping.getCourier');
         Route::get('/create', [ShippingcourierController::class, 'create'])->name('shipping.create');
         Route::post('/store', [ShippingcourierController::class, 'store'])->name('shipping.store');
+        Route::get('/{id}/done', [ShippingcourierController::class, 'done'])->name('shipping.done');
         Route::get('/{id}/edit', [ShippingcourierController::class, 'edit'])->name('shipping.edit');
+        Route::get('/{id}/show', [ShippingcourierController::class, 'show'])->name('shipping.show');
         Route::patch('/{id}/update', [ShippingcourierController::class, 'update'])->name('shipping.update');
+        Route::get('/{id}/sendShipping', [ShippingcourierController::class, 'sendShipping'])->name('shipping.sendShipping');
+        Route::post('/{id}/storeShippingDone', [ShippingcourierController::class, 'storeShippingDone'])->name('shipping.storeShippingDone');
     });
 
     //Price
