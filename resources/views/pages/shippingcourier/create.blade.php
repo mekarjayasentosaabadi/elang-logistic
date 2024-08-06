@@ -20,8 +20,7 @@
                             <select name="outlet_id_select" id="outlet_id_select" class="form-control">
                                 <option value="" hidden>Pilih Outlet</option>
                                 @foreach ($outlets as $outlet)
-                                    <option value="{{ $outlet->id }}"
-                                        {{ old('outlet_id') == $outlet->id ? 'selected' : '' }}>{{ $outlet->name }}</option>
+                                    <option value="{{ $outlet->id }}" >{{ $outlet->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -170,7 +169,7 @@
         }
 
         $(document).ready(function() {
-            table = $('#tbl-orders').DataTable({
+            $('#tbl-orders').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -204,6 +203,15 @@
             $('#outlet_id_select').change(function() {
                 var selectedValue = $(this).val();
                 $('#outlet_id_hidden').val(selectedValue);
+
+                 // Kosongkan tabel detail paket dan input tersembunyi saat outlet berubah
+                $('#tbl-detail-paket').empty();
+                $('#hidden-inputs-container').empty();
+
+                // Destroy instance datatable jika ada datanya
+                if ($.fn.DataTable.isDataTable('#tbl-orders-by-outlet')) {
+                    $('#tbl-orders-by-outlet').DataTable().destroy();
+                }
             });
 
             // get courier by outlet
@@ -220,7 +228,7 @@
                             var courierSelect = $('#courier')
                             courierSelect.empty();
 
-                            courierSelect.append('<option value="0" hidden>Pilih Kurir</option>');
+                            courierSelect.append('<option value="" hidden>Pilih Kurir</option>');
 
                             if (couriers != null) {
                                 couriers.forEach(function (couriers) {
@@ -281,7 +289,7 @@
             })
 
 
-
+            // order detail table
              window.check = function(checkbox) {
                 let rowNumber = 1 ;
                 const orderId = $(checkbox).val();
