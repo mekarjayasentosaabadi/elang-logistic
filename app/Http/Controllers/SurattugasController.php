@@ -42,7 +42,7 @@ class SurattugasController extends Controller
                     $option .= '<a href="manifest/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm "><i class="fa fa-edit"></i></a> ';
                     $option .= '<a class="btn btn-primary btn-sm" title="Cetak Surat Tugas"><li class="fa fa-print"></li></a> ';
                     $option .= '<button class="btn btn-success btn-sm" title="Berangkatkan"><li class="fa fa-truck"></li></button> ';
-                    $option .= '<button class="btn btn-danger btn-sm" onclick="deleteManifest(this, '.$x->id.')"><i class="fa fa-trash"></i></button> ';
+                    $option .= '<button class="btn btn-danger btn-sm" onclick="deleteSuratTugas(this, '.$x->id.')"><i class="fa fa-trash"></i></button> ';
                     return $option;
                 })
                 ->rawColumns(['status', 'option'])
@@ -96,5 +96,11 @@ class SurattugasController extends Controller
             return ResponseFormatter::error([$error],'Something went wrong');
         }
 
+    }
+
+    function delete($id){
+        Detailsurattugas::where('surattugas_id', $id)->delete();
+        Surattugas::where('id', $id)->delete();
+        return ResponseFormatter::success([], 'Berhasil menghapus data Surat tugas');
     }
 }

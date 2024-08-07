@@ -170,6 +170,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/getAll', [SurattugasController::class, 'getAll'])->name('surattugas.getAll');
         Route::get('/{id}/suratjalan', [SurattugasController::class, 'getSuratJalan'])->name('surattugas.suratjalan');
         Route::post('/', [SurattugasController::class, 'store'])->name('surattugas.store');
+        Route::post('/{id}/delete', [SurattugasController::class, 'delete'])->name('surattugas.delete');
     });
     Route::get('/logout', [AuthController::class, 'logout']);
 
