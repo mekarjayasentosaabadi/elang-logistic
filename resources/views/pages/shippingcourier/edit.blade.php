@@ -64,9 +64,7 @@
                                         <option value="" hidden>Pilih Kurir</option>
                                         @if (Auth::user()->role_id != '1')
                                             @foreach ($couriers as $courier)
-                                                <option value="{{ $courier->id }}" {{ $courier->id == $shippingCourier->driver_id ? 'selected' : '' }}>
-                                                    {{ $courier->name }}
-                                                </option>
+                                                <option value="{{ $courier->id }}" {{ $courier->id == $shippingCourier->driver_id ? 'selected' : '' }} >{{ $courier->name }}</option>
                                             @endforeach
                                         @endif
                                     </select>
@@ -83,9 +81,13 @@
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Tambahkan paket</h3>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter"> Add Paket</button>
-                    </div>
+                        @if ($shippingCourier->status_shippingcourier != "2")
+                            <h3 class="card-title">Tambahkan paket</h3>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter"> Add Paket</button>
+                        @else
+                            <h3 class="card-title">Paket Yang Dikirim</h3>
+                        @endif
+                        </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="table-responsive">
@@ -111,7 +113,20 @@
                                                 <td>{{ $order->customer->name }}</td>
                                                 <td>{{ $order->weight }}</td>
                                                 <td>{{ $order->destination->name }}</td>
-                                                <td><button type="button" class="btn text-danger d-flex" onclick="removeRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash me-50"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Cancle</button></td>
+                                                <td>
+                                                    @if ($detail->status_detail == 1)
+                                                        <button type="button" class="btn text-danger d-flex" onclick="removeRow(this)">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash me-50">
+                                                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                                </svg>Cancle
+                                                        </button>
+                                                    @elseif ($detail->status_detail == 2)
+                                                        <p class="text-primary">On The Way</p>
+                                                    @elseif ($detail->status_detail == 3)
+                                                        <p class="text-success">Done</p>
+                                                    @endif
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
