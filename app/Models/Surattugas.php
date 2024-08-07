@@ -11,7 +11,8 @@ class Surattugas extends Model
     protected $fillable = [
         'nosurattugas',
         'statussurattugas',
-        'note'
+        'note',
+        'outlets_id'
     ];
     protected $table = 'surattugas';
 
