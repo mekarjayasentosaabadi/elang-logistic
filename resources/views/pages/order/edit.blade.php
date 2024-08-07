@@ -411,6 +411,7 @@
                     'volume'          :  'Volume harus diisi.',
                     'price'           :  'Harga harus diisi.',
                     'payment_method'  :  'Pilih salah satu.',
+                    'koli'            :  'Koli harus diisi.',
                     'estimation'      :  'Estimasi harus diisi.',
                     'description'     :  'Deskripsi harus diisi.',
                     'note'            :  'Catatan harus diisi.',

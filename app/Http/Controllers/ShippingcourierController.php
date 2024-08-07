@@ -335,6 +335,7 @@ class ShippingcourierController extends Controller
             $orders = [];
        }
 
+       
 
 
         return view('pages.shippingcourier.edit', compact('couriers', 'outlets', 'orders', 'shippingCourier'));
