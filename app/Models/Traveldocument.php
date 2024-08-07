@@ -39,4 +39,9 @@ class Traveldocument extends Model
     function outlet(){
         return $this->belongsTo(Outlet::class, 'outlets_id', 'id');
     }
+
+    //relasi ke detail surat tugas
+    public function detailsurattugas(): hasMany{
+        return $this->hasMany(Detailsurattugas::class, 'traveldocuments_id', 'id');
+    }
 }
