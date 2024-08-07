@@ -22,7 +22,7 @@ class TraveldocumentController extends Controller
     function getAll(){
         if(auth()->user()->role_id == '2'){
             $q = DB::table('traveldocuments')
-                        ->join('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
+                        ->leftJoin('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
                         ->join('destinations', 'traveldocuments.destinations_id', '=', 'destinations.id')
                         ->select('traveldocuments.id','traveldocuments.travelno', 'destinations.name','traveldocuments.status_traveldocument', DB::raw('count(detailtraveldocuments.traveldocuments_id) as jml_manifest'))
                         ->where('traveldocuments.outlets_id', auth()->user()->outlets_id)
@@ -30,7 +30,7 @@ class TraveldocumentController extends Controller
                         ->get();
         } else {
             $q = DB::table('traveldocuments')
-                        ->join('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
+                        ->leftJoin('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
                         ->join('destinations', 'traveldocuments.destinations_id', '=', 'destinations.id')
                         ->select('traveldocuments.id','traveldocuments.travelno', 'destinations.name','traveldocuments.status_traveldocument', DB::raw('count(detailtraveldocuments.traveldocuments_id) as jml_manifest'))
                         ->groupBy('traveldocuments.travelno', 'destinations.name', 'traveldocuments.status_traveldocument')
@@ -42,7 +42,7 @@ class TraveldocumentController extends Controller
                 $btn = '';
                 $btn .= '<div>';
                 $btn .= '<a href="'.url('/delivery/'.$encryptId.'/edit').'" class="btn btn-warning btn-sm" title="Edit"><li class="fa fa-edit"></li></a> ';
-                $btn .= '<a href="'.url('/delivery/'.$encryptId.'/cetak').'" class="btn btn-primary btn-sm" title="Cetak"><li class="fa fa-print"></li></a> ';
+                $btn .= '<a href="'.url('/delivery/'.$encryptId.'/cetak').'" target="_blank" class="btn btn-primary btn-sm" title="Cetak"><li class="fa fa-print"></li></a> ';
                 $btn .= '<button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#twoFactorAuthModal" onclick="getDetail(this,'.$query->id.')"><li class="fa fa-search"></li></button> ';
                 $btn .= '<a class="btn btn-danger btn-sm" title="Cancel" onclick="deleteTravelDocument(this,'.$query->id.')"><li class="fa fa-trash"></li></a>';
                 $btn .= '</div>';
@@ -151,7 +151,8 @@ class TraveldocumentController extends Controller
         $detailTravelDocument = Traveldocument::with(['driver', 'vehicle', 'destination'])->where('id', $id)->first();
         $q = DB::table('detailtraveldocuments')
                 ->join('manifests', 'detailtraveldocuments.manifests_id', '=', 'manifests.id')
-                ->select('manifests.manifestno', DB::raw('count(detailtraveldocuments.manifests_id) as jml_awb') )
+                ->join('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
+                ->select('manifests.manifestno', DB::raw('count(detailmanifests.manifests_id) as jml_awb') )
                 ->where('detailtraveldocuments.traveldocuments_id', $id)
                 ->groupBy('manifests.manifestno')
                 ->get();
@@ -160,5 +161,36 @@ class TraveldocumentController extends Controller
             'traveldocument'        => $detailTravelDocument,
             'detailtraveldocuments' => $q
         ], 'Get data successfuly');
+    }
+
+    function listDetailEdit($id){
+        $q = DB::table('detailtraveldocuments')
+            ->join('manifests', 'detailtraveldocuments.manifests_id', '=', 'manifests.id')
+            ->join('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
+            ->select('detailtraveldocuments.id', 'manifests.manifestno', DB::raw('count(detailtraveldocuments.manifests_id) as jml_awb') )
+            ->where('detailtraveldocuments.traveldocuments_id', Crypt::decrypt($id))
+            ->groupBy('detailtraveldocuments.id', 'manifests.manifestno')
+            ->get();
+        return ResponseFormatter::success([
+            'listData'      => $q
+        ], 'get data successfuly');
+    }
+
+    function deleteDetail($id){
+        Detailtraveldocument::where('id', $id)->delete();
+        return ResponseFormatter::success([], 'Berhasil menghapus data detail surat jalan');
+    }
+
+    function update(Request $request, $id){
+        $request->validate([
+            'noSuratJalan'        => 'required|unique:traveldocuments,travelno,'.Crypt::decrypt($id).',id',
+        ]);
+        $dataUpdate = [
+            'travelno'      => $request->noSuratJalan,
+            'vehicle_id'    => $request->vehicle,
+            'driver_id'     => $request->driver
+        ];
+        Traveldocument::where('id', Crypt::decrypt($id))->update($dataUpdate);
+        return ResponseFormatter::success([], 'Berhasil mengupdate data surat jalan');
     }
 }

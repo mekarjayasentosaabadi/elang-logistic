@@ -162,7 +162,6 @@
         }
 
         function getDetail(x, i){
-            console.log(i);
             iTravel='';
             iTravel=i
             $.getJSON(window.location.origin + '/' + listRoutes['traveldocument.listDetail'].replace('{id}', i), function(e){
@@ -174,7 +173,6 @@
         }
 
         const detailTravel=(x, y)=>{
-            console.log(y);
             let noUrut = 1;
             $('#tblListManifest').html('');
             form = document.getElementById('formDetailTravel');

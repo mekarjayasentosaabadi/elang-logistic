@@ -13,7 +13,7 @@
                     <a href="{{ route('traveldocument.index') }}" class="btn btn-warning btn-sm"><li class="fa fa-undo"></li> Kembali</a>
                 </div>
                 <div class="card-body">
-                    <form action="#" id="formAddSuratJalan">
+                    <form action="#" id="formEditSuratJalan">
                         @csrf
                         <div class="row">
                             <div class="col-md-6 col-lg-6 col-sm-12">
@@ -97,14 +97,97 @@
         let segment = path.split("/");
         let suratJalanId = segment["2"];
         var urlBase = window.location.origin;
+        let arrData = [];
         $(document).ready(function(){
-            $.getJSON(urlBase + '/' + listRoutes['traveldocument.listDetail'].replace('{id}', suratJalanId ), function(){
-
+            getList();
+        })
+        const getList = () =>{
+            $.getJSON(urlBase + '/' + listRoutes['traveldocument.listDetailEdit'].replace('{id}', suratJalanId ), function(){
             }).done(function(e){
                 console.log(e);
+                getDetail(e.data.listData)
             }).fail(function(e){
                 console.log(e);
             })
+        }
+        const getDetail = (x) =>{
+            console.log(x);
+            $('#tblListManifest').html('')
+            let noUrut = 1;
+            if(x.length >= 0){
+                x.map((x, i)=>{
+                    $('#tblListManifest').append(
+                        `
+                        <tr>
+                            <td>${noUrut++}</td>
+                            <td>${x.manifestno}</td>
+                            <td>${x.jml_awb}</td>
+                            <td><button type="button" onclick="hapusManifest(this, ${x.id})" class="btn btn-danger btn-sm" title="Hapus Detail"><li class="fa fa-trash"></li></button></td>
+                        </tr>
+                        `
+                    )
+                })
+            } else {
+                console.log('Data Kosong');
+            }
+        }
+
+        function hapusManifest(x, i){
+            console.log(i);
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Apakah Anda yakin ingin akan menghapus data deteil ini.?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Lanjutkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: window.location.origin + '/' + listRoutes['traveldocument.deleteDetail'].replace(
+                            '{id}', i),
+                        type: "POST",
+                        dataType: "JSON",
+                        processData: false,
+                        contentType: false,
+                        success: function(e) {
+                            notifSweetAlertSuccess(e.meta.message);
+                            getList()
+                        },
+                        error: function(e) {
+                            console.log(e)
+                        }
+                    })
+                }
+            })
+        }
+
+        //update surat jalan
+        $('#formEditSuratJalan').validate({
+            rules: {
+                'noSuratJalan': 'required',
+                'vehicle': 'required',
+                'driver': 'required',
+                'destination': 'required'
+            },
+            submitHandler: function () {
+                $.ajax({
+                    url: window.location.origin + '/' + listRoutes['traveldocument.update'].replace('{id}', suratJalanId),
+                    type: "POST",
+                    dataType: "JSON",
+                    data: new FormData($('#formEditSuratJalan')[0]),
+                    processData: false,
+                    contentType: false,
+                    success: function (e) {
+                        notifSweetAlertSuccess(e.meta.message);
+                    },
+                    error: function (e) {
+                        if (e.status == 422) {
+                            notifSweetAlertErrors(e.responseJSON.errors);
+                        }
+                    }
+                })
+            }
         })
     </script>
 @endsection

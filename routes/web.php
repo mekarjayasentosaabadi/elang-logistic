@@ -157,6 +157,9 @@ Route::middleware(['auth'])->group(function () {
         Route::post('{id}/delete',[TraveldocumentController::class, 'delete'])->name('traveldocument.delete');
         Route::get('/{id}/edit', [TraveldocumentController::class, 'edit'])->name('traveldocument.edit');
         Route::get('/{id}/listDetail', [TraveldocumentController::class, 'listDetail'])->name('traveldocument.listDetail');
+        Route::get('/{id}/listDetailEdit', [TraveldocumentController::class, 'listDetailEdit'])->name('traveldocument.listDetailEdit');
+        Route::post('{id}/deleteDetail',[TraveldocumentController::class, 'deleteDetail'])->name('traveldocument.deleteDetail');
+        Route::post('/{id}',[TraveldocumentController::class, 'update'])->name('traveldocument.update');
     });
     Route::get('/logout', [AuthController::class, 'logout']);
 
