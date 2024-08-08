@@ -10,11 +10,12 @@ use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\SurattugasController;
 use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\MasterpriceController;
-use App\Http\Controllers\ShippingcourierController;
 use App\Http\Controllers\ShippingcourirController;
 use App\Http\Controllers\TraveldocumentController;
+use App\Http\Controllers\ShippingcourierController;
 
 /*
 |--------------------------------------------------------------------------
@@ -160,6 +161,19 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/listDetailEdit', [TraveldocumentController::class, 'listDetailEdit'])->name('traveldocument.listDetailEdit');
         Route::post('{id}/deleteDetail',[TraveldocumentController::class, 'deleteDetail'])->name('traveldocument.deleteDetail');
         Route::post('/{id}',[TraveldocumentController::class, 'update'])->name('traveldocument.update');
+    });
+
+    //Surat tugas
+    Route::prefix('surattugas')->group(function(){
+        Route::get('/', [SurattugasController::class, 'index'])->name('surattugas.index');
+        Route::get('/create', [SurattugasController::class, 'create'])->name('surattugas.create');
+        Route::get('/getAll', [SurattugasController::class, 'getAll'])->name('surattugas.getAll');
+        Route::get('/{id}/suratjalan', [SurattugasController::class, 'getSuratJalan'])->name('surattugas.suratjalan');
+        Route::post('/', [SurattugasController::class, 'store'])->name('surattugas.store');
+        Route::post('/{id}/delete', [SurattugasController::class, 'delete'])->name('surattugas.delete');
+        Route::get('/{id}/edit', [SurattugasController::class, 'edit'])->name('surattugas.edit');
+        Route::get('/{id}/getListSuratJalan', [SurattugasController::class, 'getListSuratJalan'])->name('surattugas.getListSuratJalan');
+        Route::post('/{id}/deleteList', [SurattugasController::class, 'deleteList'])->name('surattugas.deleteList');
     });
     Route::get('/logout', [AuthController::class, 'logout']);
 

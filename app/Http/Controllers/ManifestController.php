@@ -33,23 +33,23 @@ class ManifestController extends Controller
                     $status .= 'Cancel</div>';
                     return $status;
                 } elseif($e->status_manifest == 1) {
-                    $status ='<div class="text-primary">';
+                    $status ='<div class="text-primary"><li class="fa fa-gears"></li> ';
                     $status .= 'Process</div>';
                     return $status;
                 } elseif($e->status_manifest == 2) {
-                    $status ='<div class="text-primary">';
+                    $status ='<div class="text-primary"><li class="fa fa-truck"></li> ';
                     $status .= 'On The Way</div>';
                     return $status;
                 } else {
-                    $status ='<div class="text-success">';
-                    $status .= 'Finish</div>';
+                    $status ='<div class="text-success"><li class="fa fa-check"></li> ';
+                    $status .= 'Done</div>';
                     return $status;
                 }
             })
             ->addColumn('option', function($x){
-                if($x->status_manifest != 3){
+                if($x->status_manifest != 3 && $x->status_manifest != 2){
                     $option = '<div>';
-                    $option .= '<a href="manifest/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm"><i class="fa fa-edit"></i></a> ';
+                    $option .= '<a href="manifest/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm "><i class="fa fa-edit"></i></a> ';
                     $option .= '<button class="btn btn-danger btn-sm" onclick="deleteManifest(this, '.$x->id.')"><i class="fa fa-trash"></i></button> ';
                     $option .= '<a href="manifest/'.Crypt::encrypt($x->id).'/print" target="_blank" class="btn btn-success btn-sm" title="Cetak Resi Manifest"><i class="fa fa-print"></i></a></div>';
                     return $option;
