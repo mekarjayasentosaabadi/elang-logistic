@@ -291,11 +291,14 @@
 
             // order detail table
              window.check = function(checkbox) {
+
                 let rowNumber = 1 ;
                 const orderId = $(checkbox).val();
                 const isChecked = $(checkbox).is(':checked');
 
                 if (isChecked) {
+                    $(checkbox).prop('disabled', true);
+
                     $.ajax({
                         url: "{{ url('/shipping-courier/getOrderDetail') }}",
                         type: 'GET',
@@ -313,6 +316,9 @@
                                 </tr>
                             `);
                             $('#hidden-inputs-container').append(`<input type="hidden" name="order_ids[]" value="${orderId}">`);
+                        },
+                        complete: function() {
+                            $(checkbox).prop('disabled', false);
                         }
                     });
                 } else {
