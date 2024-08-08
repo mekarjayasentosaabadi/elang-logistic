@@ -81,9 +81,9 @@
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        @if ($shippingCourier->status_shippingcourier != "2")
+                        @if ($showAddPaketButton)
                             <h3 class="card-title">Tambahkan paket</h3>
-                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter"> Add Paket</button>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">Add Paket</button>
                         @else
                             <h3 class="card-title">Paket Yang Dikirim</h3>
                         @endif

@@ -70,12 +70,13 @@
                         data: 'jml_paket',
                         name: 'jml_paket',
                         searchable: false,
-                        orderColumn: 'count(detail_shipping_couriers.id)'
+                        orderable: false,
                     },
                     {
                         data: 'status',
                         name: 'status',
-                        searchable: false
+                        searchable: false,
+                        orderable: false,
                     },
                     {
                         data: 'aksi',

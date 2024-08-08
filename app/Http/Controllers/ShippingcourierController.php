@@ -31,6 +31,7 @@ class ShippingcourierController extends Controller
         if (Auth::user()->role_id == '1') {
             $q = ShippingCourier::with(['detailshippingcourier.order', 'driver']);
         }
+
         // admin
         else if (Auth::user()->role_id == '2') {
 
@@ -44,6 +45,7 @@ class ShippingcourierController extends Controller
 
 
         }
+
         // courier
         else if(Auth::user()->role_id == '3'){
             $dataUser = User::where('id', Auth::user()->id)->first();
@@ -65,6 +67,7 @@ class ShippingcourierController extends Controller
                 return $query->driver->name;
             })
             ->editColumn('jml_paket', function ($query) {
+
                 return $query->detailshippingcourier->count();
             })
             ->editColumn('status', function ($query) {
@@ -335,10 +338,18 @@ class ShippingcourierController extends Controller
             $orders = [];
        }
 
-       
+        $showAddPaketButton = true;
+        foreach ($shippingCourier->detailshippingcourier as $detail) {
+            if ($detail->status_detail == 2 || $detail->status_detail == 3) {
+                $showAddPaketButton = false;
+                break;
+            }
+        }
 
 
-        return view('pages.shippingcourier.edit', compact('couriers', 'outlets', 'orders', 'shippingCourier'));
+
+
+        return view('pages.shippingcourier.edit', compact('couriers', 'outlets', 'orders', 'shippingCourier', 'showAddPaketButton'));
     }
 
 
@@ -372,6 +383,7 @@ class ShippingcourierController extends Controller
         }
 
         $shippingCourier = ShippingCourier::find($id);
+
         if (!$shippingCourier) {
             Alert::error('Gagal', 'Data pengiriman tidak ditemukan.');
             return redirect()->back();
