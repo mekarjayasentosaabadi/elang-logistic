@@ -171,6 +171,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/suratjalan', [SurattugasController::class, 'getSuratJalan'])->name('surattugas.suratjalan');
         Route::post('/', [SurattugasController::class, 'store'])->name('surattugas.store');
         Route::post('/{id}/delete', [SurattugasController::class, 'delete'])->name('surattugas.delete');
+        Route::get('/{id}/edit', [SurattugasController::class, 'edit'])->name('surattugas.edit');
+        Route::get('/{id}/getListSuratJalan', [SurattugasController::class, 'getListSuratJalan'])->name('surattugas.getListSuratJalan');
+        Route::post('/{id}/deleteList', [SurattugasController::class, 'deleteList'])->name('surattugas.deleteList');
     });
     Route::get('/logout', [AuthController::class, 'logout']);
 

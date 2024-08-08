@@ -39,7 +39,7 @@ class SurattugasController extends Controller
                 })
                 ->addColumn('option', function($x){
                     $option = '<div>';
-                    $option .= '<a href="manifest/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm "><i class="fa fa-edit"></i></a> ';
+                    $option .= '<a href="surattugas/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm "><i class="fa fa-edit"></i></a> ';
                     $option .= '<a class="btn btn-primary btn-sm" title="Cetak Surat Tugas"><li class="fa fa-print"></li></a> ';
                     $option .= '<button class="btn btn-success btn-sm" title="Berangkatkan"><li class="fa fa-truck"></li></button> ';
                     $option .= '<button class="btn btn-danger btn-sm" onclick="deleteSuratTugas(this, '.$x->id.')"><i class="fa fa-trash"></i></button> ';
@@ -102,5 +102,35 @@ class SurattugasController extends Controller
         Detailsurattugas::where('surattugas_id', $id)->delete();
         Surattugas::where('id', $id)->delete();
         return ResponseFormatter::success([], 'Berhasil menghapus data Surat tugas');
+    }
+
+    function edit($id){
+        $destination    = Destination::all();
+        $surattugas = DB::table('surattugas')
+                        ->leftJoin('detailsurattugas', 'surattugas.id', '=', 'detailsurattugas.surattugas_id')
+                        ->leftJoin('traveldocuments', 'detailsurattugas.traveldocuments_id', '=', 'traveldocuments.id')
+                        ->leftJoin('destinations', 'traveldocuments.destinations_id', '=', 'destinations.id')
+                        ->select('surattugas.id', 'surattugas.nosurattugas', 'surattugas.statussurattugas', 'destinations.id as iddestination', 'destinations.name', DB::raw('count(detailsurattugas.traveldocuments_id) as jumlah_surat_tugas'))
+                        ->where('surattugas.id', Crypt::decrypt($id))
+                        ->groupBy('surattugas.id', 'surattugas.nosurattugas', 'surattugas.statussurattugas', 'destinations.name', 'destinations.id')
+                        ->first();
+        return view('pages.surattugas.edit', compact('destination', 'surattugas'));
+    }
+
+    function getListSuratJalan($id){
+        $listSuratTugas = DB::table('detailsurattugas')
+                            ->leftJoin('traveldocuments', 'detailsurattugas.traveldocuments_id', '=', 'traveldocuments.id')
+                            ->leftJoin('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
+                            ->select('detailsurattugas.id as idsurattugas','traveldocuments.id','traveldocuments.travelno', DB::raw('count(detailtraveldocuments.manifests_id) as jml_manifest'))
+                            ->where('detailsurattugas.surattugas_id', Crypt::decrypt($id))
+                            ->groupBy('detailsurattugas.id','traveldocuments.id','traveldocuments.travelno')
+                            ->get();
+
+        return ResponseFormatter::success(['listSuratTugas'=>$listSuratTugas], 'Get data successfuly');
+    }
+
+    function deleteList($id){
+        Detailsurattugas::where('id', $id)->delete();
+        return ResponseFormatter::success([], 'Data surat tugas berhasil di hapus.!!');
     }
 }
