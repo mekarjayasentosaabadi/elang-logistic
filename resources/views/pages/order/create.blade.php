@@ -49,7 +49,7 @@
                                 <div class="form-group mb-2">
                                     <label for="customer_id">Pengirim</label>
                                     <select name="customer_id" id="customer_id" class="form-control">
-                                     <option value="0" hidden>Pilih Customer</option>
+                                     <option value="" hidden>Pilih Customer</option>
                                        @if (Auth::user()->role_id != '1')
                                             @foreach ($customers as $customer)
                                                 <option value="{{ $customer->id }}" value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>{{ $customer->name }}</option>
@@ -312,7 +312,7 @@
                             var customerSelect = $('#customer_id')
                             customerSelect.empty();
 
-                            customerSelect.append('<option value="0" hidden>Pilih Customer</option>');
+                            customerSelect.append('<option value="" hidden>Pilih Customer</option>');
 
                             if (customers != null) {
                                 customers.forEach(function (customer) {
