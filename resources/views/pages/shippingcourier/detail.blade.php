@@ -77,21 +77,25 @@
                     {
                         data: 'numberorders',
                         name: 'order.numberorders',
+                        orderable : false,
                         searchable:true
                     },
                     {
                         data: 'penerima',
                         name: 'order.penerima',
+                        orderable : false,
                         searchable:true
                     },
                     {
                         data: 'address',
                         name: 'order.address',
+                        orderable : false,
                         searchable:true
                     },
                     {
                         data: 'status',
                         name: 'status_detail',
+                        orderable : false,
                         searchable:false
                     },
                     {

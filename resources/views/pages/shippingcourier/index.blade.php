@@ -59,12 +59,15 @@
                     {
                         data: 'shippingno',
                         name: 'shippingno',
+                        orderable: false,
                         searchable: true
                     },
                     {
                         data: 'nama_kurir',
                         name: 'driver.name',
+                        orderable: false,
                         searchable: true
+
                     },
                     {
                         data: 'jml_paket',

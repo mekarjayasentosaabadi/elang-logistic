@@ -304,10 +304,11 @@
                         type: 'GET',
                         data: { id: orderId },
                         success: function(response) {
+                            const rowNumber = $('#tbl-detail-paket tr').length + 1;
                             // Menambahkan baris ke tabel
                             $('#tbl-detail-paket').append(`
                                 <tr data-id="${orderId}">
-                                    <td>${rowNumber++}</td>
+                                    <td>${rowNumber}</td>
                                     <td>${response.numberorders}</td>
                                     <td>${response.customer}</td>
                                     <td>${response.weight}</td>

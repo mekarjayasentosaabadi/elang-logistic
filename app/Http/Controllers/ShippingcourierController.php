@@ -11,11 +11,12 @@ use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DetailShippingCourier;
 use App\Models\HistoryAwb;
-use App\Models\Manifest;
 use Illuminate\Support\Facades\Crypt;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ShippingcourierController extends Controller
 {
@@ -113,8 +114,6 @@ class ShippingcourierController extends Controller
     public function getDetail(Request $request)
     {
 
-        $dataUser = User::where('id', Auth::user()->id)->first();
-        $userOutlet = Outlet::where('id', $dataUser->outlets_id)->first();
 
         $q = DetailShippingCourier::where('shipping_id', $request->id)->with('order');
 
@@ -338,10 +337,10 @@ class ShippingcourierController extends Controller
             $orders = [];
        }
 
-        $showAddPaketButton = true;
+        $statusDetailDone = true;
         foreach ($shippingCourier->detailshippingcourier as $detail) {
             if ($detail->status_detail == 2 || $detail->status_detail == 3) {
-                $showAddPaketButton = false;
+                $statusDetailDone = false;
                 break;
             }
         }
@@ -349,7 +348,7 @@ class ShippingcourierController extends Controller
 
 
 
-        return view('pages.shippingcourier.edit', compact('couriers', 'outlets', 'orders', 'shippingCourier', 'showAddPaketButton'));
+        return view('pages.shippingcourier.edit', compact('couriers', 'outlets', 'orders', 'shippingCourier', 'statusDetailDone'));
     }
 
 
@@ -474,11 +473,11 @@ class ShippingcourierController extends Controller
 
         $validator = Validator::make($request->all(), [
             'penerima'       => 'required',
-            'bukti_diterima' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'bukti_diterima' => 'required|image|mimes:jpeg,png,jpg,gif',
             'note'           => 'required',
         ],[
             'penerima.required'               => 'Nomor pengiriman harus diisi.',
-            'couribukti_diterimaer.required'  => 'Pilih kurir',
+            'bukti_diterima.required'         => 'Bukti diterima harus diisi',
             'note.required'                   => 'Catatan harus diisi',
         ]);
 
@@ -498,9 +497,18 @@ class ShippingcourierController extends Controller
             ]
         );
 
+        if ($request->file('bukti_diterima')) {
+            $manager = new ImageManager(new Driver());
+            $image = $manager->read($request->bukti_diterima);
+            $finalImage = $image->resize(1366, 768);
+
+            $imagePath = 'images/' . uniqid() . '.jpg';
+            $finalImage->save(storage_path('app/public/' . $imagePath));
+        }
+
         $dataOrder = [
             'penerima'      => $request->penerima,
-            'photos'        => $request->file('bukti_diterima')->store('images'),
+            'photos'        => $imagePath,
             'status_orders' => '3',
             'status_awb'    => 'Pesanan telah diterima oleh pihak terkait'
         ];

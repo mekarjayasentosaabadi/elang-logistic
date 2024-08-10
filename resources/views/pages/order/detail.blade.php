@@ -85,7 +85,7 @@
                                         <p>Foto bukti diterima:
                                             @if ($order->photos)
                                                 <div class="mt-1">
-                                                        <img width="60" src="{{asset('storage/'.$order->photos)}}" alt="">
+                                                        <img width="200" src="{{asset('storage/'.$order->photos)}}" alt="">
                                                 </div>
                                             @else
                                                 -
