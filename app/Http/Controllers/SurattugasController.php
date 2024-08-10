@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
+use App\Models\Manifest;
+use App\Models\HistoryAwb;
 use App\Models\Surattugas;
 use App\Models\Destination;
 use Illuminate\Http\Request;
+use App\Models\Detailmanifest;
+use App\Models\Traveldocument;
 use App\Models\Detailsurattugas;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
 use Illuminate\Support\Facades\DB;
+use App\Models\Detailtraveldocument;
 use Illuminate\Support\Facades\Crypt;
 
 class SurattugasController extends Controller
@@ -41,7 +47,7 @@ class SurattugasController extends Controller
                     $option = '<div>';
                     $option .= '<a href="surattugas/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm "><i class="fa fa-edit"></i></a> ';
                     $option .= '<a class="btn btn-primary btn-sm" title="Cetak Surat Tugas"><li class="fa fa-print"></li></a> ';
-                    $option .= '<button class="btn btn-success btn-sm" title="Berangkatkan"><li class="fa fa-truck"></li></button> ';
+                    $option .= '<button class="btn btn-success btn-sm" title="Berangkatkan" onclick="onGoing('.$x->id.')"><li class="fa fa-truck"></li></button> ';
                     $option .= '<button class="btn btn-danger btn-sm" onclick="deleteSuratTugas(this, '.$x->id.')"><i class="fa fa-trash"></i></button> ';
                     return $option;
                 })
@@ -132,5 +138,63 @@ class SurattugasController extends Controller
     function deleteList($id){
         Detailsurattugas::where('id', $id)->delete();
         return ResponseFormatter::success([], 'Data surat tugas berhasil di hapus.!!');
+    }
+
+    function onGoing($id){
+        $dataSuratJalan = Detailsurattugas::where('surattugas_id', $id)->get();
+        //suratjalan
+        $arrDataDetailSuratJalan = [];
+        foreach ($dataSuratJalan as $key => $value) {
+            $arrDataDetailSuratJalan[] = [
+                $value->traveldocuments_id
+            ];
+        }
+        //manifest
+        $dataManifest = Detailtraveldocument::whereIn('traveldocuments_id', $arrDataDetailSuratJalan)->get();
+        $arrDataManifests = [];
+        foreach ($dataManifest as $key => $value) {
+            $arrDataManifests[]=[
+                'manifests_id'=>$value->manifests_id
+            ];
+        }
+        //data Order
+        $dataOrder = Detailmanifest::whereIn('manifests_id', $arrDataManifests)->get();
+        $arrDataOrder=[];
+        $orderAwb=[];
+        foreach ($dataOrder as $key => $value) {
+            $arrDataOrder[]=[
+                'orders_id' => $value->orders_id
+            ];
+            $orderAwb[]=[
+                'id'    => $value->orders_id
+            ];
+        }
+        //Update Data Order
+        Order::whereIn('id', $arrDataOrder)->update([
+            'status_orders'     => 2
+        ]);
+        //Update TravelDocuments
+        Traveldocument::whereIn('id', $arrDataDetailSuratJalan)->update([
+            'status_traveldocument'     => 2
+        ]);
+        //Update Manifests
+        Manifest::whereIn('id', $arrDataManifests)->update([
+            'status_manifest'     => 2
+        ]);
+
+        $orderDataComp = Order::whereIn('id', $orderAwb)->get();
+        //Insert data History AWB
+        $arrDataHistory=[];
+        foreach ($orderDataComp as $key => $value) {
+            $arrDataHistory[]=[
+                'order_id'      => $value['id'],
+                'awb'           => $value['numberorders'],
+                'status'        => 'Pesanan sedang menuju destination tujuan',
+                'created_at'    => now(),
+                'updated_at'    => now()
+            ];
+        }
+        HistoryAwb::insert($arrDataHistory);
+        return ResponseFormatter::success([], 'Berhasil meng on goingkan surat tugas');
     }
 }

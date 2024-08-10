@@ -159,5 +159,35 @@
                 }
             })
         }
+
+        //function on going
+        function onGoing(i) {
+            console.log(i);
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Apakah Anda yakin ingin akan meng on goingkan surat Tugas tersebut.?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Lanjutkan!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: window.location.origin + '/' + listRoutes['surattugas.onGoing'].replace('{id}', i),
+                        type: "POST",
+                        dataType: "JSON",
+                        processData: false,
+                        contentType: false,
+                        success: function(e) {
+                            notifSweetAlertSuccess(e.meta.message);
+                            table.ajax.reload()
+                        },
+                        error: function(e) {
+                            console.log(e)
+                        }
+                    })
+                }
+            })
+        }
     </script>
 @endsection

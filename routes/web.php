@@ -174,6 +174,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [SurattugasController::class, 'edit'])->name('surattugas.edit');
         Route::get('/{id}/getListSuratJalan', [SurattugasController::class, 'getListSuratJalan'])->name('surattugas.getListSuratJalan');
         Route::post('/{id}/deleteList', [SurattugasController::class, 'deleteList'])->name('surattugas.deleteList');
+        Route::post('/{id}/onGoing', [SurattugasController::class, 'onGoing'])->name('surattugas.onGoing');
     });
     Route::get('/logout', [AuthController::class, 'logout']);
 
