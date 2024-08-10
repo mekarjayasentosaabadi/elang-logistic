@@ -17,12 +17,22 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label for="outlet_id_select">Outlet</label>
-                            <select name="outlet_id_select" id="outlet_id_select" class="form-control">
-                                <option hidden>Pilih Outlet</option>
-                                @foreach ($outlets as $outlet)
-                                    <option value="{{ $outlet->id }}" {{ $shippingCourier->driver->outlets_id == $outlet->id ? 'selected' : '' }}>{{ $outlet->name }}</option>
-                                @endforeach
-                            </select>
+                            @if ($statusDetailDone)
+                                <select name="outlet_id_select" id="outlet_id_select" class="form-control">
+                                    <option hidden>Pilih Outlet</option>
+                                    @foreach ($outlets as $outlet)
+                                        <option value="{{ $outlet->id }}" {{ $shippingCourier->driver->outlets_id == $outlet->id ? 'selected' : '' }}>{{ $outlet->name }}</option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <select name="outlet_id_select" id="outlet_id_select" class="form-control"  disabled>
+                                    <option hidden>Pilih Outlet</option>
+                                    @foreach ($outlets as $outlet)
+                                        <option value="{{ $outlet->id }}" {{ $shippingCourier->driver->outlets_id == $outlet->id ? 'selected' : '' }}>{{ $outlet->name }}</option>
+                                    @endforeach
+                                </select>
+                            @endif
+
                         </div>
                     </div>
                 </div>
@@ -55,25 +65,46 @@
                             <div class="col-md-6">
                                 <div class="form-group mb-2">
                                     <label for="shipping_no">Nomor Pengiriman</label>
-                                    <input type="text" name="shipping_no" id="shipping_no" class="form-control"
-                                        placeholder="Masukan nomor pengiriman" value="{{ $shippingCourier->shippingno }}">
+                                    @if ($statusDetailDone)
+                                        <input type="text" name="shipping_no" id="shipping_no" class="form-control"
+                                            placeholder="Masukan nomor pengiriman" value="{{ $shippingCourier->shippingno }}">
+                                    @else
+                                        <input type="text" name="shipping_no" id="shipping_no" class="form-control"
+                                        placeholder="Masukan nomor pengiriman" value="{{ $shippingCourier->shippingno }}" disabled>
+                                    @endif
                                 </div>
                                 <div class="form-group mb-2">
                                     <label for="courier">Kurir</label>
-                                    <select name="courier" id="courier" class="form-control">
-                                        <option value="" hidden>Pilih Kurir</option>
-                                        @if (Auth::user()->role_id != '1')
-                                            @foreach ($couriers as $courier)
-                                                <option value="{{ $courier->id }}" {{ $courier->id == $shippingCourier->driver_id ? 'selected' : '' }} >{{ $courier->name }}</option>
-                                            @endforeach
-                                        @endif
-                                    </select>
+                                    @if ($statusDetailDone)
+                                        <select name="courier" id="courier" class="form-control">
+                                            <option value="" hidden>Pilih Kurir</option>
+                                            @if (Auth::user()->role_id != '1')
+                                                @foreach ($couriers as $courier)
+                                                    <option value="{{ $courier->id }}" {{ $courier->id == $shippingCourier->driver_id ? 'selected' : '' }} >{{ $courier->name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    @else
+                                        <select name="courier" id="courier" class="form-control" disabled>
+                                            <option value="" hidden>Pilih Kurir</option>
+                                            @if (Auth::user()->role_id != '1')
+                                                @foreach ($couriers as $courier)
+                                                    <option value="{{ $courier->id }}" {{ $courier->id == $shippingCourier->driver_id ? 'selected' : '' }} >{{ $courier->name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    @endif
+
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="note">Catatan</label>
-                                    <textarea name="note" rows="4" id="note" class="form-control" placeholder="masukan catatan">{{ $shippingCourier->notes }}</textarea>
+                                    @if ($statusDetailDone)
+                                        <textarea name="note" rows="4" id="note" class="form-control" placeholder="masukan catatan">{{ $shippingCourier->notes }}</textarea>
+                                    @else
+                                        <textarea name="note" rows="4" id="note" class="form-control" placeholder="masukan catatan" disabled>{{ $shippingCourier->notes }}</textarea>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -81,7 +112,7 @@
                 </div>
                 <div class="card">
                     <div class="card-header">
-                        @if ($showAddPaketButton)
+                        @if ($statusDetailDone)
                             <h3 class="card-title">Tambahkan paket</h3>
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter">Add Paket</button>
                         @else
@@ -115,12 +146,16 @@
                                                 <td>{{ $order->destination->name }}</td>
                                                 <td>
                                                     @if ($detail->status_detail == 1)
-                                                        <button type="button" class="btn text-danger d-flex" onclick="removeRow(this)">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash me-50">
-                                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                                                </svg>Cancle
-                                                        </button>
+                                                        @if ($statusDetailDone)
+                                                            <button type="button" class="btn text-danger d-flex" onclick="removeRow(this)">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash me-50">
+                                                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                                                    </svg>Cancle
+                                                            </button>
+                                                        @else
+                                                            <p class="text-primary">Process</p>
+                                                        @endif
                                                     @elseif ($detail->status_detail == 2)
                                                         <p class="text-primary">On The Way</p>
                                                     @elseif ($detail->status_detail == 3)
@@ -131,9 +166,11 @@
                                         @endforeach
                                     </tbody>
                                 </table>
-                                <div class="mt-3">
-                                    <button class="btn btn-primary btn-md float-end">Simpan</button>
-                                </div>
+                                @if ($statusDetailDone)
+                                    <div class="mt-3">
+                                        <button class="btn btn-primary btn-md float-end">Simpan</button>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>
