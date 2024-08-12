@@ -17,7 +17,8 @@ class Surattugas extends Model
     protected $table = 'surattugas';
 
     //relasi to table detail surat tugas
-    public function detailsurattugas(): hasMany{
+    public function detailsurattugas()
+    {
         return $this->hasMany(Detailsurattugas::class, 'surattugas_id', 'id');
     }
 }

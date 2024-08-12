@@ -15,64 +15,78 @@ use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
 use Illuminate\Support\Facades\DB;
 use App\Models\Detailtraveldocument;
+use App\Models\Outlet;
+use App\Models\User;
+use App\Models\Vehicle;
 use Illuminate\Support\Facades\Crypt;
 
 class SurattugasController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         return view('pages.surattugas.index');
     }
 
-    function getAll(){
-        $table = DB::table('surattugas')
-                ->leftJoin('detailsurattugas', 'surattugas.id', '=', 'detailsurattugas.surattugas_id')
-                ->leftJoin('traveldocuments', 'detailsurattugas.traveldocuments_id', '=', 'traveldocuments.id')
-                ->leftJoin('destinations', 'traveldocuments.destinations_id', '=', 'destinations.id')
-                ->select('surattugas.id', 'surattugas.nosurattugas', 'surattugas.statussurattugas', 'destinations.id as iddestination', 'destinations.name', DB::raw('count(detailsurattugas.traveldocuments_id) as jumlah_surat_tugas'))
-                ->where('surattugas.outlets_id', auth()->user()->outlets_id)
-                ->groupBy('surattugas.id', 'surattugas.nosurattugas', 'surattugas.statussurattugas', 'destinations.name', 'destinations.id')
-                ->get();
+    function getAll()
+    {
+        $table = Surattugas::query();
+        if (auth()->user()->role_id != 1) {
+            $table->where('outlets_id', auth()->user()->outlets_id);
+        }
 
         return DataTables::of($table)
-                ->addColumn('status', function($x){
-                    if($x->statussurattugas == 0){
-                        return '<span class="text-danger">Cancel</span>';
-                    } else if($x->statussurattugas == 1){
-                        return '<span class="text-success">Process</span>';
-                    } else {
-                        return '<span class="text-primary">Done</span>';
-                    }
-                })
-                ->addColumn('option', function($x){
-                    $option = '<div>';
-                    $option .= '<a href="surattugas/'.Crypt::encrypt($x->id).'/edit" class="btn btn-warning btn-sm "><i class="fa fa-edit"></i></a> ';
-                    $option .= '<a class="btn btn-primary btn-sm" title="Cetak Surat Tugas"><li class="fa fa-print"></li></a> ';
-                    $option .= '<button class="btn btn-success btn-sm" title="Berangkatkan" onclick="onGoing('.$x->id.')"><li class="fa fa-truck"></li></button> ';
-                    $option .= '<button class="btn btn-danger btn-sm" onclick="deleteSuratTugas(this, '.$x->id.')"><i class="fa fa-trash"></i></button> ';
-                    return $option;
-                })
-                ->rawColumns(['status', 'option'])
-                ->addIndexColumn()
-                ->make(true);
+
+            ->addColumn('jumlah_surat_tugas', function ($x) {
+                return $x->detailsurattugas->count();
+            })
+            ->addColumn('status', function ($x) {
+                if ($x->statussurattugas == 0) {
+                    return '<span class="text-danger">Cancel</span>';
+                } else if ($x->statussurattugas == 1) {
+                    return '<span class="text-success">Process</span>';
+                } else if ($x->statussurattugas == 2) {
+                    return '<span class="text-primary">On The Way</span>';
+                } else {
+                    return '<span class="text-primary">Done</span>';
+                }
+            })
+            ->addColumn('option', function ($x) {
+                $option = '<div>';
+                $option .= '<a href="surattugas/' . Crypt::encrypt($x->id) . '/edit" class="btn btn-warning btn-sm "><i class="fa fa-edit"></i></a> ';
+                $option .= '<a class="btn btn-primary btn-sm" title="Cetak Surat Tugas"><li class="fa fa-print"></li></a> ';
+                if ($x->statussurattugas == 1) {
+                    $option .= '<button class="btn btn-success btn-sm" title="Berangkatkan" onclick="onGoing(' . $x->id . ')"><li class="fa fa-truck"></li></button> ';
+                }
+                $option .= '<button class="btn btn-danger btn-sm" onclick="deleteSuratTugas(this, ' . $x->id . ')"><i class="fa fa-trash"></i></button> ';
+                return $option;
+            })
+            ->rawColumns(['status', 'option'])
+            ->addIndexColumn()
+            ->make(true);
     }
 
-    function create(){
+    function create()
+    {
         $destination    = Destination::all();
-        return view('pages.surattugas.create', compact('destination'));
+        $vehicle        = Vehicle::where('is_active', '1')->get();
+        $driver         = User::where('role_id', '5')->where('outlets_id', auth()->user()->outlets_id)->get();
+        return view('pages.surattugas.create', compact('destination', 'vehicle', 'driver'));
     }
 
-    function getSuratJalan($id){
+    function getSuratJalan($id)
+    {
         $db = DB::table('traveldocuments')
-                ->leftJoin('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
-                ->select('traveldocuments.id','traveldocuments.travelno', DB::raw('count(detailtraveldocuments.manifests_id) as jml_manifest'))
-                ->where('traveldocuments.destinations_id', $id)
-                ->where('traveldocuments.status_traveldocument', 1)
-                ->groupBy('traveldocuments.id','traveldocuments.travelno')
-                ->get();
-        return ResponseFormatter::success(['dataSuratJalan'=>$db], 'Berhasil mengambil data');
+            ->leftJoin('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
+            ->leftJoin('destinations', 'traveldocuments.destinations_id', '=', 'destinations.id')
+            ->select('traveldocuments.id', 'traveldocuments.travelno', 'destinations.name as destination', DB::raw('count(detailtraveldocuments.manifests_id) as jml_manifest'))
+            ->where('traveldocuments.status_traveldocument', 1)
+            ->groupBy('traveldocuments.id', 'traveldocuments.travelno')
+            ->get();
+        return ResponseFormatter::success(['dataSuratJalan' => $db], 'Berhasil mengambil data');
     }
 
-    function store(Request $request){
+    function store(Request $request)
+    {
         try {
             $request->validate([
                 'suratTugas'        => 'required|unique:surattugas,nosurattugas'
@@ -81,12 +95,14 @@ class SurattugasController extends Controller
                 'nosurattugas'      => $request->suratTugas,
                 'statussurattugas'  => 1,
                 'note'              => $request->description,
-                'outlets_id'        => auth()->user()->outlets_id
+                'outlets_id'        => auth()->user()->outlets_id,
+                'vehicle_id'        => $request->kendaraan,
+                'driver_id'         => $request->driver,
             ];
             $suratTugas = Surattugas::create($storedDataSuratJalan);
             $input = $request->input();
             $dataDetail = [];
-            if(@$input['suratjalan']){
+            if (@$input['suratjalan']) {
                 foreach ($input['suratjalan'] as $key => $value) {
                     $dataDetail[] = [
                         'surattugas_id'         => $suratTugas->id,
@@ -99,49 +115,56 @@ class SurattugasController extends Controller
                 'detailSt'      => $dataDetail
             ], 'Surat tugas berhasil di simpan');
         } catch (Exception $error) {
-            return ResponseFormatter::error([$error],'Something went wrong');
+            return ResponseFormatter::error([$error], 'Something went wrong');
         }
-
     }
 
-    function delete($id){
+    function delete($id)
+    {
         Detailsurattugas::where('surattugas_id', $id)->delete();
         Surattugas::where('id', $id)->delete();
         return ResponseFormatter::success([], 'Berhasil menghapus data Surat tugas');
     }
 
-    function edit($id){
+    function edit($id)
+    {
         $destination    = Destination::all();
         $surattugas = DB::table('surattugas')
-                        ->leftJoin('detailsurattugas', 'surattugas.id', '=', 'detailsurattugas.surattugas_id')
-                        ->leftJoin('traveldocuments', 'detailsurattugas.traveldocuments_id', '=', 'traveldocuments.id')
-                        ->leftJoin('destinations', 'traveldocuments.destinations_id', '=', 'destinations.id')
-                        ->select('surattugas.id', 'surattugas.nosurattugas', 'surattugas.statussurattugas', 'destinations.id as iddestination', 'destinations.name', DB::raw('count(detailsurattugas.traveldocuments_id) as jumlah_surat_tugas'))
-                        ->where('surattugas.id', Crypt::decrypt($id))
-                        ->groupBy('surattugas.id', 'surattugas.nosurattugas', 'surattugas.statussurattugas', 'destinations.name', 'destinations.id')
-                        ->first();
+            ->leftJoin('detailsurattugas', 'surattugas.id', '=', 'detailsurattugas.surattugas_id')
+            ->leftJoin('traveldocuments', 'detailsurattugas.traveldocuments_id', '=', 'traveldocuments.id')
+            ->leftJoin('destinations', 'traveldocuments.destinations_id', '=', 'destinations.id')
+            ->select('surattugas.id', 'surattugas.nosurattugas', 'surattugas.statussurattugas', 'destinations.id as iddestination', 'destinations.name', DB::raw('count(detailsurattugas.traveldocuments_id) as jumlah_surat_tugas'))
+            ->where('surattugas.id', Crypt::decrypt($id))
+            ->groupBy('surattugas.id', 'surattugas.nosurattugas', 'surattugas.statussurattugas', 'destinations.name', 'destinations.id')
+            ->first();
         return view('pages.surattugas.edit', compact('destination', 'surattugas'));
     }
 
-    function getListSuratJalan($id){
+    function getListSuratJalan($id)
+    {
         $listSuratTugas = DB::table('detailsurattugas')
-                            ->leftJoin('traveldocuments', 'detailsurattugas.traveldocuments_id', '=', 'traveldocuments.id')
-                            ->leftJoin('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
-                            ->select('detailsurattugas.id as idsurattugas','traveldocuments.id','traveldocuments.travelno', DB::raw('count(detailtraveldocuments.manifests_id) as jml_manifest'))
-                            ->where('detailsurattugas.surattugas_id', Crypt::decrypt($id))
-                            ->groupBy('detailsurattugas.id','traveldocuments.id','traveldocuments.travelno')
-                            ->get();
+            ->leftJoin('traveldocuments', 'detailsurattugas.traveldocuments_id', '=', 'traveldocuments.id')
+            ->leftJoin('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
+            ->select('detailsurattugas.id as idsurattugas', 'traveldocuments.id', 'traveldocuments.travelno', DB::raw('count(detailtraveldocuments.manifests_id) as jml_manifest'))
+            ->where('detailsurattugas.surattugas_id', Crypt::decrypt($id))
+            ->groupBy('detailsurattugas.id', 'traveldocuments.id', 'traveldocuments.travelno')
+            ->get();
 
-        return ResponseFormatter::success(['listSuratTugas'=>$listSuratTugas], 'Get data successfuly');
+        return ResponseFormatter::success(['listSuratTugas' => $listSuratTugas], 'Get data successfuly');
     }
 
-    function deleteList($id){
+    function deleteList($id)
+    {
         Detailsurattugas::where('id', $id)->delete();
         return ResponseFormatter::success([], 'Data surat tugas berhasil di hapus.!!');
     }
 
-    function onGoing($id){
+    function onGoing($id)
+    {
         $dataSuratJalan = Detailsurattugas::where('surattugas_id', $id)->get();
+        Surattugas::where('id', $id)->update([
+            'statussurattugas' => 2
+        ]);
         //suratjalan
         $arrDataDetailSuratJalan = [];
         foreach ($dataSuratJalan as $key => $value) {
@@ -153,19 +176,19 @@ class SurattugasController extends Controller
         $dataManifest = Detailtraveldocument::whereIn('traveldocuments_id', $arrDataDetailSuratJalan)->get();
         $arrDataManifests = [];
         foreach ($dataManifest as $key => $value) {
-            $arrDataManifests[]=[
-                'manifests_id'=>$value->manifests_id
+            $arrDataManifests[] = [
+                'manifests_id' => $value->manifests_id
             ];
         }
         //data Order
         $dataOrder = Detailmanifest::whereIn('manifests_id', $arrDataManifests)->get();
-        $arrDataOrder=[];
-        $orderAwb=[];
+        $arrDataOrder = [];
+        $orderAwb = [];
         foreach ($dataOrder as $key => $value) {
-            $arrDataOrder[]=[
+            $arrDataOrder[] = [
                 'orders_id' => $value->orders_id
             ];
-            $orderAwb[]=[
+            $orderAwb[] = [
                 'id'    => $value->orders_id
             ];
         }
@@ -184,15 +207,21 @@ class SurattugasController extends Controller
 
         $orderDataComp = Order::whereIn('id', $orderAwb)->get();
         //Insert data History AWB
-        $arrDataHistory=[];
+        $arrDataHistory = [];
         foreach ($orderDataComp as $key => $value) {
-            $arrDataHistory[]=[
+            $gudangLocation = Outlet::find($value->outlet_id);
+            $arrDataHistory[] = [
                 'order_id'      => $value['id'],
                 'awb'           => $value['numberorders'],
-                'status'        => 'Pesanan sedang menuju destination tujuan',
+                'status'        => 'Pesanan di berangkatkan dari ' . $gudangLocation->name,
+                'created_by'    => auth()->user()->id,
                 'created_at'    => now(),
                 'updated_at'    => now()
             ];
+            $value = Order::find($value['id']);
+            $value->update([
+                'status_awb' => 'Pesanan di berangkatkan dari ' . $gudangLocation->name
+            ]);
         }
         HistoryAwb::insert($arrDataHistory);
         return ResponseFormatter::success([], 'Berhasil meng on goingkan surat tugas');

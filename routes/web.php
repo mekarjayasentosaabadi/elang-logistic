@@ -16,6 +16,7 @@ use App\Http\Controllers\MasterpriceController;
 use App\Http\Controllers\ShippingcourirController;
 use App\Http\Controllers\TraveldocumentController;
 use App\Http\Controllers\ShippingcourierController;
+use App\Http\Controllers\UpdateResiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,7 +46,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}/resetpassword', [UserController::class, 'resetpassword']);
     });
 
-    Route::prefix('destination')->group(function(){
+    Route::prefix('destination')->group(function () {
         Route::get('/', [DestinationController::class, 'index'])->name('destination.index');
         Route::get('/getAll', [DestinationController::class, 'getAll'])->name('destination.getAll');
         Route::get('/{id}', [DestinationController::class, 'edit'])->name('destination.edit');
@@ -61,7 +62,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}', [CustomerController::class, 'show']);
         Route::get('/{id}/edit', [CustomerController::class, 'edit']);
         Route::post('/{id}', [CustomerController::class, 'update'])->name('customer.update');
-        Route::post('/{id}/changeStatus',[CustomerController::class, 'changeStatus'])->name('customer.changestatus');
+        Route::post('/{id}/changeStatus', [CustomerController::class, 'changeStatus'])->name('customer.changestatus');
         Route::get('/{id}/getcustomerprice', [CustomerController::class, 'getcustomerprice'])->name('customer.getcustomerprice');
         Route::post('/{id}/generatecustomerprice', [CustomerController::class, 'generatecustomerprice'])->name('customer.generatecustomerprice');
         Route::post('/{id}/changeprice', [CustomerController::class, 'changeprice'])->name('customer.changeprice');
@@ -76,7 +77,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/edit', [OutletController::class, 'edit']);
         Route::patch('/{id}', [OutletController::class, 'update']);
         Route::delete('/{id}', [OutletController::class, 'destroy']);
-        Route::post('/{id}/changeStatus',[OutletController::class, 'changeStatus'])->name('outlet.changestatus');
+        Route::post('/{id}/changeStatus', [OutletController::class, 'changeStatus'])->name('outlet.changestatus');
     });
 
     Route::prefix('order')->group(function () {
@@ -94,7 +95,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/get-customer', [OrderController::class, 'getCunstomer']);
     });
 
-    Route::prefix('vehicle')->group(function (){
+    Route::prefix('vehicle')->group(function () {
         Route::get('/', [VehicleController::class, 'index'])->name('vehicle.index');
         Route::get('/getAll', [VehicleController::class, 'getAll'])->name('vehicle.getAll');
         Route::get('/create', [VehicleController::class, 'create']);
@@ -103,7 +104,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/{id}', [VehicleController::class, 'update']);
     });
 
-    Route::prefix('manifest')->group(function(){
+    Route::prefix('manifest')->group(function () {
         Route::get('/', [ManifestController::class, 'index'])->name('manifest.index');
         Route::get('/getAll', [ManifestController::class, 'getAll'])->name('manifest.getAll');
         Route::get('/create', [ManifestController::class, 'create'])->name('manifest.create');
@@ -112,7 +113,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/store', [ManifestController::class, 'store'])->name('manifest.store');
         Route::get('/{id}/edit', [ManifestController::class, 'edit'])->name('manifest.edit');
         Route::get('/{id}/getdetail', [ManifestController::class, 'getdetail'])->name('manifest.getdetail');
-        Route::post('/{id}/delete',[ManifestController::class, 'delete'])->name('manifest.delete');
+        Route::post('/{id}/delete', [ManifestController::class, 'delete'])->name('manifest.delete');
         Route::post('/{id}/deletedetailold', [ManifestController::class, 'deletedetailold'])->name('manifest.deletedetailold');
         Route::post('/{id}/update', [ManifestController::class, 'update'])->name('manifest.update');
         Route::post('/{id}/addDetail/{ordersid}', [ManifestController::class, 'addDetail'])->name('manifest.addDetail');
@@ -138,7 +139,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     //Price
-    Route::prefix('masterprice')->group(function(){
+    Route::prefix('masterprice')->group(function () {
         Route::get('/', [MasterpriceController::class, 'index'])->name('masterprice.index');
         Route::get('/getAll', [MasterpriceController::class, 'getAll'])->name('masterprice.getAll');
         Route::get('/create', [MasterpriceController::class, 'create'])->name('masterprice.create');
@@ -148,23 +149,23 @@ Route::middleware(['auth'])->group(function () {
     });
 
     //Delivery
-    Route::prefix('delivery')->group(function(){
+    Route::prefix('delivery')->group(function () {
         Route::get('/', [TraveldocumentController::class, 'index'])->name('traveldocument.index');
         Route::get('/create', [TraveldocumentController::class, 'create'])->name('traveldocument.create');
         Route::get('/getAll', [TraveldocumentController::class, 'getAll'])->name('traveldocument.getAll');
         Route::get('/{id}/manifestorder', [TraveldocumentController::class, 'manifestorder'])->name('traveldocument.manifestorder');
-        Route::post('/',[TraveldocumentController::class, 'store'])->name('traveldocument.store');
+        Route::post('/', [TraveldocumentController::class, 'store'])->name('traveldocument.store');
         Route::get('/{id}/cetak', [TraveldocumentController::class, 'print'])->name('traveldocument.cetak');
-        Route::post('{id}/delete',[TraveldocumentController::class, 'delete'])->name('traveldocument.delete');
+        Route::post('{id}/delete', [TraveldocumentController::class, 'delete'])->name('traveldocument.delete');
         Route::get('/{id}/edit', [TraveldocumentController::class, 'edit'])->name('traveldocument.edit');
         Route::get('/{id}/listDetail', [TraveldocumentController::class, 'listDetail'])->name('traveldocument.listDetail');
         Route::get('/{id}/listDetailEdit', [TraveldocumentController::class, 'listDetailEdit'])->name('traveldocument.listDetailEdit');
-        Route::post('{id}/deleteDetail',[TraveldocumentController::class, 'deleteDetail'])->name('traveldocument.deleteDetail');
-        Route::post('/{id}',[TraveldocumentController::class, 'update'])->name('traveldocument.update');
+        Route::post('{id}/deleteDetail', [TraveldocumentController::class, 'deleteDetail'])->name('traveldocument.deleteDetail');
+        Route::post('/{id}', [TraveldocumentController::class, 'update'])->name('traveldocument.update');
     });
 
     //Surat tugas
-    Route::prefix('surattugas')->group(function(){
+    Route::prefix('surattugas')->group(function () {
         Route::get('/', [SurattugasController::class, 'index'])->name('surattugas.index');
         Route::get('/create', [SurattugasController::class, 'create'])->name('surattugas.create');
         Route::get('/getAll', [SurattugasController::class, 'getAll'])->name('surattugas.getAll');
@@ -181,5 +182,16 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('cek-resi')->group(function () {
         Route::get('/', [AwbController::class, 'index'])->name('cek-resi.index');
         Route::get('/{awb}', [AwbController::class, 'getResi'])->name('cek-resi.find');
+    });
+
+
+    Route::prefix('update-resi')->group(function () {
+        Route::get('/', [UpdateResiController::class, 'index'])->name('update-resi.index');
+        Route::post('/', [UpdateResiController::class, 'store'])->name('update-resi.store');
+        Route::get('/getResi', [UpdateResiController::class, 'getResi'])->name('update-resi.getResi');
+    });
+
+    Route::get('/cek', function () {
+        return view('pages.cek');
     });
 });

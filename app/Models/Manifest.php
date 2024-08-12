@@ -22,7 +22,8 @@ class Manifest extends Model
     protected $table = 'manifests';
 
     //relation to detail manifests
-    function detailmanifests(){
+    function detailmanifests()
+    {
         return $this->hasMany(Detailmanifest::class, 'manifests_id', 'id');
     }
 
@@ -36,7 +37,8 @@ class Manifest extends Model
     //     });
     // }
 
-    public function detailtraveldocuments(){
-        return $this->hasMany(Detailtraveldocument::class, 'manifests_id', 'id');
+    public function detailtraveldocument()
+    {
+        return $this->hasOne(Detailtraveldocument::class, 'manifests_id', 'id');
     }
 }
