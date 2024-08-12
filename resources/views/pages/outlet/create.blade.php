@@ -24,7 +24,7 @@
                             <div class="col-md-6">
                                 <div class="form-group mb-2">
                                     <label for="location">Location</label>
-                                    <select name="location_id" id="location" class="form-control">
+                                    <select name="location_id" id="location" class="form-control select2">
                                         <option value="">-- Select location --</option>
                                         @foreach ($destination as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -141,6 +141,7 @@
     <script>
         var formValidate = $('#formValidate');
         $(() => {
+            $('.select2').select2();
             var mapCenter = [-6.2765247, 106.9589698];
 
             // Initialize the map

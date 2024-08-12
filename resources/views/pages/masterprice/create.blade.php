@@ -26,7 +26,7 @@
                                     </select>
                                 </div>
                                 <div class="form-group mt-1">
-                                    <label for="armada">Armada</label>
+                                    <label for="armada">Service</label>
                                     <select name="armada" id="armada" class="form-control">
                                         <option value="">-- Pilih Armada --</option>
                                         <option value="1">Darat</option>
@@ -36,7 +36,7 @@
                                 </div>
                                 <div class="form-group mt-1">
                                     <label for="destination">Destination</label>
-                                    <select name="destination" id="destination" class="form-control">
+                                    <select name="destination" id="destination" class="form-control select2">
                                         <option value="">-- Pilih Outlet --</option>
                                         @foreach ($destination as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -45,7 +45,8 @@
                                 </div>
                                 <div class="form-group mt-1">
                                     <label for="price">Price</label>
-                                    <input type="text" name="price" id="price" class="form-control" placeholder="10000">
+                                    <input type="text" name="price" id="price" class="form-control"
+                                        placeholder="10000">
                                 </div>
                             </div>
                             <div class="col-md-6 col-lg-6 col-sm-12">
@@ -54,7 +55,8 @@
                                         <div class="form-group">
                                             <label for="minweight">Berat Minimal</label>
                                             <div class="input-group">
-                                                <input type="text" name="minweight" id="minweight" class="form form-control">
+                                                <input type="text" name="minweight" id="minweight"
+                                                    class="form form-control">
                                                 <span class="input-group-text">Kg</span>
                                             </div>
                                         </div>
@@ -62,15 +64,18 @@
                                 </div>
                                 <div class="form-group mt-1">
                                     <label for="minimumprice">Minimum Price</label>
-                                    <input type="text" name="minimumprice" id="minimumprice" class="form-control" placeholder="20000">
+                                    <input type="text" name="minimumprice" id="minimumprice" class="form-control"
+                                        placeholder="20000">
                                 </div>
                                 <div class="form-group mt-1">
                                     <label for="estimation">Estimation</label>
-                                    <input type="text" name="estimation" id="estimation" class="form-control" placeholder="1">
+                                    <input type="text" name="estimation" id="estimation" class="form-control"
+                                        placeholder="1">
                                 </div>
                                 <div class="form-group mt-1">
                                     <label for="pricenext">Next Weight Price</label>
-                                    <input type="text" name="pricenext" id="pricenext" class="form-control" placeholder="2000">
+                                    <input type="text" name="pricenext" id="pricenext" class="form-control"
+                                        placeholder="2000">
                                 </div>
                             </div>
                         </div>
@@ -92,8 +97,9 @@
     <script src="{{ asset('assets/js/notifsweetalert.js') }}"></script>
     <script src="{{ asset('assets/app-assets/vendor/js/forms/validation/jquery.validate.min.js') }}"></script>
     <script>
+        $('.select2').select2()
         $('#form-add-price').validate({
-            rules:{
+            rules: {
                 'outlet': 'required',
                 'armada': 'required',
                 'destination': 'required',
@@ -103,7 +109,7 @@
                 'estimation': 'required',
                 'pricenext': 'required'
             },
-            submitHandler:function(){
+            submitHandler: function() {
                 $.ajax({
                     url: window.location.origin + '/' + listRoutes['masterprice.store'],
                     type: "POST",
@@ -111,17 +117,17 @@
                     data: new FormData($('#form-add-price')[0]),
                     processData: false,
                     contentType: false,
-                    success: function(e){
-                        if(e.data.validate == false){
+                    success: function(e) {
+                        if (e.data.validate == false) {
                             notifSweetAlertErrors(e.meta.message);
                         } else {
                             notifSweetAlertSuccess(e.meta.message);
-                            setTimeout(function(){
-                                location.replace(window.location.origin +'/masterprice')
+                            setTimeout(function() {
+                                location.replace(window.location.origin + '/masterprice')
                             }, 1500)
                         }
                     },
-                    error: function(e){
+                    error: function(e) {
                         notifSweetAlertErrors(e.meta.message);
                     }
                 })

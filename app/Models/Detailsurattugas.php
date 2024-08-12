@@ -14,11 +14,13 @@ class Detailsurattugas extends Model
     ];
     protected $table = 'detailsurattugas';
 
-    public function surattugas(): belongsTo{
+    public function surattugas()
+    {
         return $this->belongsTo(Surattugas::class, 'surattugas_id', 'id');
     }
 
-    public function traveldocument(): belongsTo{
+    public function traveldocument()
+    {
         return $this->belongsTo(Traveldocument::class, 'traveldocuments_id', 'id');
     }
 }

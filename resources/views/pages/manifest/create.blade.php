@@ -9,12 +9,14 @@
         <div class="col-12">
             <form action="#" id="form-add-manifest">
                 @csrf
+
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Form Add Manifest</h4>
                         <a href="{{ route('manifest.index') }}" class="btn btn-warning">Kembali</a>
                     </div>
                     <div class="card-body">
+
                         <div class="row">
                             <div class="col-md-6 col-lg-6 col-xs-12">
                                 <div class="form-group">
@@ -78,9 +80,7 @@
                                             <th>Order Numbers</th>
                                             <th>Customer</th>
                                             <th>Destinations</th>
-                                            <th>Items</th>
                                             <th>Kg</th>
-                                            <th>Content</th>
                                             <th>Options</th>
                                         </tr>
                                     </thead>
@@ -189,18 +189,19 @@
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'numberorders',
                         name: 'numberorders'
                     },
                     {
-                        data: 'namacustomer',
-                        name: 'namacustomer'
+                        data: 'namecustomer',
+                        name: 'customer.name'
                     },
                     {
                         data: 'destination',
-                        name: 'destination'
+                        name: 'destination.name'
                     },
                     {
                         data: 'check',
@@ -260,9 +261,7 @@
                         <td>${x.numberorder}<input type="hidden" name="ordersid[]" value="${x.ordersid}"></td>
                         <td>${x.customername}</td>
                         <td>${x.destination}</td>
-                        <td>${x.items}</td>
                         <td>${x.kg}</td>
-                        <td>${x.content}</td>
                         <td><button type="button" class="btn btn-danger btn-sm" onclick="removeDetail(${i})"><i class="fa fa-trash"></i></button></td>
                     </tr>
                     `
@@ -278,16 +277,7 @@
         }
 
         function totalItems() {
-            let jumlahItem = []
-            totalItem = 0;
-            arrOrders.map((x, i) => {
-                convert = Math.round(x.items);
-                jumlahItem.push(convert);
-            })
-            for (i in jumlahItem) {
-                totalItem += jumlahItem[i];
-            }
-            $('#total-item').html(totalItem);
+            $('#total-item').html(arrOrders.length);
         }
 
         function totalKg() {
@@ -320,7 +310,7 @@
                         contentType: false,
                         success: function(e) {
                             notifSweetAlertSuccess(e.meta.message);
-                            setTimeout(function(){
+                            setTimeout(function() {
                                 location.replace(window.location.origin + '/manifest');
                             }, 1500);
                         },

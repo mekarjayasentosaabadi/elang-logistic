@@ -23,20 +23,24 @@ class Order extends Model
         return $this->hasMany(HistoryAwb::class, 'order_id');
     }
 
-    function outlet(){
+    function outlet()
+    {
         return $this->belongsTo(Outlet::class, 'outlet_id', 'id');
     }
 
-    function destination(){
+    function destination()
+    {
         return $this->belongsTo(Destination::class, 'destinations_id', 'id');
     }
 
     //relation to detailmanifests
-    function detailmanifests(){
-        return $this->hasMany(Detailmanifest::class, 'orders_id', 'id');
+    function detailmanifests()
+    {
+        return $this->hasOne(DetailManifest::class, 'orders_id', 'id');
     }
 
-    function detailshippingcourier() {
+    function detailshippingcourier()
+    {
         return $this->hasMany(DetailShippingCourier::class, 'orders_id', 'id');
     }
 }

@@ -22,7 +22,6 @@
                                         <th>#</th>
                                         <th>No Surat Tugas</th>
                                         <th>Jumlah Surat Jalan</th>
-                                        <th>Destination</th>
                                         <th>Status</th>
                                         <th>Options</th>
                                     </tr>
@@ -48,7 +47,8 @@
                             <div class="col-md-6 col-lg-6 col-sm-12">
                                 <div class="form-group">
                                     <label for="nosuratjalan">Nomor Surat Jalan</label>
-                                    <input type="text" name="nosuratjalan" id="nosuratjalan" class="form-control" disabled>
+                                    <input type="text" name="nosuratjalan" id="nosuratjalan" class="form-control"
+                                        disabled>
                                 </div>
                                 <div class="form-group">
                                     <label for="kendaraan">Kendaraan</label>
@@ -114,11 +114,9 @@
                     },
                     {
                         data: 'jumlah_surat_tugas',
-                        name: 'jumlah_surat_tugas'
-                    },
-                    {
-                        data: 'name',
-                        name: 'name'
+                        name: 'jumlah_surat_tugas',
+                        orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'status',
@@ -143,7 +141,8 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: window.location.origin + '/' + listRoutes['surattugas.delete'].replace('{id}', i),
+                        url: window.location.origin + '/' + listRoutes['surattugas.delete'].replace('{id}',
+                            i),
                         type: "POST",
                         dataType: "JSON",
                         processData: false,
@@ -173,7 +172,8 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: window.location.origin + '/' + listRoutes['surattugas.onGoing'].replace('{id}', i),
+                        url: window.location.origin + '/' + listRoutes['surattugas.onGoing'].replace('{id}',
+                            i),
                         type: "POST",
                         dataType: "JSON",
                         processData: false,

@@ -20,7 +20,6 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Nama Outlet</th>
-                                        <th>Operators</th>
                                         <th>Tipe</th>
                                         <th>Email</th>
                                         <th>No. HP</th>
@@ -59,10 +58,6 @@
                         name: 'name'
                     },
                     {
-                        data: 'namaoperator',
-                        name: 'namaoperator'
-                    },
-                    {
                         data: 'type',
                         name: 'type'
                     },
@@ -89,19 +84,20 @@
 
 
         });
-        function changeStatus(txt, i){
-        console.log(i)
-        var baseUrl = window.location.origin;
+
+        function changeStatus(txt, i) {
+            console.log(i)
+            var baseUrl = window.location.origin;
             $.ajax({
-                url: baseUrl+'/'+listRoutes['outlet.changestatus'].replace('{id}',i),
+                url: baseUrl + '/' + listRoutes['outlet.changestatus'].replace('{id}', i),
                 type: "POST",
                 dataType: "JSON",
                 processData: false,
                 contentType: false,
-                success: function(e){
+                success: function(e) {
                     notifSweetAlertSuccess(e.meta.message);
                 },
-                error: function(e){
+                error: function(e) {
                     alert('Gagal mengeksekusi data.!')
                 }
             })

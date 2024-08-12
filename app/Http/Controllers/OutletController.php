@@ -28,11 +28,7 @@ class OutletController extends Controller
     {
 
         // $q = Outlet::with(['operators'])->get();
-        $q = DB::table('outlets')
-                ->leftJoin('users', 'outlets.id', '=', 'users.outlets_id')
-                ->select('outlets.id', 'outlets.name', 'users.name as namaoperator', 'outlets.type', 'outlets.email', 'outlets.phone', 'outlets.is_active')
-                ->where('users.role_id', 2)
-                ->get();
+        $q = Outlet::query();
 
         return DataTables::of($q)
             ->editColumn('type', function ($query) {
@@ -58,11 +54,11 @@ class OutletController extends Controller
                 </div>';
                 return $btn;
             })
-            ->addColumn('toogle', function($x){
+            ->addColumn('toogle', function ($x) {
                 $checked = $x->is_active == '1' ? 'checked' : '';
                 $toogle = '';
                 $toogle .= '<div class="form-check form-switch">
-                                <input type="checkbox" class="form-check-input" '.$checked.' id="paymentTerms" onclick="changeStatus(this, '.$x->id.')" />
+                                <input type="checkbox" class="form-check-input" ' . $checked . ' id="paymentTerms" onclick="changeStatus(this, ' . $x->id . ')" />
                                 <label class="form-check-label" for="paymentTerms"></label>
                             </div>';
                 return $toogle;
@@ -146,15 +142,16 @@ class OutletController extends Controller
         }
     }
 
-    function changeStatus(Request $request, $id){
+    function changeStatus(Request $request, $id)
+    {
         try {
             $status = Outlet::find($id);
-            if($status->is_active == '1'){
-                $update=[
+            if ($status->is_active == '1') {
+                $update = [
                     'is_active' => '0'
                 ];
             } else {
-                $update=[
+                $update = [
                     'is_active' => '1'
                 ];
             }

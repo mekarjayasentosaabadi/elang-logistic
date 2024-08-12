@@ -74,6 +74,11 @@ if (!function_exists('listMenu')) {
                             'icon' => 'circle'
                         ],
                         [
+                            'title' => 'Surat Tugas',
+                            'url' => '/surattugas',
+                            'icon' => 'circle'
+                        ],
+                        [
                             'title' => 'Update Resi',
                             'url' => '/update-resi',
                             'icon' => 'circle'
@@ -151,7 +156,8 @@ if (!function_exists('typeOutlet')) {
 }
 
 if (!function_exists('typeVehicle')) {
-    function typeVehicle($type){
+    function typeVehicle($type)
+    {
         $data = '';
         switch ($type) {
             case 1:

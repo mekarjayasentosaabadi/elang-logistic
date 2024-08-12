@@ -3,11 +3,10 @@
 <!-- BEGIN: Head-->
 
 <head>
+    @include('layout.meta')
+    <title>Layout Empty - Vuexy - Bootstrap HTML admin template</title>
 
-    <title>Elang Logistics</title>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('layout.css')
-    @yield('custom-css')
 
 </head>
 <!-- END: Head-->
