@@ -43,4 +43,9 @@ class Order extends Model
     {
         return $this->hasMany(DetailShippingCourier::class, 'orders_id', 'id');
     }
+
+    function historyupdateorders()
+    {
+        return $this->hasMany(HistoryUpdateOrder::class, 'order_id', 'id');
+    }
 }
