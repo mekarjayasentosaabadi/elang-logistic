@@ -103,6 +103,12 @@ if (!function_exists('listMenu')) {
                     'url' => 'Report',
                     'hasChild' => false,
                     'icon' => 'file'
+                ],
+                [
+                    'title' => 'Profile',
+                    'url' => 'profile',
+                    'hasChild' => false,
+                    'icon' => 'users'
                 ]
             ];
         }

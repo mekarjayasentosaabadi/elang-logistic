@@ -6,17 +6,18 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OutletController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SurattugasController;
+use App\Http\Controllers\UpdateResiController;
 use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\MasterpriceController;
 use App\Http\Controllers\ShippingcourirController;
 use App\Http\Controllers\TraveldocumentController;
 use App\Http\Controllers\ShippingcourierController;
-use App\Http\Controllers\UpdateResiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -193,5 +194,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/cek', function () {
         return view('pages.cek');
+    });
+    Route::prefix('profile')->group(function(){
+        Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
     });
 });
