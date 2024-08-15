@@ -7,6 +7,7 @@
     <title>Layout Empty - Vuexy - Bootstrap HTML admin template</title>
 
     @include('layout.css')
+    @yield('custom-css')
 
 </head>
 <!-- END: Head-->
