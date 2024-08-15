@@ -6,17 +6,18 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OutletController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ManifestController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SurattugasController;
+use App\Http\Controllers\UpdateResiController;
 use App\Http\Controllers\DestinationController;
 use App\Http\Controllers\MasterpriceController;
 use App\Http\Controllers\ShippingcourirController;
 use App\Http\Controllers\TraveldocumentController;
 use App\Http\Controllers\ShippingcourierController;
-use App\Http\Controllers\UpdateResiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -189,6 +190,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [UpdateResiController::class, 'index'])->name('update-resi.index');
         Route::post('/', [UpdateResiController::class, 'store'])->name('update-resi.store');
         Route::get('/getResi', [UpdateResiController::class, 'getResi'])->name('update-resi.getResi');
+    });
+
+    Route::prefix('report')->group(function () {
+        Route::get('/', [ReportController::class, 'index'])->name('report.index');
+        Route::get('/transaksi', [ReportController::class, 'reportTransaksi'])->name('report.reportTransaksi');
     });
 
     Route::get('/cek', function () {

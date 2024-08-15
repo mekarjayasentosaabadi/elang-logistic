@@ -100,7 +100,7 @@ if (!function_exists('listMenu')) {
                 ],
                 [
                     'title' => 'Laporan',
-                    'url' => 'Report',
+                    'url' => '/report',
                     'hasChild' => false,
                     'icon' => 'file'
                 ]
