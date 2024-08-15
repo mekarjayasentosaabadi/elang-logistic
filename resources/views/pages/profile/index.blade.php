@@ -38,7 +38,7 @@
                         </ul>
                         <div class="tab-content">
                             <div class="tab-pane active" id="home" aria-labelledby="home-tab" role="tabpanel">
-                                <form action="#" method="POST">
+                                <form action="#" method="POST" id="form-update-profile">
                                     <div class="form-group col-md-5 col-xl-5 col-sm-12 mt-1">
                                         <label for="">Name</label>
                                         <input type="text" name="name" id="name" class="form-control" required value="{{ $profile->name }}">
@@ -56,14 +56,14 @@
                                         <textarea name="address" id="address" cols="30" rows="3" class="form-control">{{ $profile->address }}</textarea>
                                     </div>
                                     <div class="form-group col-md-5 col-xl-5 col-sm-12 mt-1">
-                                        <button class="btn btn-primary btn-md" type="button">
+                                        <button class="btn btn-primary btn-md" type="submit">
                                             <li class="fa fa-save"></li> Update
                                         </button>
                                     </div>
                                 </form>
                             </div>
                             <div class="tab-pane" id="profile" aria-labelledby="profile-tab" role="tabpanel">
-                                <form action="#" method="POST">
+                                <form action="#" method="POST" id="form-update-password">
                                     <div class="form-group col-md-5 col-xl-5 col-sm-12 mt-1">
                                         <label for="">Old Password</label>
                                         <input type="password" name="oldpassword"id="oldpassword" class="form-control" required>
@@ -77,7 +77,7 @@
                                         <input type="password" name="confirmpassword"id="confirmpassword" class="form-control" required>
                                     </div>
                                     <div class="form-group col-md-5 col-xl-5 col-sm-12 mt-1">
-                                        <button class="btn btn-primary btn-md" type="button"><li class="fa fa-save"></li> Change Password</button>
+                                        <button class="btn btn-primary btn-md" type="submit"><li class="fa fa-save"></li> Change Password</button>
                                     </div>
 
                                 </form>
@@ -91,5 +91,69 @@
 @endsection
 
 @section('custom-js')
-    <script></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="{{ asset('assets/js/notifsweetalert.js') }}"></script>
+    <script src="{{ asset('assets/app-assets/vendor/js/forms/validation/jquery.validate.min.js') }}"></script>
+    <script type="text/javascript">
+        var baseUrl = window.location.origin;
+        $('#form-update-profile').validate({
+            rules: {
+                'name': 'required',
+                'email': 'required',
+                'address': 'required'
+            },
+            submitHandler: function () {
+                $.ajax({
+                    url: baseUrl +'/'+ listRoutes['profile.update'],
+                    type: "POST",
+                    dataType: "JSON",
+                    data: new FormData($('#form-update-profile')[0]),
+                    processData: false,
+                    contentType: false,
+                    success: function(e){
+                        notifSweetAlertSuccess(e.meta.message);
+                    },
+                    error: function(e){
+                        if(e.status== 422){
+                            notifSweetAlertErrors(e.responseJSON.errors);
+                        }
+                    }
+                })
+            }
+        })
+
+        //update password
+        $('#form-update-password').validate({
+            rules: {
+                'oldpassword': 'required',
+                'newpassword': 'required',
+                confirmpassword: {
+                    required: true,
+                    equalTo: "#newpassword"
+                }
+            },
+            submitHandler: function(){
+                $.ajax({
+                    url : baseUrl + '/' + listRoutes['profile.changepassword'],
+                    type: "POST",
+                    dataType: "JSON",
+                    data: new FormData($('#form-update-password')[0]),
+                    contentType: false,
+                    processData: false,
+                    success: function(e){
+                        if(e.meta.code == 422){
+                            notifSweetAlertErrors(e.meta.message);
+                        }else{
+                            notifSweetAlertSuccess(e.meta.message);
+                        }
+                    },
+                    error: function(e){
+                        if(e.status== 422){
+                            notifSweetAlertErrors(e.responseJSON.errors);
+                        }
+                    }
+                })
+            }
+        })
+    </script>
 @endsection

@@ -197,5 +197,7 @@ Route::middleware(['auth'])->group(function () {
     });
     Route::prefix('profile')->group(function(){
         Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
+        Route::post('/', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/changepassword', [ProfileController::class, 'changePassword'])->name('profile.changepassword');
     });
 });
