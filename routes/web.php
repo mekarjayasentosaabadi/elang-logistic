@@ -195,6 +195,8 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('report')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('report.index');
         Route::get('/transaksi', [ReportController::class, 'reportTransaksi'])->name('report.reportTransaksi');
+        Route::get('/getDriverByOutlet', [ReportController::class, 'getDriverByOutlet'])->name('report.getDriverByOutlet');
+        Route::post('/getReportPengiriman', [ReportController::class, 'getReportPengiriman'])->name('report.getReportPengiriman');
     });
 
     Route::get('/cek', function () {

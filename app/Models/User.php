@@ -71,4 +71,8 @@ class User extends Authenticatable
     function shippingcourier() {
         return $this->hasMany(ShippingCourier::class, 'driver_id', 'id');
     }
+
+    function surattugas() {
+        return $this->hasMany(Surattugas::class, 'driver', 'id');
+    }
 }
