@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Vehicle;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Surattugas extends Model
 {
@@ -21,4 +22,23 @@ class Surattugas extends Model
     {
         return $this->hasMany(Detailsurattugas::class, 'surattugas_id', 'id');
     }
+
+
+    function driver() {
+        return $this->belongsTo(User::class, 'driver', 'id');
+    }
+
+
+    function vehicle() {
+        return $this->belongsTo(Vehicle::class, 'vehicle_id', 'id');
+    }
+
+
+    function outlet() {
+        return $this->belongsTo(Outlet::class, 'outlets_id', 'id');
+    }
+
+
+
+
 }

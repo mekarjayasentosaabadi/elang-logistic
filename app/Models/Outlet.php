@@ -40,4 +40,9 @@ class Outlet extends Model
     function suratjalan(){
         return $this->hasMany(Traveldocument::class, 'outlets_id', 'id');
     }
+
+    //relation to surat tugas
+    function surattugas(){
+        return $this->hasMany(Surattugas::class, 'outlets_id', 'id');
+    }
 }

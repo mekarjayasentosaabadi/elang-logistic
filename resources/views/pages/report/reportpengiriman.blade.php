@@ -43,6 +43,9 @@
                                     <label for="outlet_id_select">Outlet</label>
                                     <select name="outlet_id_select" id="outlet_id_select" class="form-control">
                                         <option value="" hidden>Pilih Outlet</option>
+                                        @foreach ($outlets as $outlet)
+                                                <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -71,6 +74,9 @@
                                         <label for="jenis_pengiriman">Jenis Pengiriman</label>
                                         <select name="jenis_pengiriman" id="jenis_pengiriman" class="form-control">
                                             <option value="">Pilih Jenis Pengiriman</option>
+                                            <option value="1">Darat</option>
+                                            <option value="2">Laut</option>
+                                            <option value="3">Udara</option>
                                         </select>
                                     </div>
                                 </div>
@@ -95,6 +101,9 @@
                                         <label for="destination">Destinasi</label>
                                         <select name="destination" id="destination" class="form-control">
                                             <option value="">Pilih Destinasi</option>
+                                            @foreach ($destinations as $destination)
+                                                <option value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
@@ -103,11 +112,13 @@
                                         <label for="status">Status</label>
                                         <select name="status" id="status" class="form-control">
                                             <option value="">Pilih Status</option>
+                                            <option value="1">Process</option>
+                                            <option value="2">Done</option>
+                                            <option value="0">Cancle</option>
                                         </select>
                                     </div>
                                 </div>
                             </div>
-
                             <div class="mt-2 text-end">
                                 <button type="submit" class="btn btn-primary"><i data-feather="eye" class="font-medium-3 me-50"></i>Lihat</button>
                             </div>
@@ -131,85 +142,8 @@
                                     <th>Total Volume/Berat</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Pisang</td>
-                                    <td>SE-00001</td>
-                                    <td>B 222021 2012</td>
-                                    <td>12/8/2023</td>
-                                    <td>15/8/2023</td>
-                                    <td>Darat</td>
-                                    <td>Jakarta</td>
-                                    <td>Bandung</td>
-                                    <td>200kg</td>
-                                    <td>200kg</td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Pisang Sang Pisang</td>
-                                    <td>SE-00001</td>
-                                    <td>B 222021 2012</td>
-                                    <td>12/8/2023</td>
-                                    <td>15/8/2023</td>
-                                    <td>Darat</td>
-                                    <td>Jakarta</td>
-                                    <td>Bandung</td>
-                                    <td>200kg</td>
-                                    <td>200kg</td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>Pisang</td>
-                                    <td>SE-00001</td>
-                                    <td>B 222021 2012</td>
-                                    <td>12/8/2023</td>
-                                    <td>15/8/2023</td>
-                                    <td>Darat</td>
-                                    <td>Jakarta</td>
-                                    <td>Bandung</td>
-                                    <td>200kg</td>
-                                    <td>200kg</td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>Pisang</td>
-                                    <td>SE-00001</td>
-                                    <td>B 222021 2012</td>
-                                    <td>12/8/2023</td>
-                                    <td>15/8/2023</td>
-                                    <td>Darat</td>
-                                    <td>Jakarta</td>
-                                    <td>Bandung</td>
-                                    <td>200kg</td>
-                                    <td>200kg</td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>Pisang</td>
-                                    <td>SE-00001</td>
-                                    <td>B 222021 2012</td>
-                                    <td>12/8/2023</td>
-                                    <td>15/8/2023</td>
-                                    <td>Darat</td>
-                                    <td>Jakarta</td>
-                                    <td>Bandung</td>
-                                    <td>200kg</td>
-                                    <td>200kg</td>
-                                </tr>
-                                <tr>
-                                    <td>6</td>
-                                    <td>Pisang</td>
-                                    <td>SE-00001</td>
-                                    <td>B 222021 2012</td>
-                                    <td>12/8/2023</td>
-                                    <td>15/8/2023</td>
-                                    <td>Darat</td>
-                                    <td>Jakarta</td>
-                                    <td>Bandung</td>
-                                    <td>200kg</td>
-                                    <td>200kg</td>
-                                </tr>
+                            <tbody id="tblbody-reportpengiriman">
+
                             </tbody>
                         </table>
                     </div>
@@ -224,6 +158,39 @@
     <script src="{{ asset('assets/app-assets/vendors/js/forms/validation/jquery.validate.min.js') }}"></script>
     <script>
         $(document).ready(function() {
+            $('#destination').select2();
+
+            // get driver by outlet
+            $('#outlet_id_select').change(function () {
+                const outletId = $('#outlet_id_select').val();
+                $.ajax({
+                    url: '/report/getDriverByOutlet',
+                    type: 'GET',
+                    data: {
+                        outletid: outletId
+                    },
+
+                    success: function (response) {
+                            var driver = response.drivers;
+                            var driverSelect = $('#driver')
+                            driverSelect.empty();
+
+                            driverSelect.append('<option value="" hidden>Pilih Driver</option>');
+
+                            if (driver != null) {
+                                driver.forEach(function (driver) {
+                                driverSelect.append('<option value="'+ driver.id +'">'+driver.name+'</option>')
+                            });
+                        }
+                    },
+                    error: function(response){
+                        console.log(response);
+                    }
+
+                })
+            })
+
+
             $('#form-report-pengiriman').validate({
                rules:{
                     'driver'                  : 'required',
@@ -240,7 +207,67 @@
                     'tanggal_akhir_berangkat' : 'Tanggal akhir berangkat harus diisi.',
                     'destination'             : 'Pilih salah satu destinasi.',
                     'status'                  : 'Pilih salah satu status.'
-               }
+               },
+               submitHandler:function(){
+                    var formData = new FormData($('#form-report-pengiriman')[0])
+                    var outletId = $('#outlet_id_select').val()
+                    formData.append('outlet_id', outletId)
+
+                    $.ajax({
+                        url: '/report/getReportPengiriman',
+                        type: "POST",
+                        dataType: "JSON",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response){
+                            $('#form-report-pengiriman')[0].reset();
+                            var dataReports = response.dataReport
+
+                            $('#tblbody-reportpengiriman').empty();
+
+                            dataReports.forEach(function(report, index) {
+                                report.detailsurattugas.forEach(function(detail) {
+                                    let jenisPengiriman = report.jenis_pengiriman
+                                    if (jenisPengiriman == 1) {
+                                        jenisPengiriman = "Darat"
+                                    }else if (jenisPengiriman == 2) {
+                                        jenisPengiriman = "Laut"
+                                    }else if (jenisPengiriman == 3) {
+                                        jenisPengiriman = "Udara"
+                                    }
+                                    $('#tblbody-reportpengiriman').append(`
+                                        <tr>
+                                            <td>${index + 1}</td>
+                                            <td>${report.driver.name}</td>
+                                            <td>${report.travelno}</td>
+                                            <td>${report.vehicle.police_no}</td>
+                                            <td>${report.start_date}</td>
+                                            <td>${report.finish_date}</td>
+                                            <td>${jenisPengiriman}</td>
+                                            <td>${report.outlet.name}</td>
+                                            <td>${report.destinasi}</td>
+                                            <td>${report.berat_volume}</td>
+                                            <td>${report.berat_volume}</td>
+                                        </tr>
+                                    `);
+                                });
+                            });
+                        },
+                        error: function(e){
+                            $('#form-report-pengiriman')[0].reset();
+                            console.log('error');
+                        }
+                    })
+                },
+
+               errorPlacement:function (error, element) {
+                    if (element.closest('.form-group').length) {
+                        error.insertAfter(element.closest('.form-group'))
+                    }else{
+                        error.insertAfter(element);
+                    }
+                }
             })
         });
     </script>
