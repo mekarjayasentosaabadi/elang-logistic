@@ -11,8 +11,8 @@
             <div class="card">
                 <div class="card-header">
                     <div>
-                        <h2 class="fw-bolder mb-0">0</h2>
-                        <p class="card-text">Transaksi Hari Ini</p>
+                        <h2 class="fw-bolder mb-0" id="itemTrxToday">0</h2>
+                        <p class="card-text" id="trxToday">Transaksi Hari Ini</p>
                     </div>
                     <div class="avatar bg-light-primary p-50 m-0">
                         <div class="avatar-content">
@@ -26,8 +26,8 @@
             <div class="card">
                 <div class="card-header">
                     <div>
-                        <h2 class="fw-bolder mb-0">0</h2>
-                        <p class="card-text">Transaksi Dalam Proses</p>
+                        <h2 class="fw-bolder mb-0" id="itemTrxProcess">0</h2>
+                        <p class="card-text" id="trxProcess">Transaksi Dalam Proses</p>
                     </div>
                     <div class="avatar bg-light-primary p-50 m-0">
                         <div class="avatar-content">
@@ -41,8 +41,8 @@
             <div class="card">
                 <div class="card-header">
                     <div>
-                        <h2 class="fw-bolder mb-0">0</h2>
-                        <p class="card-text">Pendapatan Bulan Ini</p>
+                        <h2 class="fw-bolder mb-0" id="itemIncomeThisMonth">0</h2>
+                        <p class="card-text" id="incomeThisMonth">Pendapatan Bulan Ini</p>
                     </div>
                     <div class="avatar bg-light-primary p-50 m-0">
                         <div class="avatar-content">
@@ -169,65 +169,136 @@
     <script src="{{ asset('assets') }}/app-assets/vendors/js/charts/apexcharts.min.js"></script>
 
     <script>
-        var options = {
-            series: [{
-                name: 'Transaksi',
-                data: [560, 780, 640, 329, 230, 470, 0, 0, 0, 0, 0, 0]
-            }, ],
-            chart: {
-                type: 'bar',
-                height: 350
-            },
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                show: true,
-                width: 2,
-                colors: ['transparent']
-            },
-            xaxis: {
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-            },
-            fill: {
-                opacity: 1
-            },
+        const formatter = new Intl.NumberFormat('id-ID', {
+            style: 'currency',
+            currency: 'IDR'
+        });
+        $(document).ready(function(){
+            getData();
+        })
+        const getData=()=>{
+            $.getJSON("{{ url('/getData') }}", function(e) {}).done(function(e) {
+                $('#itemTrxToday').html(e.data.trxToday)
+                $('#itemTrxProcess').html(e.data.trxProcess)
+                $('#itemIncomeThisMonth').html(formatter.format(e.data.totalIncome))
+                transaksiBulanan(e)
+                transaksiMingguan(e)
+            })
+        }
+        //transaksi bulanan
+        function transaksiBulanan(e){
+            let dataTransaksi = [];
+            var bulan
+            if(e.data.transaksiperbulan.length >= 0){
+                    e.data.transaksiperbulan.map((x)=>{
+                        if(x.bulan == 1){
+                        bulan = 'Januari'
+                        }else if(x.bulan == 2){
+                            bulan = 'Februari'
+                        }else if(x.bulan == 3){
+                            bulan = 'Maret'
+                        }else if(x.bulan == 4){
+                            bulan = 'April'
+                        }else if(x.bulan == 5){
+                            bulan = 'Mei'
+                        }else if(x.bulan == 6){
+                            bulan = 'Juni'
+                        }else if(x.bulan == 7){
+                            bulan = 'Juli'
+                        }else if(x.bulan == 8){
+                            bulan = 'Agustus'
+                        }else if(x.bulan == 9){
+                            bulan = 'September'
+                        }else if(x.bulan == 10){
+                            bulan = 'Oktober'
+                        }else if(x.bulan == 11){
+                            bulan = 'November'
+                        }else {
+                            bulan = 'November'
+                        }
+                        let arrDataTransaksi = {
+                            bulan: bulan,
+                            transaksi: x.total
+                        }
+                        dataTransaksi.push(arrDataTransaksi)
+                    })
+                    console.log(dataTransaksi)
+                }
+                let transaksiData = []
+                let bulanTransaksi = []
+                dataTransaksi.map((x,i)=>{
+                    transaksiData.push(x.transaksi)
+                    bulanTransaksi.push(x.bulan)
+                })
+                var options = {
+                    series: [{
+                        name: 'Transaksi',
+                        data: transaksiData
+                    }, ],
+                    chart: {
+                        type: 'bar',
+                        height: 350
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        show: true,
+                        width: 2,
+                        colors: ['transparent']
+                    },
+                    xaxis: {
+                        categories: bulanTransaksi,
+                    },
+                    fill: {
+                        opacity: 1
+                    },
 
-        };
+                };
+                var chart = new ApexCharts(document.querySelector("#monthly-chart"), options);
+                chart.render();
+        }
+        //transaksi weekly
+        function transaksiMingguan(e){
+            let dataTransaksiMingguan = [];
+                let dataHariTransaksi = [];
+            if(e.data.transaksimingguan.length >= 0){
+                    e.data.transaksimingguan.map((x)=>{
+                        dataTransaksiMingguan.push(x.total)
+                        dataHariTransaksi.push(x.day_name)
+                    })
+                }
+                var optionsWeekly = {
+                    series: [{
+                        name: 'Transaksi',
+                        data: dataTransaksiMingguan
+                    }, ],
+                    chart: {
+                        type: 'bar',
+                        height: 350
+                    },
 
-        var chart = new ApexCharts(document.querySelector("#monthly-chart"), options);
-        chart.render();
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        show: true,
+                        width: 2,
+                        colors: ['transparent']
+                    },
+                    colors: ['#FFA500'],
+                    xaxis: {
+                        categories: dataHariTransaksi,
+                    },
+                    fill: {
+                        opacity: 1
+                    },
 
-        var optionsWeekly = {
-            series: [{
-                name: 'Transaksi',
-                data: [560, 780, 640, 0, 0, 0, 0]
-            }, ],
-            chart: {
-                type: 'bar',
-                height: 350
-            },
+                };
 
-            dataLabels: {
-                enabled: false
-            },
-            stroke: {
-                show: true,
-                width: 2,
-                colors: ['transparent']
-            },
-            colors: ['#FFA500'],
-            xaxis: {
-                categories: ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'],
-            },
-            fill: {
-                opacity: 1
-            },
-
-        };
-
-        var chartWeekly = new ApexCharts(document.querySelector("#weekly-chart"), optionsWeekly);
-        chartWeekly.render();
+                var chartWeekly = new ApexCharts(document.querySelector("#weekly-chart"), optionsWeekly);
+                chartWeekly.render();
+        }
 
         $(() => {
             var mapCenter = [-6.2765247, 106.9589698];

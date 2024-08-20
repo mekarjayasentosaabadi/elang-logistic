@@ -36,6 +36,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/', [DashboardController::class, 'index']);
+    Route::get('/getData', [DashboardController::class, 'getData'])->name('dashboard.getData');
     Route::prefix('user')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('user.index');
         Route::get('/getAll', [UserController::class, 'getAll'])->name('user.getAll');
