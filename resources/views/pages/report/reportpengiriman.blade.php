@@ -171,23 +171,23 @@
 
             // get driver by outlet
             $('#outlet_id_select').change(function () {
-                const outletId = $('#outlet_id_select').val();
+                const outlet_id = $('#outlet_id_select').val();
                 $.ajax({
                     url: '/report/getDriverByOutlet',
                     type: 'GET',
                     data: {
-                        outletid: outletId
+                        outlet_id: outlet_id
                     },
 
                     success: function (response) {
-                            var driver = response.drivers;
-                            var driverSelect = $('#driver')
-                            driverSelect.empty();
+                        var driver = response.drivers;
+                        var driverSelect = $('#driver')
+                        driverSelect.empty();
 
-                            driverSelect.append('<option value="" hidden>Pilih Driver</option>');
+                        driverSelect.append('<option value="" hidden>Pilih Driver</option>');
 
-                            if (driver != null) {
-                                driver.forEach(function (driver) {
+                        if (driver != null) {
+                            driver.forEach(function (driver) {
                                 driverSelect.append('<option value="'+ driver.id +'">'+driver.name+'</option>')
                             });
                         }
@@ -220,9 +220,9 @@
                submitHandler:function(){
                     var formData = new FormData($('#form-report-pengiriman')[0])
 
-                    var outletId = $('#outlet_id_select').val()
+                    var outlet_id = $('#outlet_id_select').val()
 
-                    formData.append('outlet_id', outletId)
+                    formData.append('outlet_id', outlet_id)
 
                     $.ajax({
                         url: '/report/getReportPengiriman',
@@ -267,6 +267,7 @@
                         },
                         error: function(e){
                             $('#form-report-pengiriman')[0].reset();
+                            $('#tblbody-reportpengiriman').empty();
                             console.log('error');
                         }
                     })

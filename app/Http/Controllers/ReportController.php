@@ -23,15 +23,19 @@ class ReportController extends Controller
 
 
     public function reportTransaksi() {
-        return view('pages.report.reporttransaksi');
+        $outlets = Outlet::all();
+        $drivers = User::where('role_id', '5')->where('outlets_id', Auth::user()->outlets_id)->get();
+        $destinations = Destination::all();
+
+        return view('pages.report.reporttransaksi', compact('outlets', 'destinations', 'drivers'));
     }
 
 
 
 
     public function getDriverByOutlet(Request $request) {
-        if ($request->outletid) {
-            $drivers = User::where('role_id', '5')->where('outlets_id', $request->outletid)->get();
+        if ($request->outlet_id) {
+            $drivers = User::where('role_id', '5')->where('outlets_id', $request->outlet_id)->get();
 
             return response()->json(['drivers' => $drivers]);
         }
@@ -91,5 +95,41 @@ class ReportController extends Controller
         });
 
         return response()->json(['dataReport'=>$dataReport]);
+    }
+
+
+    public function getCustomerByOutlet(Request $request) {
+        if ($request->outlet_id) {
+            $customers = User::where('role_id', '4')->where('outlets_id', $request->outlet_id)->get();
+            return response()->json(['customers' => $customers]);
+        }
+
+        return response()->json(['customers' => []]);
+    }
+
+
+
+    public function getReportTransaksi(Request $request) {
+
+        $query = Order::with('customer', 'destination', 'outlet.destination', 'detailmanifests.manifest.detailtraveldocument.traveldocument');
+
+        if ($request->has('customer')) {
+            $query->where('customer_id', $request->customer);
+        }
+
+        if ($request->has('destination')) {
+            $query->where('destinations_id', $request->destination);
+        }
+
+        if ($request->has('tanggal_order_awal') && $request->has('tanggal_order_akhir')) {
+            $query->whereBetween('created_at', [$request->tanggal_order_awal, $request->tanggal_order_akhir]);
+        }
+
+        if ($request->has('status')) {
+            $query->where('status_orders', $request->status);
+        }
+
+        $orders = $query->get();
+        return response()->json(['orders' => $orders]);
     }
 }
