@@ -43,6 +43,9 @@
                                     <label for="outlet_id_select">Outlet</label>
                                     <select name="outlet_id_select" id="outlet_id_select" class="form-control">
                                         <option value="" hidden>Pilih Outlet</option>
+                                        @foreach ($outlets as $outlet)
+                                            <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             </div>
@@ -71,6 +74,9 @@
                                         <label for="destination">Destinasi</label>
                                         <select name="destination" id="destination" class="form-control">
                                             <option value="">Pilih Destinasi</option>
+                                            @foreach ($destinations as $destination)
+                                                <option value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
@@ -96,6 +102,10 @@
                                         <label for="status">Status</label>
                                         <select name="status" id="status" class="form-control">
                                             <option value="">Pilih Status</option>
+                                            <option value="1">Pending</option>
+                                            <option value="2">Process</option>
+                                            <option value="3">Done</option>
+                                            <option value="4">Cancle</option>
                                         </select>
                                     </div>
                                 </div>
@@ -125,8 +135,8 @@
                                     <th>Total Harga</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
+                            <tbody id="tblbody-reporttransaksi">
+                                {{-- <tr>
                                     <td>1</td>
                                     <td>Jeruk</td>
                                     <td>EL-000001</td>
@@ -137,68 +147,7 @@
                                     <td>200kg</td>
                                     <td>200kg</td>
                                     <td>Rp 200.000</td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Jeruk</td>
-                                    <td>EL-000001</td>
-                                    <td>12/8/2023</td>
-                                    <td>16/8/2023</td>
-                                    <td>Bandung</td>
-                                    <td>Yogyakarta</td>
-                                    <td>200kg</td>
-                                    <td>200kg</td>
-                                    <td>Rp 200.000</td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>Jeruk</td>
-                                    <td>EL-000001</td>
-                                    <td>12/8/2023</td>
-                                    <td>16/8/2023</td>
-                                    <td>Bandung</td>
-                                    <td>Yogyakarta</td>
-                                    <td>200kg</td>
-                                    <td>200kg</td>
-                                    <td>Rp 200.000</td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>Jeruk</td>
-                                    <td>EL-000001</td>
-                                    <td>12/8/2023</td>
-                                    <td>16/8/2023</td>
-                                    <td>Bandung</td>
-                                    <td>Yogyakarta</td>
-                                    <td>200kg</td>
-                                    <td>200kg</td>
-                                    <td>Rp 200.000</td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>Jeruk</td>
-                                    <td>EL-000001</td>
-                                    <td>12/8/2023</td>
-                                    <td>16/8/2023</td>
-                                    <td>Bandung</td>
-                                    <td>Yogyakarta</td>
-                                    <td>200kg</td>
-                                    <td>200kg</td>
-                                    <td>Rp 200.000</td>
-                                </tr>
-                                <tr>
-                                    <td>6</td>
-                                    <td>Jeruk</td>
-                                    <td>EL-000001</td>
-                                    <td>12/8/2023</td>
-                                    <td>16/8/2023</td>
-                                    <td>Bandung</td>
-                                    <td>Yogyakarta</td>
-                                    <td>200kg</td>
-                                    <td>200kg</td>
-                                    <td>Rp 200.000</td>
-                                </tr>
-
+                                </tr> --}}
                             </tbody>
                         </table>
                     </div>
@@ -211,7 +160,42 @@
 
 @section('custom-js')
     <script>
+
         $(document).ready(function() {
+            $('#destination').select2();
+
+            // getCustomerByOutlet
+            $('#outlet_id_select').change(function () {
+                const outlet_id = $('#outlet_id_select').val();
+                $.ajax({
+                    url: '/report/getCustomerByOutlet',
+                    type: 'GET',
+                    data: {
+                        outlet_id : outlet_id
+                    },
+
+                    success: function (response) {
+                        var customer = response.customers
+                        var customerSelect = $('#customer')
+                        customerSelect.empty();
+
+                        customerSelect.append('<option value="" hidden>Pilih Customer</option>');
+
+                        if (customer != null) {
+                            customer.forEach(function (customer) {
+                                customerSelect.append('<option value="'+ customer.id +'">'+customer.name+'</option>');
+                            });
+                        }
+
+                    },
+
+                    error:function(response){
+                        console.log('error');
+                    }
+                })
+            })
+
+            // form validate
             $('#form-report-transaksi').validate({
                 rules :{
                     'customer'              : 'required',
@@ -227,6 +211,80 @@
                     'tanggal_order_awal'    : 'Tanggal order awal harus diisi',
                     'tanggal_order_akhir'   : 'Tanggal order akhir harus diisi',
                     'status'                : 'Pilih salah satu status.'
+                },
+
+                submitHandler:function(){
+                    var formData = new FormData($('#form-report-transaksi')[0])
+
+                    var outlet_id = $('#outlet_id_select').val()
+
+                    formData.append('outlet_id', outlet_id)
+
+
+                    $.ajax({
+                        url: '/report/getReportTransaksi',
+                        type: "POST",
+                        dataType: "JSON",
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function (response) {
+                            $('#form-report-transaksi')[0].reset();
+                            var dataOrders = response.orders
+
+                            $('#tblbody-reporttransaksi').empty();
+
+                            dataOrders.forEach(function (order, index) {
+
+                                var formattedPrice = new Intl.NumberFormat('id-ID', {
+                                    style: 'currency',
+                                    currency: 'IDR',
+                                    maximumFractionDigits: 0,
+                                }).format(order.price);
+
+
+
+                                $('#tblbody-reporttransaksi').append(`
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${order.customer.name}</td>
+                                        <td>${order.numberorders}</td>
+                                        <td>${new Date(order.created_at).toLocaleString('id-ID', {
+                                                year: 'numeric',
+                                                month: '2-digit',
+                                                day: '2-digit',
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                                second: '2-digit',
+                                                hour12: false
+                                            }).replace(/\//g, '-')}
+                                        </td>
+                                        <td>${order.detailmanifests.manifest.detailtraveldocument.traveldocument.finish_date}</td>
+                                        <td>${order.outlet.destination.name}</td>
+                                        <td>${order.destination.name}</td>
+                                        <td>${order.weight}</td>
+                                        <td>${order.weight}</td>
+                                        <td>${formattedPrice}</td>
+                                    </tr>
+                                `)
+                            })
+                        },
+
+                        error: function (response) {
+                            $('#form-report-transaksi')[0].reset();
+                            $('#tblbody-reporttransaksi').empty();
+                            console.log('error');
+                        }
+
+                    })
+                },
+
+                errorPlacement:function (error, element) {
+                    if (element.closest('.form-group').length) {
+                        error.insertAfter(element.closest('.form-group'))
+                    }else{
+                        error.insertAfter(element);
+                    }
                 }
             })
         });
