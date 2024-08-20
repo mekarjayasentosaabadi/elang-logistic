@@ -64,9 +64,18 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="driver">Driver</label>
-                                        <select name="driver" id="driver" class="form-control">
-                                            <option value="">Pilih Driver</option>
-                                        </select>
+                                        @if (Auth::user()->role_id == '1')
+                                            <select name="driver" id="driver" class="form-control">
+                                                <option value="">Pilih Driver</option>
+                                            </select>
+                                        @else
+                                            <select name="driver" id="driver" class="form-control">
+                                                <option value="">Pilih Driver</option>
+                                                @foreach ($drivers as $driver)
+                                                    <option value="{{ $driver->id }}">{{ $driver->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -210,7 +219,9 @@
                },
                submitHandler:function(){
                     var formData = new FormData($('#form-report-pengiriman')[0])
+
                     var outletId = $('#outlet_id_select').val()
+
                     formData.append('outlet_id', outletId)
 
                     $.ajax({
