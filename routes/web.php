@@ -6,7 +6,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OutletController;
-use App\Http\Controllers\ReportController;
 use App\Http\Controllers\VehicleController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ManifestController;
@@ -36,6 +35,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware(['auth'])->group(function () {
 
     Route::get('/', [DashboardController::class, 'index']);
+    Route::get('/getData', [DashboardController::class, 'getData'])->name('dashboard.getData');
     Route::prefix('user')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('user.index');
         Route::get('/getAll', [UserController::class, 'getAll'])->name('user.getAll');
@@ -203,5 +203,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/cek', function () {
         return view('pages.cek');
+    });
+    Route::prefix('profile')->group(function(){
+        Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
+        Route::post('/', [ProfileController::class, 'update'])->name('profile.update');
+        Route::post('/changepassword', [ProfileController::class, 'changePassword'])->name('profile.changepassword');
     });
 });
