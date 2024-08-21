@@ -11,6 +11,20 @@
         <div class="row invoice-preview">
             <!-- Invoice -->
             <div class="">
+                <ul class="nav nav-pills mb-2">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/order/{{ encrypt($order->id) }}/detail">
+                            <i data-feather="eye" class="font-medium-3 me-50"></i>
+                            <span class="fw-bold">Detail Order</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/order/{{ encrypt($order->id) }}/historyupdate"">
+                            <i data-feather="clock" class="font-medium-3 me-50"></i>
+                            <span class="fw-bold">History Update</span>
+                        </a>
+                    </li>
+                </ul>
                 <div class="card invoice-preview-card">
                     <div class="card-body invoice-padding pb-0">
                         <!-- Header starts -->

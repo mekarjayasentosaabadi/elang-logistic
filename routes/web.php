@@ -84,10 +84,13 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('order')->group(function () {
         Route::get('/', [OrderController::class, 'index'])->name('order.index');
         Route::get('/getAll', [OrderController::class, 'getAll'])->name('order.getAll');
+        Route::get('/getHistoryUpdateOrder', [OrderController::class, 'getHistoryUpdateOrder'])->name('order.getHistoryUpdateOrder');
         Route::get('/create', [OrderController::class, 'create']);
         Route::post('/', [OrderController::class, 'store']);
         Route::get('/{id}/edit', [OrderController::class, 'edit']);
         Route::get('/{id}/detail', [OrderController::class, 'show']);
+        Route::get('/{id}/historyupdate', [OrderController::class, 'historyupdate']);
+        Route::get('/{id}/detailhistoryupdate', [OrderController::class, 'showHistoryupdateOrder']);
         Route::patch('/{id}', [OrderController::class, 'update']);
         Route::delete('/{id}', [OrderController::class, 'destroy']);
         Route::get('/{id}/print', [OrderController::class, 'printformat1']);

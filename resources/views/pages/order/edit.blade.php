@@ -53,8 +53,7 @@
                                         @if (Auth::user()->role_id != '1')
                                             @foreach ($customers as $customer)
                                                 <option value="{{ $customer->id }}"
-                                                    {{ $customer->id == $order->customer_id ? 'selected' : '' }}>
-                                                    {{ $customer->name }}
+                                                    {{ $customer->id == $order->customer_id ? 'selected' : '' }}>{{ $customer->name }}
                                                 </option>
                                             @endforeach
                                        @endif
@@ -76,9 +75,9 @@
                                         <label for="payment_method">Metode Pembayaran</label>
                                         <select name="payment_method" id="payment_method" class="form-control">
                                             <option value="">Pilih Metode Pembayaran</option>
-                                            <option {{ Old('payment_method') == '1' ? 'selected' : '' }} value="1">Tagih Tujuan</option>
-                                            <option {{ Old('payment_method') == '2' ? 'selected' : '' }} value="2">Tagih Pada Pengirim</option>
-                                            <option {{ Old('payment_method') == '3' ? 'selected' : '' }} value="3">Tunai</option>
+                                            <option {{ Old('payment_method', $order->payment_method) == '1' ? 'selected' : '' }} value="1">Tagih Tujuan</option>
+                                            <option {{ Old('payment_method', $order->payment_method) == '2' ? 'selected' : '' }} value="2">Tagih Pada Pengirim</option>
+                                            <option {{ Old('payment_method', $order->payment_method) == '3' ? 'selected' : '' }} value="3">Tunai</option>
                                         </select>
                                     </div>
                                 </div>
@@ -89,16 +88,16 @@
                                         <label for="armada">Servcie</label>
                                         <select name="armada" id="armada" class="form-control">
                                             <option value="">Pilih Servcie</option>
-                                            <option {{  Old('armada') == '1' ? 'selected' : '' }} value="1">Darat</option>
-                                            <option {{  Old('armada') == '2' ? 'selected' : '' }} value="2">Laut</option>
-                                            <option {{  Old('armada') == '3' ? 'selected' : '' }} value="3">Udara</option>
+                                            <option {{  Old('armada', $order->armada) == '1' ? 'selected' : '' }} value="1">Darat</option>
+                                            <option {{  Old('armada', $order->armada) == '2' ? 'selected' : '' }} value="2">Laut</option>
+                                            <option {{  Old('armada', $order->armada) == '3' ? 'selected' : '' }} value="3">Udara</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="receiver">Penerima</label>
-                                        <input type="text" name="receiver" id="receiver" class="form-control" value="{{ Old('receiver') }}" placeholder="masukan penerima">
+                                        <input type="text" name="receiver" id="receiver" class="form-control" value="{{ Old('receiver', $order->penerima) }}" placeholder="masukan penerima">
                                     </div>
                                 </div>
                             </div>
@@ -109,7 +108,7 @@
                                         <select name="destination_id" id="destination_id" class="form-control">
                                             <option value="">Pilih Destinasi</option>
                                             @foreach ($destinations as $destination)
-                                                <option {{ $order->destination->name == $destination->name ? 'selected' : '' }} value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                                <option {{ Old('destination_id', $order->destination->name ) == $destination->name ? 'selected' : '' }} value="{{ $destination->id }}">{{ $destination->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -119,8 +118,8 @@
                                         <label for="service">Jenis Barang</label>
                                         <select name="service" id="service" class="form-control">
                                             <option value="">Pilih Jenis</option>
-                                            <option {{ Old('service') == '1' ? 'selected' : '' }} value="1">Dokumen</option>
-                                            <option {{ Old('service') == '2' ? 'selected' : '' }} value="2">Paket</option>
+                                            <option {{ Old('service', $order->service) == '1' ? 'selected' : '' }} value="1">Dokumen</option>
+                                            <option {{ Old('service', $order->service) == '2' ? 'selected' : '' }} value="2">Paket</option>
                                         </select>
                                     </div>
                                 </div>
@@ -138,7 +137,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="address">Alamat</label>
-                                        <textarea name="address" id="address" class="form-control" placeholder="masukan alamat lengkap">{{ Old('address') }}</textarea>
+                                        <textarea name="address" id="address" class="form-control" placeholder="masukan alamat lengkap">{{ Old('address', $order->address) }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -147,7 +146,7 @@
                                     <div class="form-group ">
                                         <label for="weight">Berat</label>
                                         <div class="input-group">
-                                            <input type="number" name="weight" id="weight" class="form-control" value="{{ Old('weight') }}"  placeholder="masukan berat kg">
+                                            <input type="number" name="weight" id="weight" class="form-control" value="{{ Old('weight', $order->weight) }}"  placeholder="masukan berat kg">
                                             <span class="input-group-text">Kg</span>
                                         </div>
                                     </div>
@@ -157,7 +156,7 @@
                                     <div class="form-group">
                                         <label for="volume">Volume</label>
                                         <div class="input-group">
-                                            <input type="number" name="volume" id="volume" class="form-control" value="{{ Old('volume') }}">
+                                            <input type="number" name="volume" id="volume" class="form-control" value="{{ Old('volume', $order->volume) }}">
                                             <span class="input-group-text">M<sup>3</sup></span>
                                         </div>
                                     </div>
@@ -165,7 +164,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="price">Harga</label>
-                                        <input type="text" name="price" id="price" class="form-control" value="{{ Old('price') }}"  placeholder="masukan harga">
+                                        <input type="text" name="price" id="price" class="form-control" value="{{ Old('price', $order->price) }}"  placeholder="masukan harga">
                                     </div>
                                 </div>
 
@@ -174,14 +173,14 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="koli">Koli</label>
-                                        <input type="number" name="koli" id="koli" class="form-control" value="{{ Old('koli') }}" placeholder="masukan koli">
+                                        <input type="number" name="koli" id="koli" class="form-control" value="{{ Old('koli', $order->koli) }}" placeholder="masukan koli">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="estimation">Estimasi</label>
                                         <div class="input-group">
-                                            <input type="number" name="estimation" id="estimation" class="form-control" value="{{ Old('estimation') }}" placeholder="masukan estimasi">
+                                            <input type="number" name="estimation" id="estimation" class="form-control" value="{{ Old('estimation', $order->estimation) }}" placeholder="masukan estimasi">
                                             <span class="input-group-text">Hari</span>
                                         </div>
                                     </div>
@@ -191,13 +190,13 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="description">Deskripsi Barang</label>
-                                        <textarea name="description" id="description" class="form-control" placeholder="masukan deskripsi">{{ Old('description') }}</textarea>
+                                        <textarea name="description" id="description" class="form-control" placeholder="masukan deskripsi">{{ Old('description', $order->description) }}</textarea>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="note">Catatan</label>
-                                        <textarea name="note" id="note" class="form-control" placeholder="masukan catatan">{{ Old('note') }}</textarea>
+                                        <textarea name="note" id="note" class="form-control" placeholder="masukan catatan">{{ Old('note', $order->note) }}</textarea>
                                     </div>
                                 </div>
                             </div>

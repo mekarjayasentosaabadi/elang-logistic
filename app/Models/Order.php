@@ -48,4 +48,5 @@ class Order extends Model
     {
         return $this->hasMany(HistoryUpdateOrder::class, 'order_id', 'id');
     }
+
 }
