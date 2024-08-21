@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\User;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Helper\ResponseFormatter;
@@ -58,6 +59,14 @@ class DashboardController extends Controller
             $transaction->day_name = $daysOfWeek[$transaction->day_of_week];
             return $transaction;
             });
+            $topCustomer = DB::table('orders')
+                                ->join('users', 'users.id', '=', 'orders.customer_id')
+                                ->select('users.id', 'users.name', DB::raw('SUM(orders.price) as total_orders'))
+                                ->where('users.role_id', '4')
+                                ->groupBy('users.id')
+                                ->orderBy(DB::raw('SUM(orders.price)'), 'DESC')
+                                ->limit(10)
+                                ->get();
         }
         if($roleId == '2'){
             $trxToday = Order::whereDate('created_at', $today)
@@ -98,13 +107,22 @@ class DashboardController extends Controller
                 $transaction->day_name = $daysOfWeek[$transaction->day_of_week];
                 return $transaction;
             });
+            $topCustomer = DB::table('orders')
+                                ->join('users', 'users.id', '=', 'orders.customer_id')
+                                ->select('users.id', 'users.name', DB::raw('SUM(orders.price) as total_orders'))
+                                ->where('users.role_id', '4')
+                                ->groupBy('users.id')
+                                ->orderBy(DB::raw('SUM(orders.price)'), 'DESC')
+                                ->limit(10)
+                                ->get();
         }
         return ResponseFormatter::success([
             'trxToday' => $trxToday,
             'trxProcess' => $trxProcess,
             'totalIncome' => $totalIncome,
             'transaksiperbulan' => $transaksiperbulan,
-            'transaksimingguan' => $dailyTransactions
+            'transaksimingguan' => $dailyTransactions,
+            'topcustomer'       => $topCustomer
         ], 'Berhasil mengambil data');
     }
 }

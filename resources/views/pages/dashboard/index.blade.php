@@ -1,8 +1,8 @@
 @extends('layout.app')
 @section('title', 'Dashboard')
 @section('custom-css')
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets') }}/app-assets/vendors/css/maps/leaflet.min.css">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets') }}/app-assets/vendors/css/charts/apexcharts.css">
+
 @endsection
 
 @section('content')
@@ -91,57 +91,8 @@
                                     <th>Total Transaksi</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>PT ABC</td>
-                                    <td>100</td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>CV MSA</td>
-                                    <td>94</td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>PT XYZ</td>
-                                    <td>90</td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>PT Indonesia Jaya</td>
-                                    <td>80</td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>PT Makmur Sejahtera</td>
-                                    <td>70</td>
-                                </tr>
-                                <tr>
-                                    <td>6</td>
-                                    <td>PT Sejahtera</td>
-                                    <td>60</td>
-                                </tr>
-                                <tr>
-                                    <td>7</td>
-                                    <td>PT Maju Terus</td>
-                                    <td>50</td>
-                                </tr>
-                                <tr>
-                                    <td>8</td>
-                                    <td>PT Jaya Abadi</td>
-                                    <td>40</td>
-                                </tr>
-                                <tr>
-                                    <td>9</td>
-                                    <td>PT Jaya Makmur</td>
-                                    <td>30</td>
-                                </tr>
-                                <tr>
-                                    <td>10</td>
-                                    <td>PT Jaya Sentosa</td>
-                                    <td>20</td>
-                                </tr>
+                            <tbody id="tbody-customer">
+
                             </tbody>
                         </table>
                     </div>
@@ -156,7 +107,7 @@
                     <h4 class="card-title">Peta Truck</h4>
                 </div>
                 <div class="card-body">
-                    <div id="map" style="height: 400px;"></div>
+                    <div id="map" class="leaflet-container"></div>
                 </div>
             </div>
         </div>
@@ -164,9 +115,9 @@
 @endsection
 
 @section('custom-js')
-    <script src="{{ asset('assets') }}/app-assets/vendors/js/maps/leaflet.min.js"></script>
 
-    <script src="{{ asset('assets') }}/app-assets/vendors/js/charts/apexcharts.min.js"></script>
+<script src="{{ asset('assets') }}/app-assets/vendors/js/charts/apexcharts.min.js"></script>
+{{-- <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> --}}
 
     <script>
         const formatter = new Intl.NumberFormat('id-ID', {
@@ -183,6 +134,7 @@
                 $('#itemIncomeThisMonth').html(formatter.format(e.data.totalIncome))
                 transaksiBulanan(e)
                 transaksiMingguan(e)
+                topCustomer(e)
             })
         }
         //transaksi bulanan
@@ -299,49 +251,35 @@
                 var chartWeekly = new ApexCharts(document.querySelector("#weekly-chart"), optionsWeekly);
                 chartWeekly.render();
         }
+        //top customer
+        function topCustomer(e){
+            if(e.data.topcustomer.length >= 0){
+                let noUrut = 1;
+                e.data.topcustomer.map((x, i)=>{
+                    $('#tbody-customer').append(`
+                        <tr>
+                            <td>${noUrut++}</td>
+                            <td>${x.name}</td>
+                            <td>${formatter.format(x.total_orders)}</td>
+                        </tr>
+                    `)
+                })
+            }
+        }
+        let latitude = -7.351564695753717
+        let longitude = 108.63515798523339
+        var zoomLevel = 13;
+        var map = L.map('map').setView([latitude, longitude], zoomLevel);
 
-        $(() => {
-            var mapCenter = [-6.2765247, 106.9589698];
+        // Menambahkan tile layer dari OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-            // Initialize the map
-            var map = L.map('map').setView(mapCenter, 8);
-
-            // Set basemap tiles (choose a provider like OpenStreetMap)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            // add 3 markers
-            const markers = [
-                [-6.2765247, 106.9589698],
-                [-6.93648, 107.6681201],
-                [-7.3028752, 112.7428974],
-            ];
-
-            const truckIcon = L.icon({
-                iconUrl: "{{ asset('assets') }}/img/truck.png",
-                iconSize: [50, 50],
-                iconAnchor: [25, 25],
-                popupAnchor: [0, -25]
-            });
-
-            // popup content
-            const popupContent = `
-                <div>
-                    No. Polisi: B 1234 ABC</br>
-                    No. SJ : 123456<br/>
-                    Total Barang: 100<br/>
-                    Total Manifest: 10<br/>
-                </div>
-            `;
-
-            markers.forEach(marker => {
-                L.marker(marker, {
-                    icon: truckIcon
-                }).addTo(map).bindPopup(popupContent);
-            });
-
-        })
+        // Menambahkan marker di koordinat yang ditentukan
+        var marker = L.marker([latitude, longitude]).addTo(map)
+            .bindPopup('Lokasi Kantor.')
+            .openPopup();
     </script>
 
 @endsection
