@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('history_update_orders', function (Blueprint $table) {
             $table->id();
             $table->integer('order_id');
-            $table->string('numberorders', 10)->unique();
+            $table->string('numberorders', 10);
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('outlet_id')->nullable();
             $table->unsignedBigInteger('destinations_id');
