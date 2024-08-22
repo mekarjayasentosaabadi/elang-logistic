@@ -21,6 +21,7 @@
 
     <script src="{{ asset('assets') }}/app-assets/vendors/js/forms/validation/jquery.validate.min.js"></script>
     <script src="{{ asset('assets') }}/app-assets/vendors/js/forms/select/select2.full.min.js"></script>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     @include('sweetalert::alert')
     <!-- BEGIN: Page JS-->
     <!-- END: Page JS-->

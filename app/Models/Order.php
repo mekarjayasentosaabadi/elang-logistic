@@ -49,4 +49,8 @@ class Order extends Model
         return $this->hasMany(HistoryUpdateOrder::class, 'order_id', 'id');
     }
 
+
+    function users(){
+        return $this->belongsTo(User::class, 'customer_id', 'id');
+    }
 }

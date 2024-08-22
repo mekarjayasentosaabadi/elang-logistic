@@ -37,3 +37,16 @@
 {{-- font awesome --}}
 <link rel="stylesheet" href="{{ asset('assets') }}/fontawesome-free-6.5.2-web/css/all.min.css">
 {{-- data table --}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<style>
+    /* #map {
+                height: 500px;
+                width: 100%;
+            } */
+    .leaflet-container {
+        height: 400px;
+        width: 100%;
+        max-width: 100%;
+        max-height: 100%;
+    }
+</style>
