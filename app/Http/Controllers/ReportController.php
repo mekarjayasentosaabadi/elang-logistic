@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Order;
 use App\Models\Outlet;
 use App\Models\Destination;
+use App\Models\Detailsurattugas;
 use App\Models\Surattugas;
 use Illuminate\Http\Request;
 use App\Models\Traveldocument;
@@ -17,18 +18,18 @@ class ReportController extends Controller
         $outlets = Outlet::all();
         $drivers = User::where('role_id', '5')->where('outlets_id', Auth::user()->outlets_id)->get();
         $destinations = Destination::all();
-        return view('pages.report.reportpengiriman', compact('outlets', 'destinations', 'drivers'));
+        return view('pages.report.index', compact('outlets', 'destinations', 'drivers'));
     }
 
 
 
-    public function reportTransaksi() {
-        $outlets = Outlet::all();
-        $drivers = User::where('role_id', '5')->where('outlets_id', Auth::user()->outlets_id)->get();
-        $destinations = Destination::all();
+    // public function reportTransaksi() {
+    //     $outlets = Outlet::all();
+    //     $drivers = User::where('role_id', '5')->where('outlets_id', Auth::user()->outlets_id)->get();
+    //     $destinations = Destination::all();
 
-        return view('pages.report.reporttransaksi', compact('outlets', 'destinations', 'drivers'));
-    }
+    //     return view('pages.report.reporttransaksi', compact('outlets', 'destinations', 'drivers'));
+    // }
 
 
 
@@ -50,37 +51,54 @@ class ReportController extends Controller
             'driver',
             'vehicle',
             'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.destination',
-            'outlet'
+            'outlet.destination'
         ]);
 
 
-        // if ($request->has('outlet_id')) {
-        //     $query->where('outlets_id', $request->outlet_id);
-        // }
-        // else {
-        //     $query->where('outlets_id', Auth::user()->outlets_id);
-        // }
-
-
-        if ($request->has('driver')) {
+        if ($request->driver) {
             $query->where('driver', $request->driver);
         }
 
-        if ($request->has('tanggal_awal_berangkat') && $request->has('tanggal_akhir_berangkat')) {
+        if ($request->destination) {
+            $query->whereHas('detailsurattugas.traveldocument', function ($q) use ($request) {
+                $q->where('destinations_id', $request->destination);
+            });
+        }
+
+        if ($request->tanggal_awal_berangkat) {
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
+                $q->whereDate('start', $request->tanggal_awal_berangkat);
+            });
+        }
+
+        if ($request->tanggal_akhir_berangkat) {
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
+                $q->whereDate('start', $request->tanggal_akhir_berangkat);
+            });
+        }
+
+
+        if ($request->tanggal_awal_berangkat && $request->tanggal_akhir_berangkat) {
             $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
                 $q->whereBetween('start', [$request->tanggal_awal_berangkat, $request->tanggal_akhir_berangkat]);
             });
         }
 
 
-        if ($request->has('jenis_pengiriman')) {
+
+        if ($request->jenis_pengiriman) {
             $query->whereHas('detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order', function($q) use ($request) {
                 $q->where('armada', $request->jenis_pengiriman);
             });
         }
 
-        if ($request->has('status')) {
-                $query->where('statussurattugas', $request->status);
+
+        if (isset($request->status_surattugas)) {
+               if ($request->status_surattugas == '5') {
+                   $query->OrWhere('statussurattugas', '0')->OrWhere('statussurattugas', '1')->OrWhere('statussurattugas', '2');
+                }else{
+                    $query->where('statussurattugas', $request->status_surattugas);
+                }
         }
 
         $dataReport = $query->get()->map(function($report) {
@@ -89,7 +107,7 @@ class ReportController extends Controller
                 'start_date'        => $report->detailsurattugas->first()->traveldocument->start ?? null,
                 'finish_date'       => $report->detailsurattugas->first()->traveldocument->finish_date ?? null,
                 'jenis_pengiriman'  => $report->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->armada ?? null,
-                'destinasi'         => $report->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->first()->destination->name ?? null,
+                'destinasi'         => $report->detailsurattugas->first()->traveldocument->destination->name ?? null,
                 'berat_volume'      => $report->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->weight ??  $report->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->volume,
             ]);
         });
@@ -113,19 +131,24 @@ class ReportController extends Controller
 
         $query = Order::with('customer', 'destination', 'outlet.destination', 'detailmanifests.manifest.detailtraveldocument.traveldocument');
 
-        if ($request->has('customer')) {
+        if ($request->customer) {
             $query->where('customer_id', $request->customer);
         }
 
-        if ($request->has('destination')) {
-            $query->where('destinations_id', $request->destination);
+        if ($request->destination_transaksi) {
+            $query->where('destinations_id', $request->destination_transaksi);
         }
 
-        if ($request->has('tanggal_order_awal') && $request->has('tanggal_order_akhir')) {
+        if ($request->tanggal_order_awal && $request->tanggal_order_akhir) {
             $query->whereBetween('created_at', [$request->tanggal_order_awal, $request->tanggal_order_akhir]);
+        } elseif ($request->tanggal_order_awal) {
+            $query->whereDate('created_at', $request->tanggal_order_awal);
+        } elseif ($request->tanggal_order_akhir) {
+            $query->whereDate('created_at', $request->tanggal_order_akhir);
         }
 
-        if ($request->has('status')) {
+
+        if ($request->status) {
             $query->where('status_orders', $request->status);
         }
 
