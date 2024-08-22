@@ -274,6 +274,7 @@ class OrderController extends Controller
                     $order->status_orders   = 1;
                     $order->status_awb      = "Pesanan sedang diambil kurir";
                     $order->outlet_id       = $outlet->id;
+                    $order->created_by      = Auth::user()->id;
                     $order->save();
 
                     // create history awb -> "Pesanan sedang diambl kurir"
@@ -371,6 +372,7 @@ class OrderController extends Controller
                 $order->outlet_id       =  $outlet->id;
                 $order->penerima        =  $request->receiver;
                 $order->status_awb      =  'Pesanan sedang di proses di ' . $gudangLocation->name . ' oleh ' . Auth::user()->name;
+                $order->created_by      = Auth::user()->id;
                 $order->save();
 
                 // create history awb -> "Pesanan sedang di proses di gudang ..."
