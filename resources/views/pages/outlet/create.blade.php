@@ -6,7 +6,7 @@
 @endsection
 
 @section('custom-css')
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets') }}/app-assets/vendors/css/maps/leaflet.min.css">
+
 @endsection
 
 @section('content')
@@ -61,45 +61,9 @@
                                             data-bs-target="#default">
                                             <i class="fas fa-search"></i>
                                         </button>
-
-                                        <!-- Modal -->
-                                        <div class="modal fade text-start" id="default" tabindex="-1"
-                                            data-bs-backdrop="static" data-bs-keyboard="false"
-                                            aria-labelledby="addressModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-lg">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h4 class="modal-title" id="addressModalLabel">Pilih Lokasi</h4>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div id="map" style="height: 400px;"></div>
-                                                        <div class="row mt-3">
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="findlat">Latitude</label>
-                                                                    <input type="text" name="findlat" id="findlat"
-                                                                        class="form-control">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="findlong">Longitude</label>
-                                                                    <input type="text" name="findlong" id="findlong"
-                                                                        class="form-control">
-                                                                </div>
-
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" id="btnPilih" class="btn btn-primary"
-                                                            data-bs-dismiss="modal">Pilih</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div id="maps" class="leaflet-container"></div>
                                     </div>
                                 </div>
 
@@ -136,32 +100,43 @@
 
 
 @section('custom-js')
-    <script src="{{ asset('assets') }}/app-assets/vendors/js/maps/leaflet.min.js"></script>
 
     <script>
+        let markers;
+        let latitude = -7.351564695753717
+        let longitude = 108.63515798523339
+        var zoomLevel = 13;
+        var maps = L.map('maps').setView([latitude, longitude], zoomLevel);
+
+        // Menambahkan tile layer dari OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(maps);
+
+        // Menambahkan marker di koordinat yang ditentukan
+        function marker(latitude, longitude) {
+            // var marker
+            if(markers != undefined){
+                markers.remove()
+            }
+            markers = L.marker([latitude, longitude]).addTo(maps)
+                .bindPopup('Lokasi Kantor.')
+                .openPopup();
+        }
+
+        maps.on('click', function(e) {
+            let latitude = e.latlng.lat.toString().substring(0, 15);
+            let longitude = e.latlng.lng.toString().substring(0, 15);
+            $('#lat').val(latitude);
+            $('#long').val(longitude);
+            updateMarker(latitude, longitude);
+        })
+        function updateMarker(latitude, longitude) {
+            marker(latitude, longitude);
+        }
         var formValidate = $('#formValidate');
-        $(() => {
+        $(document).ready(function(){
             $('.select2').select2();
-            var mapCenter = [-6.2765247, 106.9589698];
-
-            // Initialize the map
-            var map = L.map('map').setView(mapCenter, 8);
-
-            // Set basemap tiles (choose a provider like OpenStreetMap)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            // add 3 markers
-            const markers = [-6.2765247, 106.9589698]
-
-            marker = L.marker(markers, {
-                draggable: true
-            }).addTo(map).on('dragend', function(e) {
-                var coord = e.target.getLatLng();
-                $('#findlat').val(coord.lat);
-                $('#findlong').val(coord.lng);
-            });
 
             formValidate.validate({
                 rules: {
@@ -212,15 +187,6 @@
                     }
                 }
             })
-
-        })
-
-        $('#btnPilih').click(() => {
-            var lat = $('#findlat').val();
-            var long = $('#findlong').val();
-
-            $('#lat').val(lat);
-            $('#long').val(long);
         })
     </script>
 @endsection
