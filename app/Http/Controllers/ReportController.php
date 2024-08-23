@@ -108,6 +108,11 @@ class ReportController extends Controller
                 }
         }
 
+
+
+
+
+
         $dataReport = $query->get()->map(function($report) {
             $driver = User::find($report->driver);
             $firstDetail = $report->detailsurattugas->first()->traveldocument ?? null;
