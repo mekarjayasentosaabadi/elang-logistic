@@ -114,37 +114,17 @@ class ReportController extends Controller
 
 
         $dataReport = $query->get()->map(function($report) {
-            $driver = User::find($report->driver);
-            $firstDetail = $report->detailsurattugas->first()->traveldocument ?? null;
-            $firstManifest = $firstDetail ? $firstDetail->detailtraveldocument->first()->manifest->first() : null;
-            $firstOrder = $firstManifest ? $firstManifest->detailmanifests->first()->order : null;
-
-
-            return [
-                'driver'             => $driver->name,
-                'no_surat_jalan'     => $firstDetail->travelno,
-                'no_kendaraan'       => $report->vehicle->police_no,
-                'tanggal_berangkat'  => $firstDetail->start,
-                'tanggal_finish'     => $firstDetail->finish_date,
-                'jenis_pengiriman'   => $firstOrder->armada,
-                'asal'               => $report->outlet->destination->name,
-                'destinasi'          => $firstDetail->destination->name,
-                'volume_berat'       => $firstOrder ? ($firstOrder->weight ?? $firstOrder->volume) : null,
-                'total_volume_berat' => $report->detailsurattugas->sum(function($detail) {
-                    $firstDetail     = $detail->traveldocument;
-                    $firstManifest   = $firstDetail ? $firstDetail->detailtraveldocument->first()->manifest->first() : null;
-                    $firstOrder      = $firstManifest ? $firstManifest->detailmanifests->first()->order : null;
-                    return $firstOrder ? ($firstOrder->weight ?? $firstOrder->volume) : 0;
-                })
-            ];
+            return array_merge($report->toArray(), [
+                'travelno'          => $report->detailsurattugas->first()->traveldocument->travelno ?? null,
+                'start_date'        => $report->detailsurattugas->first()->traveldocument->start ?? null,
+                'finish_date'       => $report->detailsurattugas->first()->traveldocument->finish_date ?? null,
+                'jenis_pengiriman'  => $report->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->armada ?? null,
+                'destinasi'         => $report->detailsurattugas->first()->traveldocument->destination->name ?? null,
+                'berat_volume'      => $report->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->weight ??  $report->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->volume,
+            ]);
         });
 
-        return response()->json([
-            'data' => $dataReport,
-            'draw' => $request->input('draw'),
-            'recordsTotal' => $query->count(), // Total record count
-            'recordsFiltered' => $query->count() // Filtered record count
-        ]);
+        return response()->json(['dataReport'=>$dataReport]);
     }
 
 
