@@ -202,7 +202,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/transaksi', [ReportController::class, 'reportTransaksi'])->name('report.reportTransaksi');
         Route::get('/getDriverByOutlet', [ReportController::class, 'getDriverByOutlet'])->name('report.getDriverByOutlet');
         Route::get('/getCustomerByOutlet', [ReportController::class, 'getCustomerByOutlet'])->name('report.getCustomerByOutlet');
-        Route::post('/getReportPengiriman', [ReportController::class, 'getReportPengiriman'])->name('report.getReportPengiriman');
+        Route::get('/getReportPengiriman', [ReportController::class, 'getReportPengiriman'])->name('report.getReportPengiriman');
         Route::post('/getReportTransaksi', [ReportController::class, 'getReportTransaksi'])->name('report.getReportTransaksi');
     });
 
