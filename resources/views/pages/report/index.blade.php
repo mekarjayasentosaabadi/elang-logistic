@@ -61,7 +61,7 @@
                     </div>
                     <div class="card-body">
                         <div>
-                            <form action="" method="POST" id="form-report-pengiriman">
+                            <form action=""  id="form-report-pengiriman">
                                 <div class="row mt-2" id="">
                                     <div class="col-md-6">
                                         <div class="form-group">
@@ -96,13 +96,13 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="tanggal_awal_berangkat">Tanggal Awal Berangkat</label>
-                                            <input class="form-control" type="date" name="tanggal_awal_berangkat" id="">
+                                            <input class="form-control" type="date" name="tanggal_awal_berangkat" id="tanggal_awal_berangkat">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="tanggal_akhir_berangkat">Tanggal Akhir Berangkat</label>
-                                            <input class="form-control" type="date" name="tanggal_akhir_berangkat" id="">
+                                            <input class="form-control" type="date" name="tanggal_akhir_berangkat" id="tanggal_akhir_berangkat">
                                         </div>
                                     </div>
                                 </div>
@@ -326,86 +326,41 @@
                 })
             })
 
-
-            $('#form-report-pengiriman').validate({
-            //    rules:{
-            //         'driver'                  : 'required',
-            //         'jenis_pengiriman'        : 'required',
-            //         'tanggal_awal_berangkat'  : 'required',
-            //         'tanggal_akhir_berangkat' : 'required',
-            //         'destination'             : 'required',
-            //         'status'                  : 'required'
-            //    },
-            //    messages:{
-            //         'driver'                  : 'Pilih salah satu driver.',
-            //         'jenis_pengiriman'        : 'Pilih salah satu jenis pengiriman.',
-            //         'tanggal_awal_berangkat'  : 'Tanggal awal berangkat harus diisi.',
-            //         'tanggal_akhir_berangkat' : 'Tanggal akhir berangkat harus diisi.',
-            //         'destination'             : 'Pilih salah satu destinasi.',
-            //         'status'                  : 'Pilih salah satu status.'
-            //    },
-               submitHandler:function(){
-                    var formData = new FormData($('#form-report-pengiriman')[0])
-
-                    var outlet_id = $('#outlet_id_select').val()
-
-                    formData.append('outlet_id', outlet_id)
-
-                    $.ajax({
-                        url: '/report/getReportPengiriman',
-                        type: "POST",
-                        dataType: "JSON",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response){
-                            var dataReports = response.dataReport
-
-                            $('#tblbody-reportpengiriman').empty();
-
-                            dataReports.forEach(function(report, index) {
-                                report.detailsurattugas.forEach(function(detail) {
-                                    let jenisPengiriman = report.jenis_pengiriman
-                                    if (jenisPengiriman == 1) {
-                                        jenisPengiriman = "Darat"
-                                    }else if (jenisPengiriman == 2) {
-                                        jenisPengiriman = "Laut"
-                                    }else if (jenisPengiriman == 3) {
-                                        jenisPengiriman = "Udara"
-                                    }
-                                    $('#tblbody-reportpengiriman').append(`
-                                        <tr>
-                                            <td>${index + 1}</td>
-                                            <td>${report.driver.name}</td>
-                                            <td>${report.travelno}</td>
-                                            <td>${report.vehicle.police_no}</td>
-                                            <td>${report.start_date}</td>
-                                            <td>${report.finish_date}</td>
-                                            <td>${jenisPengiriman}</td>
-                                            <td>${report.outlet.destination.name}</td>
-                                            <td>${report.destinasi}</td>
-                                            <td>${report.berat_volume}</td>
-                                            <td>${report.berat_volume}</td>
-                                        </tr>
-                                    `);
-                                });
-                            });
-                        },
-                        error: function(e){
-                            $('#tblbody-reportpengiriman').empty();
-                            console.log('error');
-                        }
-                    })
-                },
-
-               errorPlacement:function (error, element) {
-                    if (element.closest('.form-group').length) {
-                        error.insertAfter(element.closest('.form-group'))
-                    }else{
-                        error.insertAfter(element);
+            // Initialize DataTable for laporan pengiriman
+            let tablePengiriman = $('#tbl-laporanpengiriman').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '/report/getReportPengiriman',
+                    type: 'GET',
+                    data: function (d) {
+                        d.outlet_id = $('#outlet_id_select').val();
+                        d.driver = $('#driver').val();
+                        d.jenis_pengiriman = $('#jenis_pengiriman').val();
+                        d.tanggal_awal_berangkat = $('#tanggal_awal_berangkat').val();
+                        d.tanggal_akhir_berangkat = $('#tanggal_akhir_berangkat').val();
+                        d.destination = $('#destination').val();
                     }
-                }
-            })
+                },
+                columns: [
+                    { data: null, defaultContent: '#' },
+                    { data: 'driver' },
+                    { data: 'no_surat_jalan' },
+                    { data: 'no_kendaraan' },
+                    { data: 'tanggal_berangkat' },
+                    { data: 'tanggal_finish' },
+                    { data: 'jenis_pengiriman' },
+                    { data: 'asal' },
+                    { data: 'destinasi' },
+                    { data: 'volume_berat' },
+                    { data: 'total_volume_berat' }
+                ]
+            });
+
+            $('#form-report-pengiriman').on('submit', function(event) {
+                event.preventDefault();
+                tablePengiriman.draw();
+            });
             //------end pengiriman js------//
 
 
