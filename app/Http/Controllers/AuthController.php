@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Helper\LogActivityHelper;
 use Illuminate\Support\Facades\Hash;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -21,7 +22,7 @@ class AuthController extends Controller
             return redirect('/');
         }
         Alert::error('Error', 'Email atau Password Salah');
-        return back();;
+        return back();
     }
 
     function logout()
