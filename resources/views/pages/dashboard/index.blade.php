@@ -88,6 +88,7 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama</th>
+                                    <th>Total Orders</th>
                                     <th>Total Transaksi</th>
                                 </tr>
                             </thead>
@@ -253,6 +254,7 @@
         }
         //top customer
         function topCustomer(e){
+            console.log(e)
             if(e.data.topcustomer.length >= 0){
                 let noUrut = 1;
                 e.data.topcustomer.map((x, i)=>{
@@ -260,6 +262,7 @@
                         <tr>
                             <td>${noUrut++}</td>
                             <td>${x.name}</td>
+                            <td>${x.total_transaksi}</td>
                             <td>${formatter.format(x.total_orders)}</td>
                         </tr>
                     `)
