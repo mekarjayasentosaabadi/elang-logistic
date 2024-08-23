@@ -110,7 +110,7 @@ class OrderController extends Controller
     function getHistoryUpdateOrder(Request $request)
     {
 
-        $q = HistoryUpdateOrder::with('order')->where('order_id', $request->order_id);
+        $q = HistoryUpdateOrder::with(['order', 'order.customer'])->where('order_id', $request->order_id);
 
 
 
@@ -147,7 +147,7 @@ class OrderController extends Controller
 
                 $btn .= '</div>';
                 return $btn;
-            })->rawColumns(['numberorders', 'pengirim', 'penerima', 'created_at', 'status_orders', 'aksi', 'created_at'])
+            })->rawColumns(['numberorders', 'pengirim', 'penerima', 'created_at', 'status_orders', 'aksi'])
             ->addIndexColumn()
             ->make(true);
     }

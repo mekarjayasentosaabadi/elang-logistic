@@ -8,27 +8,38 @@
 
 @section('content')
     @if (Auth::user()->role_id == '1')
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="card-title">Outlet Asal</h4>
-                    <a href="{{ url('/order') }}" class="btn btn-warning">Kembali</a>
-                </div>
-                <div class="card-body">
-                    <div class="form-group">
-                        <label for="outlet_id_select">Outlet Asal</label>
-                        <select name="outlet_id_select" id="outlet_id_select" class="form-control">
-                            <option value="">Pilih Outlet Asal</option>
-                            @foreach ($outlets as $outlet)
-                                <option value="{{ $outlet->id }}" {{ $outlet->id  == $order->outlet_id ? 'selected' : '' }} >{{ $outlet->name }}</option>
-                            @endforeach
-                        </select>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Outlet Asal</h4>
+                        <a href="{{ url('/order') }}" class="btn btn-warning">Kembali</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="outlet_id_select">Outlet Asal</label>
+                            @if ($order->status_orders == 1)
+                                <select name="outlet_id_select" id="outlet_id_select" class="form-control">
+                                    <option value="">Pilih Outlet Asal</option>
+                                    @foreach ($outlets as $outlet)
+                                        <option value="{{ $outlet->id }}" {{ $outlet->id  == $order->outlet_id ? 'selected' : '' }} >{{ $outlet->name }}</option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <select name="outlet_id_select" id="outlet_id_select" class="form-control" disabled>
+                                    <option value="">Pilih Outlet Asal</option>
+                                    @foreach ($outlets as $outlet)
+                                        <option value="{{ $outlet->id }}" {{ $outlet->id  == $order->outlet_id ? 'selected' : '' }} >{{ $outlet->name }}</option>
+                                    @endforeach
+                                </select>
+                                <input type="hidden" name="outlet_id_select" id="outlet_id_select"  value="{{ $order->outlet_id }}">
+                            @endif
+
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     @endif
     <div class="row">
         <div class="col-12">
@@ -48,16 +59,30 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="customer_id">Pengirim</label>
-                                    <select name="customer_id" id="customer_id" class="form-control">
-                                        <option value="">Pilih Customer</option>
-                                        @if (Auth::user()->role_id != '1')
-                                            @foreach ($customers as $customer)
-                                                <option value="{{ $customer->id }}"
-                                                    {{ $customer->id == $order->customer_id ? 'selected' : '' }}>{{ $customer->name }}
-                                                </option>
-                                            @endforeach
-                                       @endif
-                                    </select>
+                                    @if ($order->status_orders == 1)
+                                        <select name="customer_id" id="customer_id" class="form-control">
+                                            <option value="">Pilih Customer</option>
+                                            @if (Auth::user()->role_id != '1')
+                                                    @foreach ($customers as $customer)
+                                                        <option value="{{ $customer->id }}"
+                                                            {{ $customer->id == $order->customer_id ? 'selected' : '' }}>{{ $customer->name }}
+                                                        </option>
+                                                    @endforeach
+                                            @endif
+                                        </select>
+                                    @else
+                                        <select name="customer_id" id="customer_id" class="form-control" disabled>
+                                            <option value="">Pilih Customer</option>
+                                            @if (Auth::user()->role_id != '1')
+                                                    @foreach ($customers as $customer)
+                                                        <option value="{{ $customer->id }}"
+                                                            {{ $customer->id == $order->customer_id ? 'selected' : '' }}>{{ $customer->name }}
+                                                        </option>
+                                                    @endforeach
+                                            @endif
+                                        </select>
+                                        <input type="hidden" name="customer_id" value="{{ $order->customer_id }}">
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -66,8 +91,12 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="awb">AWB</label>
-                                        <input type="text" name="awb" id="awb" class="form-control"
-                                            value="{{ !empty(old('awb')) ? old('awb') : $order->numberorders }}"  maxlength="10" minlength="10">
+                                        @if ($order->status_orders == 1)
+                                            <input type="text" name="awb" id="awb" class="form-control"
+                                                value="{{ !empty(old('awb')) ? old('awb') : $order->numberorders }}"  maxlength="10" minlength="10">
+                                        @else
+                                            <input type="text" name="awb" id="awb" class="form-control" value="{{$order->numberorders}}"  maxlength="10" minlength="10" readonly>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -105,12 +134,22 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="destination_id">Destinasi</label>
-                                        <select name="destination_id" id="destination_id" class="form-control">
-                                            <option value="">Pilih Destinasi</option>
-                                            @foreach ($destinations as $destination)
-                                                <option {{ Old('destination_id', $order->destination->name ) == $destination->name ? 'selected' : '' }} value="{{ $destination->id }}">{{ $destination->name }}</option>
-                                            @endforeach
-                                        </select>
+                                        @if ($order->status_orders == 1)
+                                            <select name="destination_id" id="destination_id" class="form-control">
+                                                <option value="">Pilih Destinasi</option>
+                                                @foreach ($destinations as $destination)
+                                                    <option {{ Old('destination_id', $order->destination->name ) == $destination->name ? 'selected' : '' }} value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <select name="destination_id" id="destination_id" class="form-control" disabled readonly>
+                                                <option value="">Pilih Destinasi</option>
+                                                @foreach ($destinations as $destination)
+                                                    <option {{ Old('destination_id', $order->destination->name ) == $destination->name ? 'selected' : '' }} value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <input type="hidden" name="destination_id" value="{{ $order->destination->id }}">
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -213,10 +252,8 @@
     <script>
         $(document).ready(function() {
 
-
-
             $('#outlet_id_select').attr('data-outlet-id', '{{ $order->outlet_id }}');
-            $('#customer_id').attr('data-customer-id', '{{ $order->customer_id }}'); // [Perbaikan] Menambahkan atribut data-customer-id
+            $('#customer_id').attr('data-customer-id', '{{ $order->customer_id }}');
 
             var initialOutletId = $('#outlet_id_select').data('outlet-id');
             loadCustomers(initialOutletId);
@@ -226,6 +263,7 @@
                 $('#outlet_id_hidden').val(selectedValue);
                 loadCustomers(selectedValue);
             });
+
 
             function loadCustomers(outletId) {
                 if (!outletId) return;
@@ -239,18 +277,23 @@
                     success: function(response) {
                         var customers = response.customers;
                         var customerSelect = $('#customer_id');
-                        var initialCustomerId = customerSelect.data('customer-id'); // [Perbaikan] Mendapatkan customer_id awal
+                        var initialCustomerId = customerSelect.data('customer-id');
                         customerSelect.empty();
 
                         customerSelect.append('<option value="">Pilih Customer</option>');
 
                         if (customers && Array.isArray(customers)) {
                             customers.forEach(function(customer) {
-                                var selected = (customer.id == initialCustomerId) ? 'selected' : ''; // [Perbaikan] Menandai option yang sesuai
+                                var selected = (customer.id == initialCustomerId) ? 'selected' : '';
                                 customerSelect.append('<option value="' + customer.id + '" ' + selected + '>' + customer.name + '</option>');
                             });
                         } else {
                             console.error('Unexpected response format: customers is not an array');
+                        };
+
+
+                        if ($('#outlet_id_hidden').val() != '' && $('#armada').val() != '' && $('#destination_id').val() != '' && $('#customer_id').val() != '') {
+                            sendEstimationRequest();
                         }
                     },
                     error: function(xhr, status, error) {
@@ -284,7 +327,6 @@
                             $('#estimation').val(response.data.estimation)
                             $('#weight').val(response.data.minweights)
 
-                            console.log(response.data.ou);
 
                             $('#weight').off('keyup').on('keyup', function () {
                                 var weight = parseFloat($('#weight').val()) || 0
@@ -310,6 +352,7 @@
                     });
                 }
             }
+
 
             $('#armada, #destination_id, #customer_id, #outlet_id_select').change(sendEstimationRequest);
 

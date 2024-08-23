@@ -78,8 +78,8 @@
                     },
                     {
                         data: 'pengirim',
-                        name: 'pengirim'
-                        , searchable: true
+                        name: 'pengirim',
+                        searchable: true
                     },
                     {
                         data: 'penerima',
