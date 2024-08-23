@@ -55,6 +55,12 @@ class ReportController extends Controller
         ]);
 
 
+        if ($request->outlet_id && Auth::user()->role_id == 1) {
+            $query->where('outlets_id', $request->outlet_id);
+        }else{
+            $query->where('outlets_id', Auth::user()->outlets_id);
+        }
+
         if ($request->driver) {
             $query->where('driver', $request->driver);
         }
@@ -130,6 +136,12 @@ class ReportController extends Controller
     public function getReportTransaksi(Request $request) {
 
         $query = Order::with('customer', 'destination', 'outlet.destination', 'detailmanifests.manifest.detailtraveldocument.traveldocument');
+
+        if ($request->outlet_id && Auth::user()->role_id == 1) {
+            $query->where('outlet_id', $request->outlet_id);
+        }else{
+            $query->where('outlet_id', Auth::user()->outlets_id);
+        }
 
         if ($request->customer) {
             $query->where('customer_id', $request->customer);
