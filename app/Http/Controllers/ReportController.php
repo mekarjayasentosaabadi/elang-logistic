@@ -108,6 +108,11 @@ class ReportController extends Controller
                 }
         }
 
+
+
+
+
+
         $dataReport = $query->get()->map(function($report) {
             return array_merge($report->toArray(), [
                 'travelno'          => $report->detailsurattugas->first()->traveldocument->travelno ?? null,
