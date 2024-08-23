@@ -159,7 +159,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        <a href="" class="btn btn-success mt-3 mb-3 float-end btn-sm"><i data-feather="download" class="font-medium-3 me-50"></i>Download</a>
+                        <a href="/report/downloadreportpengiriman" class="btn btn-success mt-3 mb-3 float-end btn-sm"><i data-feather="download" class="font-medium-3 me-50"></i>Download</a>
                     </div>
                 </div>
                 </div>
@@ -275,7 +275,7 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    <a href="" class="btn btn-success mt-3 mb-3 float-end btn-sm"><i data-feather="download" class="font-medium-3 me-50"></i>Download</a>
+                                    <a href="/report/downloadreporttransaksi" class="btn btn-success mt-3 mb-3 float-end btn-sm"><i data-feather="download" class="font-medium-3 me-50"></i>Download</a>
                                 </div>
                             </div>
                         </div>
