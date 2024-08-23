@@ -5,11 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Outlet;
-use App\Models\Destination;
-use App\Models\Detailsurattugas;
 use App\Models\Surattugas;
+use App\Models\Destination;
 use Illuminate\Http\Request;
 use App\Models\Traveldocument;
+use Elibyy\TCPDF\Facades\TCPDF;
+use App\Models\Detailsurattugas;
 use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
@@ -186,5 +187,41 @@ class ReportController extends Controller
 
         $orders = $query->get();
         return response()->json(['orders' => $orders]);
+    }
+
+
+    public function downloadreportpengiriman() {
+        $pdf = new TCPDF;
+        $pdf::SetFont('helvetica', '', 12);
+        $pdf::SetTitle("pengiriman");
+        $pdf::SetAuthor('Kaushal');
+        $pdf::SetSubject('Generated PDF');
+
+        $imagePath = public_path('assets/img/logo.png');
+
+        $pdf::AddPage('L', 'A4');
+        $html = view()->make('pages.report.printreportpengiriman', compact('imagePath'));
+
+        $pdf::writeHTML($html, true, false, true, false, '');
+        $pdf::Output("pengiriman", 'I');
+        $pdf::reset();
+    }
+
+
+    public function downloadreporttransaksi() {
+        $pdf = new TCPDF;
+        $pdf::SetFont('helvetica', '', 12);
+        $pdf::SetTitle("reporttransaksi");
+        $pdf::SetAuthor('Kaushal');
+        $pdf::SetSubject('Generated PDF');
+
+        $imagePath = public_path('assets/img/logo.png');
+
+        $pdf::AddPage('L', 'A4');
+        $html = view()->make('pages.report.printreporttransaksi', compact('imagePath'));
+
+        $pdf::writeHTML($html, true, false, true, false, '');
+        $pdf::Output("reporttransaksi", 'I');
+        $pdf::reset();
     }
 }
