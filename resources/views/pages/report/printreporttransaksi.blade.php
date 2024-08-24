@@ -47,127 +47,19 @@
             </tr>
         </thead>
         <tbody>
-              <tr>
-                <td>PT. ABC</td>
-                <td>EL00000001</td>
-                <td>22-08-2024, 13.01.49</td>
-                <td>2024-08-27 13:25:52</td>
-                <td>Ambon</td>
-                <td>Balikpapan</td>
-                <td>10</td>
-                <td>10</td>
-                <td>Rp 2.000.000</td>
-              </tr>
-              <tr>
-                <td>PT. ABC</td>
-                <td>EL00000001</td>
-                <td>22-08-2024, 13.01.49</td>
-                <td>2024-08-27 13:25:52</td>
-                <td>Ambon</td>
-                <td>Balikpapan</td>
-                <td>10</td>
-                <td>10</td>
-                <td>Rp 2.000.000</td>
-              </tr>
-              <tr>
-                <td>PT. ABC</td>
-                <td>EL00000001</td>
-                <td>22-08-2024, 13.01.49</td>
-                <td>2024-08-27 13:25:52</td>
-                <td>Ambon</td>
-                <td>Balikpapan</td>
-                <td>10</td>
-                <td>10</td>
-                <td>Rp 2.000.000</td>
-              </tr>
-              <tr>
-                <td>PT. ABC</td>
-                <td>EL00000001</td>
-                <td>22-08-2024, 13.01.49</td>
-                <td>2024-08-27 13:25:52</td>
-                <td>Ambon</td>
-                <td>Balikpapan</td>
-                <td>10</td>
-                <td>10</td>
-                <td>Rp 2.000.000</td>
-              </tr>
-              <tr>
-                <td>PT. ABC</td>
-                <td>EL00000001</td>
-                <td>22-08-2024, 13.01.49</td>
-                <td>2024-08-27 13:25:52</td>
-                <td>Ambon</td>
-                <td>Balikpapan</td>
-                <td>10</td>
-                <td>10</td>
-                <td>Rp 2.000.000</td>
-              </tr>
-              <tr>
-                <td>PT. ABC</td>
-                <td>EL00000001</td>
-                <td>22-08-2024, 13.01.49</td>
-                <td>2024-08-27 13:25:52</td>
-                <td>Ambon</td>
-                <td>Balikpapan</td>
-                <td>10</td>
-                <td>10</td>
-                <td>Rp 2.000.000</td>
-              </tr>
-              <tr>
-                <td>PT. ABC</td>
-                <td>EL00000001</td>
-                <td>22-08-2024, 13.01.49</td>
-                <td>2024-08-27 13:25:52</td>
-                <td>Ambon</td>
-                <td>Balikpapan</td>
-                <td>10</td>
-                <td>10</td>
-                <td>Rp 2.000.000</td>
-              </tr>
-              <tr>
-                <td>PT. ABC</td>
-                <td>EL00000001</td>
-                <td>22-08-2024, 13.01.49</td>
-                <td>2024-08-27 13:25:52</td>
-                <td>Ambon</td>
-                <td>Balikpapan</td>
-                <td>10</td>
-                <td>10</td>
-                <td>Rp 2.000.000</td>
-              </tr>
-              <tr>
-                <td>PT. ABC</td>
-                <td>EL00000001</td>
-                <td>22-08-2024, 13.01.49</td>
-                <td>2024-08-27 13:25:52</td>
-                <td>Ambon</td>
-                <td>Balikpapan</td>
-                <td>10</td>
-                <td>10</td>
-                <td>Rp 2.000.000</td>
-              </tr>
-              <tr>
-                <td>PT. ABC</td>
-                <td>EL00000001</td>
-                <td>22-08-2024, 13.01.49</td>
-                <td>2024-08-27 13:25:52</td>
-                <td>Ambon</td>
-                <td>Balikpapan</td>
-                <td>10</td>
-                <td>10</td>
-                <td>Rp 2.000.000</td>
-              </tr>
-              <tr>
-                <td>PT. ABC</td>
-                <td>EL00000001</td>
-                <td>22-08-2024, 13.01.49</td>
-                <td>2024-08-27 13:25:52</td>
-                <td>Ambon</td>
-                <td>Balikpapan</td>
-                <td>10</td>
-                <td>10</td>
-                <td>Rp 2.000.000</td>
-              </tr>
+              @foreach ($orders as $order)
+                <tr>
+                    <td>{{ $order->customer->name ?? '-' }}</td>
+                    <td>{{ $order->numberorders ?? '-' }}</td>
+                    <td>{{ $order->created_at ?? '-' }}</td>
+                    <td>{{ $order->detailmanifests->manifest->detailtraveldocument->traveldocument->finish_date ?? '-' }}</td>
+                    <td>{{ $order->outlet->destination->name ?? '-' }}</td>
+                    <td>{{ $order->destination->name ?? '-' }}</td>
+                    <td>{{ $order->weight ?? '-' }}</td>
+                    <td>{{ $order->weight ?? '-'  }}</td>
+                    <td>{{ $order->price ?? '-' }}</td>
+                </tr>
+              @endforeach
         </tbody>
       </table>
 </body>
