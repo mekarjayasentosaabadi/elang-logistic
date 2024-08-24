@@ -197,7 +197,49 @@ class ReportController extends Controller
 
 
 
-    public function downloadreporttransaksi() {
+    public function downloadreporttransaksi(Request $request) {
+        $query = Order::with('customer', 'destination', 'outlet.destination', 'detailmanifests.manifest.detailtraveldocument.traveldocument');
+
+
+        if (Auth::user()->role_id == 1) {
+            if ($request->outlet_id_select_customer) {
+                $query->where('outlet_id', $request->outlet_id_select_customer);
+            }
+        }else{
+            $query->where('outlet_id', Auth::user()->outlets_id);
+        }
+
+
+
+        if ($request->customer_id) {
+            $query->where('customer_id', $request->customer_id);
+        }
+
+        if ($request->destination_id) {
+            $query->where('destinations_id', $request->destination_id);
+        }
+
+        if ($request->tanggal_order_awal && $request->tanggal_order_akhir) {
+            $query->whereBetween('created_at', [$request->tanggal_order_awal, $request->tanggal_order_akhir]);
+        } elseif ($request->tanggal_order_awal) {
+            $query->whereDate('created_at', $request->tanggal_order_awal);
+        } elseif ($request->tanggal_order_akhir) {
+            $query->whereDate('created_at', $request->tanggal_order_akhir);
+        }
+
+
+
+        if ($request->status) {
+            if ($request->status == '5') {
+                $query->whereIn('status_orders', ['1', '2', '3', '4']);
+            }else{
+                $query->where('status_orders', $request->status);
+            }
+        }
+
+        $orders = $query->get();
+
+
         $pdf = new TCPDF;
         $pdf::SetFont('helvetica', '', 12);
         $pdf::SetTitle("reporttransaksi");
@@ -207,10 +249,10 @@ class ReportController extends Controller
         $imagePath = public_path('assets/img/logo.png');
 
         $pdf::AddPage('L', 'A4');
-        $html = view()->make('pages.report.printreporttransaksi', compact('imagePath'));
+        $html = view()->make('pages.report.printreporttransaksi', compact('imagePath', 'orders'));
 
         $pdf::writeHTML($html, true, false, true, false, '');
-        $pdf::Output("reporttransaksi", 'I');
+        $pdf::Output("reporttransaksi.pdf", 'D');
         $pdf::reset();
     }
 }

@@ -55,6 +55,7 @@
                         </div>
                     </div>
                 @endif
+                {{-- report pengiriman --}}
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Laporan Pengiriman</h4>
@@ -163,6 +164,10 @@
                     </div>
                 </div>
                 </div>
+
+                {{-- end report pengiriman --}}
+
+                {{-- report transaksi --}}
                 <div class="tab-pane" id="laporantransaksi" aria-labelledby="laporantransaksi-tab" role="tabpanel">
                     <div class="row">
                         <div class="col-12">
@@ -276,12 +281,24 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    <a href="/report/downloadreporttransaksi" class="btn btn-success mt-3 mb-3 float-end btn-sm"><i data-feather="download" class="font-medium-3 me-50"></i>Download</a>
+                                    <form action="/report/downloadreporttransaksi" method="post" id="form-hidden-report-transaksi">
+                                        @csrf
+                                        <input type="hidden" name="tanggal_order_awal" id="tanggal_order_awal_hidden" value="">
+                                        <input type="hidden" name="tanggal_order_akhir" id="tanggal_order_akhir_hidden" value="">
+                                        <input type="hidden" name="customer_id" id="customer_id_hidden" value="">
+                                        <input type="hidden" name="destination_id" id="destination_id_hidden" value="">
+                                        <input type="hidden" name="status" id="status_hidden" value="">
+                                        <input type="hidden" name="outlet_id_select_customer" id="outlet_id_select_customer_hidden" value="">
+                                        <button type="submit" class="btn btn-success mt-3 mb-3 float-end btn-sm d-none" id="btn-download-reporttransaksi"><i data-feather="download" class="font-medium-3 me-50"></i>Download</button>
+                                    </form>
+                                    {{-- <a href="/report/downloadreporttransaksi" class="btn btn-success mt-3 mb-3 float-end btn-sm"><i data-feather="download" class="font-medium-3 me-50"></i>Download</a> --}}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                {{-- end report transaksi --}}
+
             </div>
         </div>
     </div>
@@ -375,16 +392,16 @@
                                     $('#tblbody-reportpengiriman').append(`
                                         <tr>
                                             <td>${index + 1}</td>
-                                            <td>${report.driver.name}</td>
-                                            <td>${report.travelno}</td>
-                                            <td>${report.vehicle.police_no}</td>
-                                            <td>${report.start_date}</td>
-                                            <td>${report.finish_date}</td>
-                                            <td>${jenisPengiriman}</td>
-                                            <td>${report.outlet.destination.name}</td>
-                                            <td>${report.destinasi}</td>
-                                            <td>${report.berat_volume}</td>
-                                            <td>${report.berat_volume}</td>
+                                            <td>${report.driver && report.driver.name ? report.driver.name : '-'}</td>
+                                            <td>${report.travelno ? report.travelno : '-'}</td>
+                                            <td>${report.vehicle && report.vehicle.police_no ? report.vehicle.police_no : '-'}</td>
+                                            <td>${report.start_date ? report.start_date : '-'}</td>
+                                            <td>${report.finish_date ? report.finish_date : '-'}</td>
+                                            <td>${jenisPengiriman ? jenisPengiriman : '-'}</td>
+                                            <td>${report.outlet && report.outlet.destination && report.outlet.destination.name ? report.outlet.destination.name : '-'}</td>
+                                            <td>${report.destinasi ? report.destinasi : '-'}</td>
+                                            <td>${report.berat_volume ? report.berat_volume : '-'}</td>
+                                            <td>${report.berat_volume ? report.berat_volume : '-'}</td>
                                         </tr>
                                     `);
                                 });
@@ -481,6 +498,16 @@
                         processData: false,
                         contentType: false,
                         success: function (response) {
+                            $('#outlet_id_select_customer_hidden').val($('#outlet_id_select_customer').val())
+                            $('#customer_id_hidden').val($('#customer').val())
+                            $('#destination_id_hidden').val($('#destination_transaksi').val())
+                            $('#tanggal_order_awal_hidden').val($('#tanggal_order_awal').val())
+                            $('#tanggal_order_akhir_hidden').val($('#tanggal_order_akhir').val())
+                            $('#status_hidden').val($('#status').val())
+                            $('#btn-download-reporttransaksi').removeClass('d-none')
+
+
+
                             var dataOrders = response.orders
 
                             $('#tblbody-reporttransaksi').empty();
@@ -498,26 +525,37 @@
                                 $('#tblbody-reporttransaksi').append(`
                                     <tr>
                                         <td>${index + 1}</td>
-                                        <td>${order.customer.name}</td>
-                                        <td>${order.numberorders}</td>
-                                        <td>${new Date(order.created_at).toLocaleString('id-ID', {
-                                                year: 'numeric',
-                                                month: '2-digit',
-                                                day: '2-digit',
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                                second: '2-digit',
-                                                hour12: false
-                                            }).replace(/\//g, '-')}
-                                        </td>
-                                        <td>${order.detailmanifests.manifest.detailtraveldocument.traveldocument.finish_date}</td>
-                                        <td>${order.outlet.destination.name}</td>
-                                        <td>${order.destination.name}</td>
-                                        <td>${order.weight}</td>
-                                        <td>${order.weight}</td>
-                                        <td>${formattedPrice}</td>
+                                        <td>${order.customer && order.customer.name ? order.customer.name : '-'}</td>
+                                        <td>${order.numberorders ? order.numberorders : '-'}</td>
+                                        <td>${
+                                            order.created_at
+                                                ? new Date(order.created_at).toLocaleString('id-ID', {
+                                                    year: 'numeric',
+                                                    month: '2-digit',
+                                                    day: '2-digit',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                    second: '2-digit',
+                                                    hour12: false
+                                                }).replace(/\//g, '-')
+                                                : '-'
+                                        }</td>
+                                        <td>${
+                                            order.detailmanifests &&
+                                            order.detailmanifests.manifest &&
+                                            order.detailmanifests.manifest.detailtraveldocument &&
+                                            order.detailmanifests.manifest.detailtraveldocument.traveldocument &&
+                                            order.detailmanifests.manifest.detailtraveldocument.traveldocument.finish_date
+                                                ? order.detailmanifests.manifest.detailtraveldocument.traveldocument.finish_date
+                                                : '-'
+                                        }</td>
+                                        <td>${order.outlet && order.outlet.destination && order.outlet.destination.name ? order.outlet.destination.name : '-'}</td>
+                                        <td>${order.destination && order.destination.name ? order.destination.name : '-'}</td>
+                                        <td>${order.weight ? order.weight : '-'}</td>
+                                        <td>${order.weight ? order.weight : '-'}</td>
+                                        <td>${formattedPrice ? formattedPrice : '-'}</td>
                                     </tr>
-                                `)
+                                `);
                             })
                         },
 

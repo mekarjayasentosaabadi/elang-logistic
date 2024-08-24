@@ -205,7 +205,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/getReportPengiriman', [ReportController::class, 'getReportPengiriman'])->name('report.getReportPengiriman');
         Route::post('/getReportTransaksi', [ReportController::class, 'getReportTransaksi'])->name('report.getReportTransaksi');
         Route::get('/downloadreportpengiriman', [ReportController::class, 'downloadreportpengiriman'])->name('report.downloadreportpengiriman');
-        Route::get('/downloadreporttransaksi', [ReportController::class, 'downloadreporttransaksi'])->name('report.downloadreporttransaksi');
+        Route::post('/downloadreporttransaksi', [ReportController::class, 'downloadreporttransaksi'])->name('report.downloadreporttransaksi');
     });
 
     Route::get('/cek', function () {
