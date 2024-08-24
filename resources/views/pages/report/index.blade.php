@@ -160,7 +160,18 @@
                                 </tbody>
                             </table>
                         </div>
-                        <a href="/report/downloadreportpengiriman" class="btn btn-success mt-3 mb-3 float-end btn-sm"><i data-feather="download" class="font-medium-3 me-50"></i>Download</a>
+                        <form action="/report/downloadreportpengiriman" method="post">
+                            @csrf
+                            <input type="hidden" name="outlet_id_select" id="outlet_id_select-hidden" value="">
+                            <input type="hidden" name="driver" id="driver-hidden" value="">
+                            <input type="hidden" name="jenis_pengiriman" id="jenis_pengiriman-hidden" value="">
+                            <input type="hidden" name="tanggal_awal_berangkat" id="tanggal_awal_berangkat-hidden" value="">
+                            <input type="hidden" name="tanggal_akhir_berangkat" id="tanggal_akhir_berangkat-hidden" value="">
+                            <input type="hidden" name="destination" id="destination-hidden" value="">
+                            <input type="hidden" name="status_surattugas" id="status_surattugas-hidden" value="">
+                            <button type="submit" class="btn btn-success mt-3 mb-3 float-end btn-sm d-none" id="btn-download-reportpengiriman"><i data-feather="download" class="font-medium-3 me-50"></i>Download</button>
+                        </form>
+                        {{-- <a href="/report/downloadreportpengiriman" class="btn btn-success mt-3 mb-3 float-end btn-sm"><i data-feather="download" class="font-medium-3 me-50"></i>Download</a> --}}
                     </div>
                 </div>
                 </div>
@@ -375,6 +386,15 @@
                         processData: false,
                         contentType: false,
                         success: function(response){
+                              $('#outlet_id_select-hidden').val($('#outlet_id_select').val())
+                              $('#driver-hidden').val($('#driver').val())
+                              $('#jenis_pengiriman-hidden').val($('#jenis_pengiriman').val())
+                              $('#tanggal_awal_berangkat-hidden').val($('#tanggal_awal_berangkat').val())
+                              $('#tanggal_akhir_berangkat-hidden').val($('#tanggal_akhir_berangkat').val())
+                              $('#destination-hidden').val($('#destination').val())
+                              $('#status_surattugas-hidden').val($('#status_surattugas').val())
+                              $('#btn-download-reportpengiriman').removeClass('d-none')
+
                             var dataReports = response.dataReport
 
                             $('#tblbody-reportpengiriman').empty();
