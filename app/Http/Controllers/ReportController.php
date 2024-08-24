@@ -9,6 +9,7 @@ use App\Models\Surattugas;
 use App\Models\Destination;
 use Illuminate\Http\Request;
 use App\Models\Traveldocument;
+use Illuminate\Support\Carbon;
 use Elibyy\TCPDF\Facades\TCPDF;
 use App\Models\Detailsurattugas;
 use Illuminate\Support\Facades\Auth;
@@ -21,16 +22,6 @@ class ReportController extends Controller
         $destinations = Destination::all();
         return view('pages.report.index', compact('outlets', 'destinations', 'drivers'));
     }
-
-
-
-    // public function reportTransaksi() {
-    //     $outlets = Outlet::all();
-    //     $drivers = User::where('role_id', '5')->where('outlets_id', Auth::user()->outlets_id)->get();
-    //     $destinations = Destination::all();
-
-    //     return view('pages.report.reporttransaksi', compact('outlets', 'destinations', 'drivers'));
-    // }
 
 
 
@@ -56,15 +47,11 @@ class ReportController extends Controller
         ]);
 
 
-        if ($request->outlet_id && Auth::user()->role_id == 1) {
-            $query->where('outlets_id', $request->outlet_id);
-        }else{
-            $query->where('outlets_id', Auth::user()->outlets_id);
-        }
 
         if ($request->driver) {
             $query->where('driver', $request->driver);
         }
+
 
         if ($request->destination) {
             $query->whereHas('detailsurattugas.traveldocument', function ($q) use ($request) {
@@ -72,22 +59,18 @@ class ReportController extends Controller
             });
         }
 
-        if ($request->tanggal_awal_berangkat) {
-            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
-                $q->whereDate('start', $request->tanggal_awal_berangkat);
-            });
-        }
-
-        if ($request->tanggal_akhir_berangkat) {
-            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
-                $q->whereDate('start', $request->tanggal_akhir_berangkat);
-            });
-        }
-
 
         if ($request->tanggal_awal_berangkat && $request->tanggal_akhir_berangkat) {
             $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
                 $q->whereBetween('start', [$request->tanggal_awal_berangkat, $request->tanggal_akhir_berangkat]);
+            });
+        }elseif($request->tanggal_awal_berangkat) {
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
+                $q->whereDate('start', $request->tanggal_awal_berangkat);
+            });
+        }elseif($request->tanggal_akhir_berangkat) {
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
+                $q->whereDate('start', $request->tanggal_akhir_berangkat);
             });
         }
 
@@ -101,16 +84,12 @@ class ReportController extends Controller
 
 
         if (isset($request->status_surattugas)) {
-               if ($request->status_surattugas == '5') {
-                   $query->OrWhere('statussurattugas', '0')->OrWhere('statussurattugas', '1')->OrWhere('statussurattugas', '2');
-                }else{
-                    $query->where('statussurattugas', $request->status_surattugas);
-                }
+            if ($request->status_surattugas == '5') {
+                $query->OrWhere('statussurattugas', '0')->OrWhere('statussurattugas', '1')->OrWhere('statussurattugas', '2');
+            }else{
+                $query->where('statussurattugas', $request->status_surattugas);
+            }
         }
-
-
-
-
 
 
         $dataReport = $query->get()->map(function($report) {
@@ -128,6 +107,8 @@ class ReportController extends Controller
     }
 
 
+
+
     public function getCustomerByOutlet(Request $request) {
         if ($request->outlet_id) {
             $customers = User::where('role_id', '4')->where('outlets_id', $request->outlet_id)->get();
@@ -143,11 +124,6 @@ class ReportController extends Controller
 
         $query = Order::with('customer', 'destination', 'outlet.destination', 'detailmanifests.manifest.detailtraveldocument.traveldocument');
 
-        if ($request->outlet_id && Auth::user()->role_id == 1) {
-            $query->where('outlet_id', $request->outlet_id);
-        }else{
-            $query->where('outlet_id', Auth::user()->outlets_id);
-        }
 
         if ($request->customer) {
             $query->where('customer_id', $request->customer);
@@ -175,6 +151,8 @@ class ReportController extends Controller
     }
 
 
+
+
     public function downloadreportpengiriman() {
         $pdf = new TCPDF;
         $pdf::SetFont('helvetica', '', 12);
@@ -191,6 +169,9 @@ class ReportController extends Controller
         $pdf::Output("pengiriman", 'I');
         $pdf::reset();
     }
+
+
+
 
 
     public function downloadreporttransaksi() {
