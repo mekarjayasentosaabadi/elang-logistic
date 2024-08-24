@@ -47,6 +47,14 @@ class ReportController extends Controller
         ]);
 
 
+        if (Auth::user()->role_id == 1) {
+            if ($request->outlet_id) {
+                $query->where('outlets_id', $request->outlet_id);
+            }
+        }else{
+            $query->where('outlets_id', Auth::user()->outlets_id);
+        }
+
 
         if ($request->driver) {
             $query->where('driver', $request->driver);
@@ -85,7 +93,7 @@ class ReportController extends Controller
 
         if (isset($request->status_surattugas)) {
             if ($request->status_surattugas == '5') {
-                $query->OrWhere('statussurattugas', '0')->OrWhere('statussurattugas', '1')->OrWhere('statussurattugas', '2');
+                $query->whereIn('statussurattugas', ['0', '1', '2']);
             }else{
                 $query->where('statussurattugas', $request->status_surattugas);
             }
@@ -125,6 +133,16 @@ class ReportController extends Controller
         $query = Order::with('customer', 'destination', 'outlet.destination', 'detailmanifests.manifest.detailtraveldocument.traveldocument');
 
 
+        if (Auth::user()->role_id == 1) {
+            if ($request->outlet_id) {
+                $query->where('outlet_id', $request->outlet_id);
+            }
+        }else{
+            $query->where('outlet_id', Auth::user()->outlets_id);
+        }
+
+
+
         if ($request->customer) {
             $query->where('customer_id', $request->customer);
         }
@@ -142,8 +160,13 @@ class ReportController extends Controller
         }
 
 
+
         if ($request->status) {
-            $query->where('status_orders', $request->status);
+            if ($request->status == '5') {
+                $query->whereIn('status_orders', ['1', '2', '3', '4']);
+            }else{
+                $query->where('status_orders', $request->status);
+            }
         }
 
         $orders = $query->get();

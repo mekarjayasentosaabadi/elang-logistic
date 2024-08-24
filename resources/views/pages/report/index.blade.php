@@ -241,6 +241,7 @@
                                                             <option value="2">Process</option>
                                                             <option value="3">Done</option>
                                                             <option value="4">Cancle</option>
+                                                            <option value="5">ALL</option>
                                                         </select>
                                                     </div>
                                                 </div>
@@ -282,9 +283,7 @@
                     </div>
                 </div>
             </div>
-
         </div>
-
     </div>
 @endsection
 
