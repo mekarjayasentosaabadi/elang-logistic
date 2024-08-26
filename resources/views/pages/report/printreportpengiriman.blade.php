@@ -49,19 +49,36 @@
             </tr>
         </thead>
         <tbody>
-              <tr>
-                <td>1</td>
-                <td>Jeruk</td>
-                <td>SJ-000001</td>
-                <td>EL 22201 ZE</td>
-                <td>2024-08-24 13:25:52</td>
-                <td>2024-08-27 13:25:52</td>
-                <td>Darat</td>
-                <td>Ambon</td>
-                <td>Balikpapan</td>
-                <td>10</td>
-                <td>10</td>
-              </tr>
+            {{-- @dd($dataReports) --}}
+              @foreach ($dataReports as $index => $dataReport)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $dataReport->driver->name ?? '-' }}</td>
+                    <td>{{ $dataReport->detailsurattugas->first()->traveldocument->travelno ?? '-' }}</td>
+                    <td>{{ $dataReport->vehicle->police_no ?? '-' }}</td>
+                    <td>{{ $dataReport->detailsurattugas->first()->traveldocument->start ?? '-' }}</td>
+                    <td>{{ $dataReport->detailsurattugas->first()->traveldocument->finish_date ?? '-' }}</td>
+                    <td>
+                        @php
+                            $armada = $dataReport->detailsurattugas->first()->traveldocument->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->armada ?? "-" ;
+                        @endphp
+
+                        @if ($armada == 1)
+                            Darat
+                        @elseif ($armada == 2)
+                            Laut
+                        @elseif ($armada == 3)
+                            Udara
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>{{ $dataReport->outlet->destination->name ?? '-' }}</td>
+                    <td>{{ $dataReport->detailsurattugas->first()->traveldocument->destination->name ?? '-' }}</td>
+                    <td>{{ $dataReport->detailsurattugas->first()->traveldocument->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->weight ?? $dataReport->detailsurattugas->first()->traveldocument->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->volume ?? '-' }}</td>
+                    <td>{{ $dataReport->detailsurattugas->first()->traveldocument->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->weight ?? $dataReport->detailsurattugas->first()->traveldocument->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->volume ?? '-' }}</td>
+                </tr>
+              @endforeach
         </tbody>
       </table>
 </body>

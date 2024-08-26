@@ -38,6 +38,9 @@ class ReportController extends Controller
 
 
 
+
+
+
     public function getReportPengiriman(Request $request) {
         $query = Surattugas::with([
             'driver',
@@ -57,7 +60,7 @@ class ReportController extends Controller
 
 
         if ($request->driver) {
-            $query->where('driver', $request->driver);
+            $query->where('driver_id', $request->driver);
         }
 
 
@@ -117,6 +120,11 @@ class ReportController extends Controller
 
 
 
+
+
+
+
+
     public function getCustomerByOutlet(Request $request) {
         if ($request->outlet_id) {
             $customers = User::where('role_id', '4')->where('outlets_id', $request->outlet_id)->get();
@@ -125,6 +133,11 @@ class ReportController extends Controller
 
         return response()->json(['customers' => []]);
     }
+
+
+
+
+
 
 
 
@@ -176,7 +189,74 @@ class ReportController extends Controller
 
 
 
-    public function downloadreportpengiriman() {
+    public function downloadreportpengiriman(Request $request) {
+
+        $query = Surattugas::with([
+            'driver',
+            'vehicle',
+            'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.destination',
+            'outlet.destination'
+        ]);
+
+
+        if (Auth::user()->role_id == 1) {
+            if ($request->outlet_id_select) {
+                $query->where('outlets_id', $request->outlet_id_select);
+            }
+        }else{
+            $query->where('outlets_id', Auth::user()->outlets_id);
+        }
+
+
+        if ($request->driver) {
+            $query->where('driver_id', $request->driver);
+        }
+
+
+        if ($request->destination) {
+            $query->whereHas('detailsurattugas.traveldocument', function ($q) use ($request) {
+                $q->where('destinations_id', $request->destination);
+            });
+        }
+
+
+        if ($request->tanggal_awal_berangkat && $request->tanggal_akhir_berangkat) {
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
+                $q->whereBetween('start', [$request->tanggal_awal_berangkat, $request->tanggal_akhir_berangkat]);
+            });
+        }elseif($request->tanggal_awal_berangkat) {
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
+                $q->whereDate('start', $request->tanggal_awal_berangkat);
+            });
+        }elseif($request->tanggal_akhir_berangkat) {
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
+                $q->whereDate('start', $request->tanggal_akhir_berangkat);
+            });
+        }
+
+
+
+        if ($request->jenis_pengiriman) {
+            $query->whereHas('detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order', function($q) use ($request) {
+                $q->where('armada', $request->jenis_pengiriman);
+            });
+        }
+
+
+        if (isset($request->status_surattugas)) {
+            if ($request->status_surattugas == '5') {
+                $query->whereIn('statussurattugas', ['0', '1', '2']);
+            }else{
+                $query->where('statussurattugas', $request->status_surattugas);
+            }
+        }
+
+
+        $dataReports = $query->get();
+
+
+        // dd($dataReports);
+
         $pdf = new TCPDF;
         $pdf::SetFont('helvetica', '', 12);
         $pdf::SetTitle("pengiriman");
@@ -186,10 +266,10 @@ class ReportController extends Controller
         $imagePath = public_path('assets/img/logo.png');
 
         $pdf::AddPage('L', 'A4');
-        $html = view()->make('pages.report.printreportpengiriman', compact('imagePath'));
+        $html = view()->make('pages.report.printreportpengiriman', compact('imagePath', 'dataReports'));
 
         $pdf::writeHTML($html, true, false, true, false, '');
-        $pdf::Output("pengiriman", 'I');
+        $pdf::Output("reportperngiriman.pdf", 'D');
         $pdf::reset();
     }
 

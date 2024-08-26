@@ -204,7 +204,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/getCustomerByOutlet', [ReportController::class, 'getCustomerByOutlet'])->name('report.getCustomerByOutlet');
         Route::post('/getReportPengiriman', [ReportController::class, 'getReportPengiriman'])->name('report.getReportPengiriman');
         Route::post('/getReportTransaksi', [ReportController::class, 'getReportTransaksi'])->name('report.getReportTransaksi');
-        Route::get('/downloadreportpengiriman', [ReportController::class, 'downloadreportpengiriman'])->name('report.downloadreportpengiriman');
+        Route::post('/downloadreportpengiriman', [ReportController::class, 'downloadreportpengiriman'])->name('report.downloadreportpengiriman');
         Route::post('/downloadreporttransaksi', [ReportController::class, 'downloadreporttransaksi'])->name('report.downloadreporttransaksi');
     });
 
