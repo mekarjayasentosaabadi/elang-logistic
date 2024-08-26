@@ -353,93 +353,93 @@
             })
 
 
-            $('#form-report-pengiriman').validate({
-            //    rules:{
-            //         'driver'                  : 'required',
-            //         'jenis_pengiriman'        : 'required',
-            //         'tanggal_awal_berangkat'  : 'required',
-            //         'tanggal_akhir_berangkat' : 'required',
-            //         'destination'             : 'required',
-            //         'status'                  : 'required'
-            //    },
-            //    messages:{
-            //         'driver'                  : 'Pilih salah satu driver.',
-            //         'jenis_pengiriman'        : 'Pilih salah satu jenis pengiriman.',
-            //         'tanggal_awal_berangkat'  : 'Tanggal awal berangkat harus diisi.',
-            //         'tanggal_akhir_berangkat' : 'Tanggal akhir berangkat harus diisi.',
-            //         'destination'             : 'Pilih salah satu destinasi.',
-            //         'status'                  : 'Pilih salah satu status.'
-            //    },
-               submitHandler:function(){
-                    var formData = new FormData($('#form-report-pengiriman')[0])
+            $('#form-report-pengiriman').on('submit', function(e) {
+                e.preventDefault();
 
-                    var outlet_id = $('#outlet_id_select').val()
+                var formData = $(this).serialize();
 
-                    formData.append('outlet_id', outlet_id)
-
-                    $.ajax({
-                        url: '/report/getReportPengiriman',
-                        type: "POST",
-                        dataType: "JSON",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response){
-                              $('#outlet_id_select-hidden').val($('#outlet_id_select').val())
-                              $('#driver-hidden').val($('#driver').val())
-                              $('#jenis_pengiriman-hidden').val($('#jenis_pengiriman').val())
-                              $('#tanggal_awal_berangkat-hidden').val($('#tanggal_awal_berangkat').val())
-                              $('#tanggal_akhir_berangkat-hidden').val($('#tanggal_akhir_berangkat').val())
-                              $('#destination-hidden').val($('#destination').val())
-                              $('#status_surattugas-hidden').val($('#status_surattugas').val())
-                              $('#btn-download-reportpengiriman').removeClass('d-none')
-
-                            var dataReports = response.dataReport
-
-                            $('#tblbody-reportpengiriman').empty();
-
-                            dataReports.forEach(function(report, index) {
-                                report.detailsurattugas.forEach(function(detail) {
-                                    let jenisPengiriman = report.jenis_pengiriman
-                                    if (jenisPengiriman == 1) {
-                                        jenisPengiriman = "Darat"
-                                    }else if (jenisPengiriman == 2) {
-                                        jenisPengiriman = "Laut"
-                                    }else if (jenisPengiriman == 3) {
-                                        jenisPengiriman = "Udara"
-                                    }
-                                    $('#tblbody-reportpengiriman').append(`
-                                        <tr>
-                                            <td>${index + 1}</td>
-                                            <td>${report.driver && report.driver.name ? report.driver.name : '-'}</td>
-                                            <td>${report.travelno ? report.travelno : '-'}</td>
-                                            <td>${report.vehicle && report.vehicle.police_no ? report.vehicle.police_no : '-'}</td>
-                                            <td>${report.start_date ? report.start_date : '-'}</td>
-                                            <td>${report.finish_date ? report.finish_date : '-'}</td>
-                                            <td>${jenisPengiriman ? jenisPengiriman : '-'}</td>
-                                            <td>${report.outlet && report.outlet.destination && report.outlet.destination.name ? report.outlet.destination.name : '-'}</td>
-                                            <td>${report.destinasi ? report.destinasi : '-'}</td>
-                                            <td>${report.berat_volume ? report.berat_volume : '-'}</td>
-                                            <td>${report.berat_volume ? report.berat_volume : '-'}</td>
-                                        </tr>
-                                    `);
-                                });
-                            });
-                        },
-                        error: function(e){
-                            $('#tblbody-reportpengiriman').empty();
-                            console.log('error');
-                        }
-                    })
-                },
-
-               errorPlacement:function (error, element) {
-                    if (element.closest('.form-group').length) {
-                        error.insertAfter(element.closest('.form-group'))
-                    }else{
-                        error.insertAfter(element);
-                    }
+                if ($.fn.DataTable.isDataTable('#tbl-laporanpengiriman')) {
+                    $('#tbl-laporanpengiriman').DataTable().destroy();
                 }
+
+                var outlet_id = $('#outlet_id_select').val();
+                    formData += '&outlet_id=' + outlet_id;
+
+
+                $('#tbl-laporanpengiriman').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '/report/getReportPengiriman',
+                        type:"POST",
+                        data: function(d) {
+                            d.formData = formData;
+                        },
+                        complete: function(xhr, textStatus) {
+                            if (xhr.status === 200) {
+                                var jsonResponse = xhr.responseJSON;
+                                $('#outlet_id_select-hidden').val($('#outlet_id_select').val())
+                                $('#driver-hidden').val($('#driver').val())
+                                $('#jenis_pengiriman-hidden').val($('#jenis_pengiriman').val())
+                                $('#tanggal_awal_berangkat-hidden').val($('#tanggal_awal_berangkat').val())
+                                $('#tanggal_akhir_berangkat-hidden').val($('#tanggal_akhir_berangkat').val())
+                                $('#destination-hidden').val($('#destination').val())
+                                $('#status_surattugas-hidden').val($('#status_surattugas').val())
+                                $('#btn-download-reportpengiriman').removeClass('d-none')
+                            }
+                        }
+                    },
+                    columns: [
+                        {
+                            data: 'DT_RowIndex',
+                            name: 'DT_RowIndex', orderable: false, searchable: false
+                        },
+                        {
+                            data: 'driver_id',
+                            name: 'driver.name'
+                        },
+                        {
+                            data: 'travelno',
+                            name: 'detailsurattugas.traveldocument.travelno'
+                        },
+                        {
+                            data: 'vehicle',
+                            name: 'vehicle.vehicle.no_police'
+                        },
+                        {
+                            data: 'start',
+                            name: 'detailsurattugas.traveldocument.start'
+                        },
+                        {
+                            data: 'finish_date',
+                            name: 'detailsurattugas.traveldocument.finish_date'
+                        },
+                        {
+                            data: 'armada',
+                            name: 'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.armada'
+                        },
+                        {
+                            data: 'outlets',
+                            name: 'outlet.destination.name'
+                        },
+                        {
+                            data: 'destination',
+                            name: 'detailsurattugas.traveldocument.destination.name'
+                        },
+                        {
+                            data: 'volume/weight',
+                            name: 'volume/weight',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'totalvolume/berat',
+                            name: 'totalvolume/berat',
+                            orderable: false,
+                            searchable: false
+                        },
+                    ]
+                });
             })
             //------end pengiriman js------//
 
@@ -450,11 +450,8 @@
 
 
             //------report transaksi js------//
-
                 $('#destination_transaksi').select2();
-                $('#customer').select2();
 
-                // Get customers based on outlet selection
                 $('#outlet_id_select_customer').change(function () {
                     const outlet_id = $(this).val();
                     $.ajax({
@@ -480,7 +477,7 @@
 
 
 
-                // submission
+
                 $('#form-report-transaksi').on('submit', function(e) {
                     e.preventDefault();
 
