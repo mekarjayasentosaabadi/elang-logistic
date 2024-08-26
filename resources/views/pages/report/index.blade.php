@@ -97,13 +97,13 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="tanggal_awal_berangkat">Tanggal Awal Berangkat</label>
-                                            <input class="form-control" type="date" name="tanggal_awal_berangkat" id="">
+                                            <input class="form-control" type="date" name="tanggal_awal_berangkat" id="tanggal_awal_berangkat">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="tanggal_akhir_berangkat">Tanggal Akhir Berangkat</label>
-                                            <input class="form-control" type="date" name="tanggal_akhir_berangkat" id="">
+                                            <input class="form-control" type="date" name="tanggal_akhir_berangkat" id="tanggal_akhir_berangkat">
                                         </div>
                                     </div>
                                 </div>

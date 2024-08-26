@@ -25,7 +25,7 @@ class Surattugas extends Model
 
 
     function driver() {
-        return $this->belongsTo(User::class, 'driver', 'id');
+        return $this->belongsTo(User::class, 'driver_id', 'id');
     }
 
 

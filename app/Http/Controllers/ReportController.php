@@ -60,7 +60,7 @@ class ReportController extends Controller
 
 
         if ($request->driver) {
-            $query->where('driver', $request->driver);
+            $query->where('driver_id', $request->driver);
         }
 
 
@@ -209,7 +209,7 @@ class ReportController extends Controller
 
 
         if ($request->driver) {
-            $query->where('driver', $request->driver);
+            $query->where('driver_id', $request->driver);
         }
 
 
@@ -269,7 +269,7 @@ class ReportController extends Controller
         $html = view()->make('pages.report.printreportpengiriman', compact('imagePath', 'dataReports'));
 
         $pdf::writeHTML($html, true, false, true, false, '');
-        $pdf::Output("reportperngiriman.png", 'I');
+        $pdf::Output("reportperngiriman.pdf", 'D');
         $pdf::reset();
     }
 

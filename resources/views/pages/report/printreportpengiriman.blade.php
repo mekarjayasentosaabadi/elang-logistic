@@ -52,13 +52,27 @@
             {{-- @dd($dataReports) --}}
               @foreach ($dataReports as $index => $dataReport)
                 <tr>
-                    <td>1</td>
-                    <td>{{ $dataReport->driver->name }}</td>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $dataReport->driver->name ?? '-' }}</td>
                     <td>{{ $dataReport->detailsurattugas->first()->traveldocument->travelno ?? '-' }}</td>
                     <td>{{ $dataReport->vehicle->police_no ?? '-' }}</td>
                     <td>{{ $dataReport->detailsurattugas->first()->traveldocument->start ?? '-' }}</td>
                     <td>{{ $dataReport->detailsurattugas->first()->traveldocument->finish_date ?? '-' }}</td>
-                    <td>{{ $dataReport->detailsurattugas->first()->traveldocument->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->armada ?? '-' }}</td>
+                    <td>
+                        @php
+                            $armada = $dataReport->detailsurattugas->first()->traveldocument->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->armada ?? "-" ;
+                        @endphp
+
+                        @if ($armada == 1)
+                            Darat
+                        @elseif ($armada == 2)
+                            Laut
+                        @elseif ($armada == 3)
+                            Udara
+                        @else
+                            -
+                        @endif
+                    </td>
                     <td>{{ $dataReport->outlet->destination->name ?? '-' }}</td>
                     <td>{{ $dataReport->detailsurattugas->first()->traveldocument->destination->name ?? '-' }}</td>
                     <td>{{ $dataReport->detailsurattugas->first()->traveldocument->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->weight ?? $dataReport->detailsurattugas->first()->traveldocument->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->volume ?? '-' }}</td>
