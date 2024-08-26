@@ -12,6 +12,7 @@ use App\Models\Traveldocument;
 use Illuminate\Support\Carbon;
 use Elibyy\TCPDF\Facades\TCPDF;
 use App\Models\Detailsurattugas;
+use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
@@ -142,48 +143,85 @@ class ReportController extends Controller
 
 
     public function getReportTransaksi(Request $request) {
+        $formData = $request->input('formData');
+        parse_str($formData, $params);
 
         $query = Order::with('customer', 'destination', 'outlet.destination', 'detailmanifests.manifest.detailtraveldocument.traveldocument');
 
 
         if (Auth::user()->role_id == 1) {
-            if ($request->outlet_id) {
-                $query->where('outlet_id', $request->outlet_id);
+            if (isset($params['outlet_id'])) {
+                $query->where('outlet_id', $params['outlet_id']);
             }
-        }else{
+        } else {
             $query->where('outlet_id', Auth::user()->outlets_id);
         }
 
 
-
-        if ($request->customer) {
-            $query->where('customer_id', $request->customer);
-        }
-
-        if ($request->destination_transaksi) {
-            $query->where('destinations_id', $request->destination_transaksi);
-        }
-
-        if ($request->tanggal_order_awal && $request->tanggal_order_akhir) {
-            $query->whereBetween('created_at', [$request->tanggal_order_awal, $request->tanggal_order_akhir]);
-        } elseif ($request->tanggal_order_awal) {
-            $query->whereDate('created_at', $request->tanggal_order_awal);
-        } elseif ($request->tanggal_order_akhir) {
-            $query->whereDate('created_at', $request->tanggal_order_akhir);
+        if ($params['customer'] != null) {
+            $query->where('customer_id', $params['customer']);
         }
 
 
+        if ($params['destination_transaksi'] != null) {
+            $query->where('destinations_id', $params['destination_transaksi']);
+        }
 
-        if ($request->status) {
-            if ($request->status == '5') {
+        if (($params['tanggal_order_awal'] != null) && ($params['tanggal_order_akhir'] != null)) {
+            $query->whereBetween('created_at', [$params['tanggal_order_awal'], $params['tanggal_order_akhir']]);
+        } elseif ($params['tanggal_order_awal'] != null) {
+            $query->whereDate('created_at', $params['tanggal_order_awal']);
+        } elseif ($params['tanggal_order_akhir'] != null) {
+            $query->whereDate('created_at', $params['tanggal_order_akhir']);
+        }
+
+
+        if ($params['status'] != null) {
+            if ($params['status'] == '5') {
                 $query->whereIn('status_orders', ['1', '2', '3', '4']);
-            }else{
-                $query->where('status_orders', $request->status);
+            } else {
+                $query->where('status_orders', $params['status']);
             }
         }
 
-        $orders = $query->get();
-        return response()->json(['orders' => $orders]);
+
+
+        return DataTables::of($query)
+            ->editColumn('customer', function ($query) {
+                return $query->customer->name ?? '-';
+            })
+            ->editColumn('numberorders', function ($query) {
+                return $query->numberorders ?? '-';
+            })
+            ->editColumn('created_at', function ($query) {
+                return $query->created_at ?? '-';
+            })
+            ->editColumn('finish_date', function ($query) {
+                $data = $query->detailmanifests->manifest->detailtraveldocument->traveldocument->finish_date ??  '-';
+                if ($data == null) {
+                    '-';
+                }else{
+                    return $data;
+                }
+            })
+            ->editColumn('outlets_id', function ($query) {
+                return $query->outlet->destination->name ?? '-';
+            })
+            ->editColumn('destinations_id', function ($query) {
+                return $query->destination->name ?? '-';
+            })
+            ->editColumn('volume/weight', function ($query) {
+                return $query->weight ?? '-';
+            })
+            ->editColumn('totalvolume/berat', function ($query) {
+                return $query->weight ?? '-';
+            })
+            ->editColumn('price', function ($query) {
+                return $query->price ?? '-';
+            })
+            ->rawColumns(['is_active', 'role_id', 'aksi'])
+            ->addIndexColumn()
+            ->make(true);
     }
 
 
