@@ -211,7 +211,8 @@
                                 <div class="card-body">
                                     <div class="">
                                         <form action="" method="POST" id="form-report-transaksi">
-                                            <div class="row mt-2" id="">
+                                            @csrf
+                                            <div class="row mt-2">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label for="customer">Nama Customer</label>
@@ -231,9 +232,8 @@
                                                         </select>
                                                     </div>
                                                 </div>
-
                                             </div>
-                                            <div class="row mt-2" id="">
+                                            <div class="row mt-2">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label for="tanggal_order_awal">Tanggal Order Awal</label>
@@ -247,7 +247,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="row mt-2" id="">
+                                            <div class="row mt-2">
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label for="status">Status Order</label>
@@ -256,7 +256,7 @@
                                                             <option value="1">Pending</option>
                                                             <option value="2">Process</option>
                                                             <option value="3">Done</option>
-                                                            <option value="4">Cancle</option>
+                                                            <option value="4">Cancel</option>
                                                             <option value="5">ALL</option>
                                                         </select>
                                                     </div>
@@ -267,7 +267,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-
                                         </form>
                                     </div>
                                     <hr class="mt-3 mb-3">
@@ -287,8 +286,8 @@
                                                     <th>Total Harga</th>
                                                 </tr>
                                             </thead>
-                                            <tbody id="tblbody-reporttransaksi">
-
+                                            <tbody>
+                                                {{-- Data akan diisi oleh DataTables --}}
                                             </tbody>
                                         </table>
                                     </div>
@@ -302,13 +301,13 @@
                                         <input type="hidden" name="outlet_id_select_customer" id="outlet_id_select_customer_hidden" value="">
                                         <button type="submit" class="btn btn-success mt-3 mb-3 float-end btn-sm d-none" id="btn-download-reporttransaksi"><i data-feather="download" class="font-medium-3 me-50"></i>Download</button>
                                     </form>
-                                    {{-- <a href="/report/downloadreporttransaksi" class="btn btn-success mt-3 mb-3 float-end btn-sm"><i data-feather="download" class="font-medium-3 me-50"></i>Download</a> --}}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 {{-- end report transaksi --}}
+
 
             </div>
         </div>
@@ -354,93 +353,93 @@
             })
 
 
-            $('#form-report-pengiriman').validate({
-            //    rules:{
-            //         'driver'                  : 'required',
-            //         'jenis_pengiriman'        : 'required',
-            //         'tanggal_awal_berangkat'  : 'required',
-            //         'tanggal_akhir_berangkat' : 'required',
-            //         'destination'             : 'required',
-            //         'status'                  : 'required'
-            //    },
-            //    messages:{
-            //         'driver'                  : 'Pilih salah satu driver.',
-            //         'jenis_pengiriman'        : 'Pilih salah satu jenis pengiriman.',
-            //         'tanggal_awal_berangkat'  : 'Tanggal awal berangkat harus diisi.',
-            //         'tanggal_akhir_berangkat' : 'Tanggal akhir berangkat harus diisi.',
-            //         'destination'             : 'Pilih salah satu destinasi.',
-            //         'status'                  : 'Pilih salah satu status.'
-            //    },
-               submitHandler:function(){
-                    var formData = new FormData($('#form-report-pengiriman')[0])
+            $('#form-report-pengiriman').on('submit', function(e) {
+                e.preventDefault();
 
-                    var outlet_id = $('#outlet_id_select').val()
+                var formData = $(this).serialize();
 
-                    formData.append('outlet_id', outlet_id)
-
-                    $.ajax({
-                        url: '/report/getReportPengiriman',
-                        type: "POST",
-                        dataType: "JSON",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function(response){
-                              $('#outlet_id_select-hidden').val($('#outlet_id_select').val())
-                              $('#driver-hidden').val($('#driver').val())
-                              $('#jenis_pengiriman-hidden').val($('#jenis_pengiriman').val())
-                              $('#tanggal_awal_berangkat-hidden').val($('#tanggal_awal_berangkat').val())
-                              $('#tanggal_akhir_berangkat-hidden').val($('#tanggal_akhir_berangkat').val())
-                              $('#destination-hidden').val($('#destination').val())
-                              $('#status_surattugas-hidden').val($('#status_surattugas').val())
-                              $('#btn-download-reportpengiriman').removeClass('d-none')
-
-                            var dataReports = response.dataReport
-
-                            $('#tblbody-reportpengiriman').empty();
-
-                            dataReports.forEach(function(report, index) {
-                                report.detailsurattugas.forEach(function(detail) {
-                                    let jenisPengiriman = report.jenis_pengiriman
-                                    if (jenisPengiriman == 1) {
-                                        jenisPengiriman = "Darat"
-                                    }else if (jenisPengiriman == 2) {
-                                        jenisPengiriman = "Laut"
-                                    }else if (jenisPengiriman == 3) {
-                                        jenisPengiriman = "Udara"
-                                    }
-                                    $('#tblbody-reportpengiriman').append(`
-                                        <tr>
-                                            <td>${index + 1}</td>
-                                            <td>${report.driver && report.driver.name ? report.driver.name : '-'}</td>
-                                            <td>${report.travelno ? report.travelno : '-'}</td>
-                                            <td>${report.vehicle && report.vehicle.police_no ? report.vehicle.police_no : '-'}</td>
-                                            <td>${report.start_date ? report.start_date : '-'}</td>
-                                            <td>${report.finish_date ? report.finish_date : '-'}</td>
-                                            <td>${jenisPengiriman ? jenisPengiriman : '-'}</td>
-                                            <td>${report.outlet && report.outlet.destination && report.outlet.destination.name ? report.outlet.destination.name : '-'}</td>
-                                            <td>${report.destinasi ? report.destinasi : '-'}</td>
-                                            <td>${report.berat_volume ? report.berat_volume : '-'}</td>
-                                            <td>${report.berat_volume ? report.berat_volume : '-'}</td>
-                                        </tr>
-                                    `);
-                                });
-                            });
-                        },
-                        error: function(e){
-                            $('#tblbody-reportpengiriman').empty();
-                            console.log('error');
-                        }
-                    })
-                },
-
-               errorPlacement:function (error, element) {
-                    if (element.closest('.form-group').length) {
-                        error.insertAfter(element.closest('.form-group'))
-                    }else{
-                        error.insertAfter(element);
-                    }
+                if ($.fn.DataTable.isDataTable('#tbl-laporanpengiriman')) {
+                    $('#tbl-laporanpengiriman').DataTable().destroy();
                 }
+
+                var outlet_id = $('#outlet_id_select').val();
+                    formData += '&outlet_id=' + outlet_id;
+
+
+                $('#tbl-laporanpengiriman').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: '/report/getReportPengiriman',
+                        type:"POST",
+                        data: function(d) {
+                            d.formData = formData;
+                        },
+                        complete: function(xhr, textStatus) {
+                            if (xhr.status === 200) {
+                                var jsonResponse = xhr.responseJSON;
+                                $('#outlet_id_select-hidden').val($('#outlet_id_select').val())
+                                $('#driver-hidden').val($('#driver').val())
+                                $('#jenis_pengiriman-hidden').val($('#jenis_pengiriman').val())
+                                $('#tanggal_awal_berangkat-hidden').val($('#tanggal_awal_berangkat').val())
+                                $('#tanggal_akhir_berangkat-hidden').val($('#tanggal_akhir_berangkat').val())
+                                $('#destination-hidden').val($('#destination').val())
+                                $('#status_surattugas-hidden').val($('#status_surattugas').val())
+                                $('#btn-download-reportpengiriman').removeClass('d-none')
+                            }
+                        }
+                    },
+                    columns: [
+                        {
+                            data: 'DT_RowIndex',
+                            name: 'DT_RowIndex', orderable: false, searchable: false
+                        },
+                        {
+                            data: 'driver_id',
+                            name: 'driver.name'
+                        },
+                        {
+                            data: 'travelno',
+                            name: 'detailsurattugas.traveldocument.travelno'
+                        },
+                        {
+                            data: 'vehicle',
+                            name: 'vehicle.vehicle.no_police'
+                        },
+                        {
+                            data: 'start',
+                            name: 'detailsurattugas.traveldocument.start'
+                        },
+                        {
+                            data: 'finish_date',
+                            name: 'detailsurattugas.traveldocument.finish_date'
+                        },
+                        {
+                            data: 'armada',
+                            name: 'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.armada'
+                        },
+                        {
+                            data: 'outlets',
+                            name: 'outlet.destination.name'
+                        },
+                        {
+                            data: 'destination',
+                            name: 'detailsurattugas.traveldocument.destination.name'
+                        },
+                        {
+                            data: 'volume/weight',
+                            name: 'volume/weight',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'totalvolume/berat',
+                            name: 'totalvolume/berat',
+                            orderable: false,
+                            searchable: false
+                        },
+                    ]
+                });
             })
             //------end pengiriman js------//
 
@@ -451,150 +450,121 @@
 
 
             //------report transaksi js------//
-            $('#destination_transaksi').select2();
+                $('#destination_transaksi').select2();
 
-            // getCustomerByOutlet
-            $('#outlet_id_select_customer').change(function () {
-                const outlet_id = $('#outlet_id_select_customer').val();
-                $.ajax({
-                    url: '/report/getCustomerByOutlet',
-                    type: 'GET',
-                    data: {
-                        outlet_id : outlet_id
-                    },
-
-                    success: function (response) {
-                        var customer = response.customers
-                        var customerSelect = $('#customer')
-                        customerSelect.empty();
-
-                        customerSelect.append('<option value="" hidden>Pilih Customer</option>');
-
-                        if (customer != null) {
-                            customer.forEach(function (customer) {
-                                customerSelect.append('<option value="'+ customer.id +'">'+customer.name+'</option>');
-                            });
-                        }
-
-                    },
-
-                    error:function(response){
-                        console.log('error');
-                    }
-                })
-            })
-
-            // form validate
-            $('#form-report-transaksi').validate({
-                // rules :{
-                //     'customer'              : 'required',
-                //     'destination_transaksi' : 'required',
-                //     'tanggal_order_awal'    : 'required',
-                //     'tanggal_order_akhir'   : 'required',
-                //     'status'                : 'required'
-                // },
-
-                // messages : {
-                //     'customer'              : 'Pilih salah satu customer.',
-                //     'destination_transaksi' : 'Pilih salah satu destinasi.',
-                //     'tanggal_order_awal'    : 'Tanggal order awal harus diisi',
-                //     'tanggal_order_akhir'   : 'Tanggal order akhir harus diisi',
-                //     'status'                : 'Pilih salah satu status.'
-                // },
-
-                submitHandler:function(){
-                    var formData = new FormData($('#form-report-transaksi')[0])
-
-                    var outlet_id = $('#outlet_id_select_customer').val()
-
-                    formData.append('outlet_id', outlet_id)
-
-
+                $('#outlet_id_select_customer').change(function () {
+                    const outlet_id = $(this).val();
                     $.ajax({
-                        url: '/report/getReportTransaksi',
-                        type: "POST",
-                        dataType: "JSON",
-                        data: formData,
-                        processData: false,
-                        contentType: false,
-                        success: function (response) {
-                            $('#outlet_id_select_customer_hidden').val($('#outlet_id_select_customer').val())
-                            $('#customer_id_hidden').val($('#customer').val())
-                            $('#destination_id_hidden').val($('#destination_transaksi').val())
-                            $('#tanggal_order_awal_hidden').val($('#tanggal_order_awal').val())
-                            $('#tanggal_order_akhir_hidden').val($('#tanggal_order_akhir').val())
-                            $('#status_hidden').val($('#status').val())
-                            $('#btn-download-reporttransaksi').removeClass('d-none')
-
-
-
-                            var dataOrders = response.orders
-
-                            $('#tblbody-reporttransaksi').empty();
-
-                            dataOrders.forEach(function (order, index) {
-
-                                var formattedPrice = new Intl.NumberFormat('id-ID', {
-                                    style: 'currency',
-                                    currency: 'IDR',
-                                    maximumFractionDigits: 0,
-                                }).format(order.price);
-
-
-
-                                $('#tblbody-reporttransaksi').append(`
-                                    <tr>
-                                        <td>${index + 1}</td>
-                                        <td>${order.customer && order.customer.name ? order.customer.name : '-'}</td>
-                                        <td>${order.numberorders ? order.numberorders : '-'}</td>
-                                        <td>${
-                                            order.created_at
-                                                ? new Date(order.created_at).toLocaleString('id-ID', {
-                                                    year: 'numeric',
-                                                    month: '2-digit',
-                                                    day: '2-digit',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                    second: '2-digit',
-                                                    hour12: false
-                                                }).replace(/\//g, '-')
-                                                : '-'
-                                        }</td>
-                                        <td>${
-                                            order.detailmanifests &&
-                                            order.detailmanifests.manifest &&
-                                            order.detailmanifests.manifest.detailtraveldocument &&
-                                            order.detailmanifests.manifest.detailtraveldocument.traveldocument &&
-                                            order.detailmanifests.manifest.detailtraveldocument.traveldocument.finish_date
-                                                ? order.detailmanifests.manifest.detailtraveldocument.traveldocument.finish_date
-                                                : '-'
-                                        }</td>
-                                        <td>${order.outlet && order.outlet.destination && order.outlet.destination.name ? order.outlet.destination.name : '-'}</td>
-                                        <td>${order.destination && order.destination.name ? order.destination.name : '-'}</td>
-                                        <td>${order.weight ? order.weight : '-'}</td>
-                                        <td>${order.weight ? order.weight : '-'}</td>
-                                        <td>${formattedPrice ? formattedPrice : '-'}</td>
-                                    </tr>
-                                `);
-                            })
+                        url: '/report/getCustomerByOutlet',
+                        type: 'GET',
+                        data: { outlet_id: outlet_id },
+                        success: function(response) {
+                            const customers = response.customers;
+                            const customerSelect = $('#customer');
+                            customerSelect.empty().append('<option value="" hidden>Pilih Customer</option>');
+                            if (customers) {
+                                customers.forEach(customer => {
+                                    customerSelect.append(`<option value="${customer.id}">${customer.name}</option>`);
+                                });
+                            }
                         },
-
-                        error: function (response) {
-                            $('#tblbody-reporttransaksi').empty();
+                        error: function() {
                             console.log('error');
                         }
+                    });
+                });
 
-                    })
-                },
 
-                errorPlacement:function (error, element) {
-                    if (element.closest('.form-group').length) {
-                        error.insertAfter(element.closest('.form-group'))
-                    }else{
-                        error.insertAfter(element);
+
+
+
+                $('#form-report-transaksi').on('submit', function(e) {
+                    e.preventDefault();
+
+                    var formData = $(this).serialize();
+
+                    if ($.fn.DataTable.isDataTable('#tbl-laporantransaksi')) {
+                        $('#tbl-laporantransaksi').DataTable().destroy();
                     }
-                }
-            })
+
+                    var outlet_id = $('#outlet_id_select_customer').val();
+                     formData += '&outlet_id=' + outlet_id;
+
+
+                    $('#tbl-laporantransaksi').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        ajax: {
+                            url: '/report/getReportTransaksi',
+                            type:"POST",
+                            data: function(d) {
+                                d.formData = formData;
+                            },
+                            complete: function(xhr, textStatus) {
+                                if (xhr.status === 200) {
+                                    var jsonResponse = xhr.responseJSON;
+
+                                    $('#outlet_id_select_customer_hidden').val($('#outlet_id_select_customer').val());
+                                    $('#customer_id_hidden').val($('#customer').val());
+                                    $('#destination_id_hidden').val($('#destination_transaksi').val());
+                                    $('#tanggal_order_awal_hidden').val($('#tanggal_order_awal').val());
+                                    $('#tanggal_order_akhir_hidden').val($('#tanggal_order_akhir').val());
+                                    $('#status_hidden').val($('#status').val());
+
+                                    $('#btn-download-reporttransaksi').removeClass('d-none');
+                                }
+                            }
+
+                        },
+                        columns: [
+                            {
+                                data: 'DT_RowIndex',
+                                name: 'DT_RowIndex', orderable: false, searchable: false
+                            },
+                            {
+                                data: 'customer',
+                                name: 'customer.name'
+                            },
+                            {
+                                data: 'numberorders',
+                                name: 'numberorders'
+                            },
+                            {
+                                data: 'created_at',
+                                name: 'created_at'
+                            },
+                            {
+                                data: 'finish_date',
+                                name: 'detailmanifests.manifest.detailtraveldocument.traveldocument.finish_date'
+                            },
+                            {
+                                data: 'outlets_id',
+                                name: 'outlet.destination.name'
+                            },
+                            {
+                                data: 'destinations_id',
+                                name: 'destination.name'
+                            },
+                            {
+                                data: 'volume/weight',
+                                name: 'volume/weight',
+                                orderable: false,
+                                searchable: false
+                            },
+                            {
+                                data: 'totalvolume/berat',
+                                name: 'totalvolume/berat',
+                                orderable: false,
+                                searchable: false
+                            },
+                            {
+                                data: 'price',
+                                name: 'price'
+                            }
+                        ]
+                    });
+                })
+
             //------end report transaksi js------//
         });
     </script>
