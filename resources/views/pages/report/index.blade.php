@@ -216,9 +216,18 @@
                                                 <div class="col-md-6">
                                                     <div class="form-group">
                                                         <label for="customer">Nama Customer</label>
-                                                        <select name="customer" id="customer" class="form-control">
-                                                            <option value="">Pilih Customer</option>
-                                                        </select>
+                                                        @if (Auth::user()->role_id == '1')
+                                                            <select name="customer" id="customer" class="form-control">
+                                                                <option value="">Pilih Customer</option>
+                                                            </select>
+                                                        @else
+                                                            <select name="customer" id="customer" class="form-control">
+                                                                <option value="">Pilih Customer</option>
+                                                                @foreach ($customers as $customer)
+                                                                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        @endif
                                                     </div>
                                                 </div>
                                                 <div class="col-md-6">
@@ -366,37 +375,40 @@
                     formData += '&outlet_id=' + outlet_id;
 
 
-                $('#tbl-laporanpengiriman').DataTable({
+                    $('#tbl-laporanpengiriman').DataTable({
                     processing: true,
                     serverSide: true,
                     ajax: {
                         url: '/report/getReportPengiriman',
-                        type:"POST",
+                        type: "POST",
                         data: function(d) {
                             d.formData = formData;
                         },
                         complete: function(xhr, textStatus) {
                             if (xhr.status === 200) {
                                 var jsonResponse = xhr.responseJSON;
-                                $('#outlet_id_select-hidden').val($('#outlet_id_select').val())
-                                $('#driver-hidden').val($('#driver').val())
-                                $('#jenis_pengiriman-hidden').val($('#jenis_pengiriman').val())
-                                $('#tanggal_awal_berangkat-hidden').val($('#tanggal_awal_berangkat').val())
-                                $('#tanggal_akhir_berangkat-hidden').val($('#tanggal_akhir_berangkat').val())
-                                $('#destination-hidden').val($('#destination').val())
-                                $('#status_surattugas-hidden').val($('#status_surattugas').val())
-                                $('#btn-download-reportpengiriman').removeClass('d-none')
+                                $('#outlet_id_select-hidden').val($('#outlet_id_select').val());
+                                $('#driver-hidden').val($('#driver').val());
+                                $('#jenis_pengiriman-hidden').val($('#jenis_pengiriman').val());
+                                $('#tanggal_awal_berangkat-hidden').val($('#tanggal_awal_berangkat').val());
+                                $('#tanggal_akhir_berangkat-hidden').val($('#tanggal_akhir_berangkat').val());
+                                $('#destination-hidden').val($('#destination').val());
+                                $('#status_surattugas-hidden').val($('#status_surattugas').val());
+                                $('#btn-download-reportpengiriman').removeClass('d-none');
                             }
                         }
                     },
                     columns: [
                         {
                             data: 'DT_RowIndex',
-                            name: 'DT_RowIndex', orderable: false, searchable: false
+                            name: 'DT_RowIndex',
+                            orderable: false,
+                            searchable: false
                         },
                         {
-                            data: 'driver_id',
-                            name: 'driver.name'
+                            data: 'driver',
+                            name: 'driver.name',
+                            orderable: false,
                         },
                         {
                             data: 'travelno',
@@ -404,7 +416,8 @@
                         },
                         {
                             data: 'vehicle',
-                            name: 'vehicle.vehicle.no_police'
+                            name: 'vehicle.police_no',
+                            orderable: false,
                         },
                         {
                             data: 'start',
@@ -416,30 +429,32 @@
                         },
                         {
                             data: 'armada',
-                            name: 'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.armada'
+                            name: 'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.armada',
+                            orderable: false,
                         },
                         {
                             data: 'outlets',
-                            name: 'outlet.destination.name'
+                            name: 'outlet.destination.name',
+                            orderable: false,
                         },
                         {
                             data: 'destination',
-                            name: 'detailsurattugas.traveldocument.destination.name'
+                            name: 'detailsurattugas.traveldocument.destination.name',
+                            orderable: false,
                         },
                         {
                             data: 'volume/weight',
-                            name: 'volume/weight',
+                            name: 'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.weight',
                             orderable: false,
-                            searchable: false
                         },
                         {
                             data: 'totalvolume/berat',
-                            name: 'totalvolume/berat',
+                            name: 'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.weight',
                             orderable: false,
-                            searchable: false
-                        },
+                        }
                     ]
                 });
+
             })
             //------end pengiriman js------//
 
@@ -519,15 +534,18 @@
                         columns: [
                             {
                                 data: 'DT_RowIndex',
-                                name: 'DT_RowIndex', orderable: false, searchable: false
+                                name: 'DT_RowIndex',
+                                orderable: false,
+                                searchable: false
                             },
                             {
                                 data: 'customer',
-                                name: 'customer.name'
+                                name: 'customer.name',
+                                orderable: false,
                             },
                             {
                                 data: 'numberorders',
-                                name: 'numberorders'
+                                name: 'numberorders',
                             },
                             {
                                 data: 'created_at',
@@ -535,15 +553,18 @@
                             },
                             {
                                 data: 'finish_date',
-                                name: 'detailmanifests.manifest.detailtraveldocument.traveldocument.finish_date'
+                                name: 'detailmanifests.manifest.detailtraveldocument.traveldocument.finish_date',
+                                orderable: false,
                             },
                             {
                                 data: 'outlets_id',
-                                name: 'outlet.destination.name'
+                                name: 'outlet.destination.name',
+                                orderable: false,
                             },
                             {
                                 data: 'destinations_id',
-                                name: 'destination.name'
+                                name: 'destination.name',
+                                orderable: false,
                             },
                             {
                                 data: 'volume/weight',

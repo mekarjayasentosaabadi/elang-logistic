@@ -21,7 +21,8 @@ class ReportController extends Controller
         $outlets = Outlet::all();
         $drivers = User::where('role_id', '5')->where('outlets_id', Auth::user()->outlets_id)->get();
         $destinations = Destination::all();
-        return view('pages.report.index', compact('outlets', 'destinations', 'drivers'));
+        $customers = User::where('role_id', '4')->where('outlets_id', Auth::user()->outlets_id)->get();
+        return view('pages.report.index', compact('outlets', 'destinations', 'drivers', 'customers'));
     }
 
 
@@ -53,110 +54,139 @@ class ReportController extends Controller
             'outlet.destination'
         ]);
 
-
         if (Auth::user()->role_id == 1) {
-            if ($params['outlet_id'] != null) {
-                $query->where('outlets_id', $params['outlet_id']);
+            if (!empty($params['outlet_id'])) {
+                $query->where('surattugas.outlets_id', $params['outlet_id']);
             }
-        }else{
-            $query->where('outlets_id', Auth::user()->outlets_id);
+        } else {
+            $query->where('surattugas.outlets_id', Auth::user()->outlets_id);
         }
 
-
-        if ($params['driver'] != null) {
-            $query->where('driver_id', $params['driver']);
+        if (!empty($params['driver'])) {
+            $query->where('surattugas.driver_id', $params['driver']);
         }
 
-
-        if ($params['destination']) {
+        if (!empty($params['destination'])) {
             $query->whereHas('detailsurattugas.traveldocument', function ($q) use ($params) {
-                $q->where('destinations_id', $params['destination']);
+                $q->where('traveldocuments.destinations_id', $params['destination']);
             });
         }
 
-
-        if (($params['tanggal_awal_berangkat'] != null) && ($params['tanggal_akhir_berangkat'] != null)) {
-            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($params) {
-                $q->whereBetween('start', [$params['tanggal_awal_berangkat'], $params['tanggal_akhir_berangkat']]);
+        if (!empty($params['tanggal_awal_berangkat']) && !empty($params['tanggal_akhir_berangkat'])) {
+            $endOfDay = date('Y-m-d 23:59:59', strtotime($params['tanggal_akhir_berangkat']));
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($params, $endOfDay) {
+                $q->whereBetween('traveldocuments.start', [$params['tanggal_awal_berangkat'], $endOfDay]);
             });
-        }elseif($params['tanggal_awal_berangkat'] != null) {
+        } elseif (!empty($params['tanggal_awal_berangkat'])) {
             $query->whereHas('detailsurattugas.traveldocument', function($q) use ($params) {
-                $q->whereDate('start', $params['tanggal_awal_berangkat']);
+                $q->whereDate('traveldocuments.start', $params['tanggal_awal_berangkat']);
             });
-        }elseif($request['tanggal_akhir_berangkat'] != null) {
+        } elseif (!empty($params['tanggal_akhir_berangkat'])) {
             $query->whereHas('detailsurattugas.traveldocument', function($q) use ($params) {
-                $q->whereDate('start', $params['tanggal_akhir_berangkat']);
+                $q->whereDate('traveldocuments.start', $params['tanggal_akhir_berangkat']);
             });
         }
 
-
-
-        if ($params['jenis_pengiriman'] != null) {
+        if (!empty($params['jenis_pengiriman'])) {
             $query->whereHas('detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order', function($q) use ($params) {
-                $q->where('armada', $params['jenis_pengiriman']);
+                $q->where('orders.armada', $params['jenis_pengiriman']);
             });
         }
 
-
-        if ($params['status_surattugas'] != null) {
+        if (is_numeric($params['status_surattugas'])) {
             if ($params['status_surattugas'] == '5') {
-                $query->whereIn('statussurattugas', ['0', '1', '2']);
-            }else{
-                $query->where('statussurattugas', $params['status_surattugas']);
+                $query->whereIn('surattugas.statussurattugas', ['0', '1', '2']);
+            } else {
+                $query->where('surattugas.statussurattugas', $params['status_surattugas']);
             }
         }
 
 
         return DataTables::of($query)
-        ->editColumn('driver_id', function ($query) {
-            return $query->driver->name ?? '-';
+            ->editColumn('driver', function ($query) {
+                return optional($query->driver)->name ?? '-';
+            })
+            ->editColumn('travelno', function ($query) {
+                return optional(optional($query->detailsurattugas->first())->traveldocument)->travelno ?? '-';
+            })
+            ->editColumn('vehicle', function ($query) {
+                return optional($query->vehicle)->police_no ?? '-';
+            })
+            ->editColumn('start', function ($query) {
+                return optional(optional($query->detailsurattugas->first())->traveldocument)->start ?? '-';
+            })
+            ->editColumn('finish_date', function ($query) {
+                return optional(optional($query->detailsurattugas->first())->traveldocument)->finish_date ?? '-';
+            })
+            ->editColumn('armada', function ($query) {
+                $order = optional(
+                    optional(
+                        optional(
+                            optional(
+                                optional(
+                                    optional(
+                                        optional($query->detailsurattugas->first())->traveldocument
+                                    )->detailtraveldocument
+                                )->manifest
+                            )->first()
+                        )->detailmanifests
+                    )->first()
+                )->order;
 
-        })
-        ->editColumn('travelno', function ($query) {
-            return $query->detailsurattugas->first()->traveldocument->travelno ?? '-';
+                $armada = optional($order)->armada;
+                return match ($armada) {
+                    1 => 'Darat',
+                    2 => 'Laut',
+                    3 => 'Udara',
+                    default => '-',
+                };
+            })
+            ->editColumn('outlets', function ($query) {
+                return optional(optional($query->outlet)->destination)->name ?? '-';
+            })
+            ->editColumn('destination', function ($query) {
+                $traveldocument = optional($query->detailsurattugas->first())->traveldocument;
+                return optional(optional($traveldocument)->destination)->name ?? '-';
+            })
+            ->editColumn('volume/weight', function ($query) {
+                $order = optional(
+                    optional(
+                        optional(
+                            optional(
+                                optional(
+                                    optional(
+                                        optional($query->detailsurattugas->first())->traveldocument
+                                    )->detailtraveldocument
+                                )->manifest
+                            )->first()
+                        )->detailmanifests
+                    )->first()
+                )->order;
 
-        })
-        ->editColumn('vehicle', function ($query) {
-            return $query->vehicle->police_no ?? '-';
-        })
-        ->editColumn('start', function ($query) {
-            return $query->detailsurattugas->first()->traveldocument->start ?? '-';
-        })
-        ->editColumn('finish_date', function ($query) {
-            return $query->detailsurattugas->first()->traveldocument->finish_date ?? '-';
-        })
+                return optional($order)->weight ?? optional($order)->volume ?? '-';
+            })
+            ->editColumn('totalvolume/berat', function ($query) {
+                $order = optional(
+                    optional(
+                        optional(
+                            optional(
+                                optional(
+                                    optional(
+                                        optional($query->detailsurattugas->first())->traveldocument
+                                    )->detailtraveldocument
+                                )->manifest
+                            )->first()
+                        )->detailmanifests
+                    )->first()
+                )->order;
 
-        ->editColumn('armada', function ($query) {
-            $armada = $query->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->armada ?? '-';
-            switch ($armada) {
-                case 1:
-                    return 'Darat';
-                case 2:
-                    return 'Laut';
-                case 3:
-                    return 'Udara';
-                default:
-                    return '-';
-            }
-        })
-
-        ->editColumn('outlets', function ($query) {
-            return $query->outlet->destination->name ?? '-';
-        })
-        ->editColumn('destination', function ($query) {
-            return $query->detailsurattugas->first()->traveldocument->destination->name ?? '-';
-        })
-        ->editColumn('volume/weight', function ($query) {
-            return $query->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->weight ??  $query->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->volume ?? '-';
-        })
-        ->editColumn('totalvolume/berat', function ($query) {
-            return $query->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->weight ??  $query->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->volume ?? '-';
-        })
-        ->rawColumns([])
-        ->addIndexColumn()
-        ->make(true);
-
+                return optional($order)->weight ?? optional($order)->volume ?? '-';
+            })
+            ->rawColumns([])
+            ->addIndexColumn()
+            ->make(true);
     }
+
 
 
 
@@ -208,7 +238,8 @@ class ReportController extends Controller
         }
 
         if (($params['tanggal_order_awal'] != null) && ($params['tanggal_order_akhir'] != null)) {
-            $query->whereBetween('created_at', [$params['tanggal_order_awal'], $params['tanggal_order_akhir']]);
+            $endOfDay = date('Y-m-d 23:59:59', strtotime($params['tanggal_order_akhir']));
+            $query->whereBetween('created_at', [$params['tanggal_order_awal'], $endOfDay]);
         } elseif ($params['tanggal_order_awal'] != null) {
             $query->whereDate('created_at', $params['tanggal_order_awal']);
         } elseif ($params['tanggal_order_akhir'] != null) {
@@ -246,10 +277,10 @@ class ReportController extends Controller
                 return $query->destination->name ?? '-';
             })
             ->editColumn('volume/weight', function ($query) {
-                return $query->weight ?? '-';
+                return $query->weight ?? $query->volume ?? '-';
             })
             ->editColumn('totalvolume/berat', function ($query) {
-                return $query->weight ?? '-';
+                return $query->weight ?? $query->volume ?? '-';
             })
             ->editColumn('price', function ($query) {
                 return $query->price ?? '-';
@@ -294,8 +325,9 @@ class ReportController extends Controller
 
 
         if ($request->tanggal_awal_berangkat && $request->tanggal_akhir_berangkat) {
-            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
-                $q->whereBetween('start', [$request->tanggal_awal_berangkat, $request->tanggal_akhir_berangkat]);
+            $endOfDay = date('Y-m-d 23:59:59', strtotime($request->tanggal_akhir_berangkat));
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request, $endOfDay) {
+                $q->whereBetween('start', [$request->tanggal_awal_berangkat, $endOfDay]);
             });
         }elseif($request->tanggal_awal_berangkat) {
             $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
@@ -373,7 +405,8 @@ class ReportController extends Controller
         }
 
         if ($request->tanggal_order_awal && $request->tanggal_order_akhir) {
-            $query->whereBetween('created_at', [$request->tanggal_order_awal, $request->tanggal_order_akhir]);
+            $endOfDay = date('Y-m-d 23:59:59', strtotime($request->tanggal_order_akhir));
+            $query->whereBetween('created_at', [$request->tanggal_order_awal, $endOfDay]);
         } elseif ($request->tanggal_order_awal) {
             $query->whereDate('created_at', $request->tanggal_order_awal);
         } elseif ($request->tanggal_order_akhir) {

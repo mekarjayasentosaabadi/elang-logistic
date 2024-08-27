@@ -57,33 +57,39 @@
                     },
                     {
                         data: 'numberorders',
-                        name: 'numberorders',
+                        name: 'orders.numberorders',
+                        orderable: true,
                         searchable: true
                     },
                     {
                         data: 'pengirim',
-                        name: 'customer.name'
-                        , searchable: true
+                        name: 'customer.name',
+                        orderable: true,
+                        searchable: true
                     },
                     {
                         data: 'penerima',
-                        name: 'penerima',
+                        name: 'orders.penerima',
+                        orderable: true,
                         searchable: true
                     },
                     {
                         data: 'created_at',
-                        name: 'created_at',
+                        name: 'orders.created_at',
+                        orderable: true,
                         searchable: true
                     },
                     {
                         data: 'status_orders',
                         name: 'status_orders',
+                        orderable: true,
                         searchable: true
                     },
                     {
                         data: 'aksi',
                         name: 'aksi',
-                        orderable: false, searchable: false
+                        orderable: true,
+                        searchable: true
                     }
                 ]
             });
