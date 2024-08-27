@@ -73,22 +73,22 @@
                     },
                     {
                         data: 'numberorders',
-                        name: 'numberorders',
+                        name: 'order.numberorders',
                         searchable: true
                     },
                     {
                         data: 'pengirim',
-                        name: 'pengirim',
+                        name: 'order.customer.name',
                         searchable: true
                     },
                     {
                         data: 'penerima',
-                        name: 'penerima',
+                        name: 'order.penerima',
                         searchable: true
                     },
                     {
                         data: 'created_at',
-                        name: 'created_at',
+                        name: 'order.created_at',
                         searchable: true
                     },
                     {
