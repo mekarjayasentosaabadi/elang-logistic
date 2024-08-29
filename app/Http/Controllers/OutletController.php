@@ -150,13 +150,16 @@ class OutletController extends Controller
                 $update = [
                     'is_active' => '0'
                 ];
+                $status->update($update);
+                return ResponseFormatter::success([$status], 'Berhasil Menon Aktifkan Outlet');
             } else {
                 $update = [
                     'is_active' => '1'
                 ];
+                $status->update($update);
+                return ResponseFormatter::success([$status], 'Berhasil Mengaktifkan Outlet');
             }
-            $status->update($update);
-            return ResponseFormatter::success([$status], 'Success Memperbaharui data');
+
         } catch (Exception $error) {
             return ResponseFormatter::error([$error], 'Gagal Memperbaharui data');
         }

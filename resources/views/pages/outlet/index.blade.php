@@ -10,7 +10,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Daftar Outlet</h4>
-                    <a href="{{ url('/outlet/create') }}" class="btn btn-primary">Tambah Outlet</a>
+                    <a href="{{ url('/outlet/create') }}" class="btn btn-primary"><li class="fa fa-plus"></li> Tambah Outlet</a>
                 </div>
                 <div class="card-body">
                     <div class="row">
