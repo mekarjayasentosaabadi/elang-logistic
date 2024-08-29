@@ -16,15 +16,18 @@
                     </div>
                     <div class="card-body">
                         <img class="img-fluid rounded mb-2"
-                            src="{{ asset('assets') }}/app-assets/images/portrait/small/avatar-s-11.jpg" height="110"
+                            src="{{ asset( auth()->user()->picures == null ? 'assets/img/img_default.jpg' : 'storage/customer/'.auth()->user()->picures) }}" height="110"
                             width="110" alt="User avatar" />
-                        <div class="col-lg-6 col-md-12 mb-1 mb-sm-0">
-                            <label for="formFile" class="form-label">Change Pictures</label>
-                            <input class="form-control" type="file" id="formFile" />
-                        </div>
-                        <button class="btn btn-primary btn-md mt-1" type="button">
-                            <li class="fa fa-save"></li> Upload
-                        </button>
+                        <form action="{{ route('profile.changepicture') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="col-lg-6 col-md-12 mb-1 mb-sm-0">
+                                <label for="formFile" class="form-label">Change Pictures</label>
+                                <input class="form-control" type="file" id="formFile" accept="image/*" name="gambar" />
+                            </div>
+                            <button class="btn btn-primary btn-md mt-1" type="submit">
+                                <li class="fa fa-save"></li> Upload
+                            </button>
+                        </form>
                         <hr>
                         <ul class="nav nav-tabs mt-3" role="tablist">
                             <li class="nav-item">

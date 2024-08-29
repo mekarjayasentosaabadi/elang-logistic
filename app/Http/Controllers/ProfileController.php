@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Helper\ResponseFormatter;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -58,5 +59,24 @@ class ProfileController extends Controller
         } catch (Exception $error) {
             return ResponseFormatter::error([$error], 'Gagal Memperbaharui data');
         }
+    }
+
+    //change pictures
+    function changepictures(Request $request){
+        // ddd($request->all());
+        $request->validate([
+            'gambar' => 'required|image|max:1024'
+        ]);
+        if($request->hasFile('gambar')){
+            //delete old photo
+            $oldphoto = auth()->user()->picures;
+            Storage::delete('public/customer/'.$oldphoto);
+            $files          = $request->file('gambar');
+            $filename       = time().'.'.$files->getClientOriginalExtension();
+            $files->storeAs('public/customer', $filename);
+            User::where('id', auth()->user()->id)->update(['picures'=> $filename]);
+            return redirect('/profile')->with('success', 'Berhasil update photos profile');
+        }
+        return redirect()->back()->with('error', 'Something went wrong');
     }
 }

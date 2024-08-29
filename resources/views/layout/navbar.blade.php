@@ -27,7 +27,7 @@
                          @endif
                      </div>
                      <span class="avatar"><img class="round"
-                             src="{{ asset('assets') }}/app-assets/images/portrait/small/avatar-s-11.jpg" alt="avatar"
+                             src="{{ asset( auth()->user()->picures == null ? 'assets/img/img_default.jpg' : 'storage/customer/'.auth()->user()->picures) }}" alt="avatar"
                              height="40" width="40"><span class="avatar-status-online"></span></span>
                  </a>
                  <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdown-user">
