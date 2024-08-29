@@ -121,6 +121,9 @@
 {{-- <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> --}}
 
     <script>
+        let latitude = -7.351564695753717
+        let longitude = 108.63515798523339
+        var zoomLevel = 13;
         const formatter = new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR'
@@ -136,6 +139,7 @@
                 transaksiBulanan(e)
                 transaksiMingguan(e)
                 topCustomer(e)
+                getMap(e)
             })
         }
         //transaksi bulanan
@@ -273,20 +277,26 @@
                     `)
             }
         }
-        let latitude = -7.351564695753717
-        let longitude = 108.63515798523339
-        var zoomLevel = 13;
+        // Map
         var map = L.map('map').setView([latitude, longitude], zoomLevel);
-
         // Menambahkan tile layer dari OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
+        function getMap(e){
+            if(e.data.dataalloutlet.length > 0){
+                e.data.dataalloutlet.map((x, i)=>{
+                    // Menambahkan marker di koordinat yang ditentukan
+                    var marker = L.marker([x.lat, x.long]).addTo(map)
+                        .bindPopup('Lokasi Kantor '+ x.name )
+                        .openPopup();
+                })
+            }
 
-        // Menambahkan marker di koordinat yang ditentukan
-        var marker = L.marker([latitude, longitude]).addTo(map)
-            .bindPopup('Lokasi Kantor.')
-            .openPopup();
+        }
+
+
+
     </script>
 
 @endsection

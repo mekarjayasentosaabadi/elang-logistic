@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\Outlet;
 use Illuminate\Http\Request;
 use App\Helper\ResponseFormatter;
 use Illuminate\Support\Facades\DB;
@@ -24,6 +25,7 @@ class DashboardController extends Controller
         $today = Carbon::today()->format('Y-m-d');
         $roleId = Auth::user()->role_id;
         $outletId = Auth::user()->outlets_id;
+        $dataAllOutlet = Outlet::where('is_active', '1')->get();
         if($roleId == '1'){
             $trxToday = Order::whereDate('created_at', $today)->count();
             $trxProcess = Order::where('status_orders', '2')->count();
@@ -123,7 +125,8 @@ class DashboardController extends Controller
             'totalIncome' => $totalIncome,
             'transaksiperbulan' => $transaksiperbulan,
             'transaksimingguan' => $dailyTransactions,
-            'topcustomer'       => $topCustomer
+            'topcustomer'       => $topCustomer,
+            'dataalloutlet'     => $dataAllOutlet
         ], 'Berhasil mengambil data');
     }
 }
