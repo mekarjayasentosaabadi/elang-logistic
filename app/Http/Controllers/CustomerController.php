@@ -230,13 +230,15 @@ class CustomerController extends Controller
                 $update=[
                     'is_active' => 0
                 ];
+                $status->update($update);
+                return ResponseFormatter::success([$status], 'Berhasil menonaktifkan Customer');
             } else {
                 $update=[
                     'is_active' => 1
                 ];
+                $status->update($update);
+                return ResponseFormatter::success([$status], 'Berhasil mengaktifkan Customer');
             }
-            $status->update($update);
-            return ResponseFormatter::success([$status], 'Success Memperbaharui data');
         } catch (Exception $error) {
             return ResponseFormatter::error([$error], 'Gagal Memperbaharui data');
         }
