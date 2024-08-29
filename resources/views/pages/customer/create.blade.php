@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Form Add Customer</h4>
-                    <a href="{{ route('customer.index') }}" class="btn btn-warning"> Kembali</a>
+                    <a href="{{ route('customer.index') }}" class="btn btn-warning"><li class="fa fa-undo"></li> Kembali</a>
                 </div>
                 <div class="card-body">
                     <form action="#" method="POST" enctype="multipart/form-data" id="form-add-customer">
@@ -58,7 +58,7 @@
                                     <input type="file" name="photos" id="photos" class="form-control">
                                 </div>
                                 <div class="form-group mt-1">
-                                    <button type="submit" class="btn btn-primary btn-md pull-right">Simpan</button>
+                                    <button type="submit" class="btn btn-primary btn-md pull-right"><li class="fa fa-save"></li> Simpan</button>
                                 </div>
                             </div>
                         </div>

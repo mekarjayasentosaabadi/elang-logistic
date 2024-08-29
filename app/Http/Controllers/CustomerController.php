@@ -98,7 +98,7 @@ class CustomerController extends Controller
                 'phone'         => $request->phone,
                 'address'       => $request->address,
                 'email'         => $request->email,
-                'photos'        => 'default.jpg',
+                'photos'        => 'img_default.jpg',
                 'role_id'       => '4',
                 'password'      => Hash::make('elang123'),
                 'code_customer' => $request->code_customer,
