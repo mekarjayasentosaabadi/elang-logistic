@@ -145,6 +145,9 @@
                             notifSweetAlertErrors(e.meta.message);
                         }else{
                             notifSweetAlertSuccess(e.meta.message);
+                            setTimeout(function(){
+                                location.replace(window.location.origin + '/logout');
+                            }, 1500);
                         }
                     },
                     error: function(e){

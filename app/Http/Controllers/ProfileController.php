@@ -54,7 +54,7 @@ class ProfileController extends Controller
                 'password'      => Hash::make($request->newpassword),
             ];
             User::where('id', auth()->user()->id)->update($dataChangePassword);
-            return ResponseFormatter::success([], 'Berhasil memperbaharui password');
+            return ResponseFormatter::success([], 'Password berhasil di perbaharui, silahkan login ulang untuk masuk aplikasi.!');
         } catch (Exception $error) {
             return ResponseFormatter::error([$error], 'Gagal Memperbaharui data');
         }
