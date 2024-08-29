@@ -72,7 +72,20 @@ class UserController extends Controller
                 </div>';
                 return $btn;
             })
-            ->rawColumns(['is_active', 'role_id', 'aksi'])
+            ->addColumn('pictures', function($x){
+                $picures = $x->picures;
+                if($picures == NULL ){
+                    $pictureDefault = asset('assets/img/img_default.jpg');
+                    $html = '<img src="'.$pictureDefault.'" class="rounded-circle" width="50" height="50">';
+
+                    return $html;
+                } else {
+                    $pictureStorage = asset('storage/customer/'.$x->picures);
+                    $html = '<img src="'.$pictureStorage.'" class="rounded-circle" width="50" height="50">';
+                    return $html;
+                }
+            })
+            ->rawColumns(['is_active', 'role_id', 'aksi', 'pictures'])
             ->addIndexColumn()
             ->make(true);
     }

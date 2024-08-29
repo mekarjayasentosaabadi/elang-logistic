@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Daftar Pengguna</h4>
-                    <a href="{{ url('/user/create') }}" class="btn btn-primary">Tambah Pengguna</a>
+                    <a href="{{ url('/user/create') }}" class="btn btn-primary"><li class="fa fa-plus"></li> Tambah Pengguna</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -20,6 +20,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
+                                    <th>Photos</th>
                                     <th>Nama</th>
                                     <th>Email</th>
                                     <th>Role</th>
@@ -52,6 +53,11 @@
                         data: 'DT_RowIndex',
                         orderable : false,
                         searchable: false
+                    },
+                    {
+                        data: 'pictures',
+                        name: 'pictures',
+                        searchable:false
                     },
                     {
                         data: 'name',
