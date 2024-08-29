@@ -37,17 +37,32 @@ class DestinationController extends Controller
     }
 
     function stored(Request $request){
-        Destination::create([
-            'name'      => $request->name
-        ]);
-        return ResponseFormatter::success([], 'Data Destination berhasil di simpan.!');
+        try {
+            $request->validate([
+                'name'      => 'required|unique:destinations,name'
+            ]);
+            Destination::create([
+                'name'      => $request->name
+            ]);
+            return ResponseFormatter::success([], 'Data Destination berhasil di simpan.!');
+        } catch (Exception $error) {
+            return ResponseFormatter::error([$error], 'Something went wrong');
+        }
+
     }
 
     function update(Request $request, $id){
-        Destination::where('id', $id)->update([
-            'name'      => $request->name
-        ]);
-        return ResponseFormatter::success([], 'Data Destination berhasil di perbaharui.!');
+        try {
+            $request->validate([
+                'name'      => 'required|unique:destinations,name,'.$id.',id'
+            ]);
+            Destination::where('id', $id)->update([
+                'name'      => $request->name
+            ]);
+            return ResponseFormatter::success([], 'Data Destination berhasil di perbaharui.!');
+        } catch (Exception $error) {
+            return ResponseFormatter::error([$error], 'Something went wrong');
+        }
     }
 
     function listoutlet($id){

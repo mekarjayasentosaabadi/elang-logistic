@@ -36,7 +36,7 @@
                                     <input type="text" name="name" id="name" class="form-control">
                                 </div>
                                 <div class="form-group mt-2">
-                                    <button type="submit" class="btn btn-primary btn-md" id="btnsaveedit">Save</button>
+                                    <button type="submit" class="btn btn-primary btn-md" id="btnsaveedit"><li class="fa fa-save"></li> Save</button>
                                 </div>
                             </form>
                         </div>
