@@ -111,6 +111,7 @@ class DashboardController extends Controller
                                 ->join('users', 'users.id', '=', 'orders.customer_id')
                                 ->select('users.id', 'users.name', DB::raw('SUM(orders.price) as total_orders'), DB::raw('COUNT(orders.id) as total_transaksi'))
                                 ->where('users.role_id', '4')
+                                ->where('users.outlets_id', $outletId)
                                 ->groupBy('users.id')
                                 ->orderBy(DB::raw('SUM(orders.price)'), 'DESC')
                                 ->limit(10)

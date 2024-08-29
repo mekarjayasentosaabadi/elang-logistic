@@ -67,7 +67,7 @@
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Grafik Transaksi Tahun 2024</h4>
+                    <h4 class="card-title">Grafik Transaksi Tahun {{ date("Y") }}</h4>
                 </div>
                 <div class="card-body">
                     <div id="monthly-chart"></div>
@@ -175,7 +175,6 @@
                         }
                         dataTransaksi.push(arrDataTransaksi)
                     })
-                    console.log(dataTransaksi)
                 }
                 let transaksiData = []
                 let bulanTransaksi = []
@@ -254,8 +253,7 @@
         }
         //top customer
         function topCustomer(e){
-            console.log(e)
-            if(e.data.topcustomer.length >= 0){
+            if(e.data.topcustomer.length > 0){
                 let noUrut = 1;
                 e.data.topcustomer.map((x, i)=>{
                     $('#tbody-customer').append(`
@@ -267,6 +265,12 @@
                         </tr>
                     `)
                 })
+            } else {
+                $('#tbody-customer').append(`
+                        <tr>
+                            <td colspan="4" class="text-center"> Belum ada top customer</td>
+                        </tr>
+                    `)
             }
         }
         let latitude = -7.351564695753717
