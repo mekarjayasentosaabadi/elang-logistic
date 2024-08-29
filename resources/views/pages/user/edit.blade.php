@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Edit Pengguna</h4>
-                    <a href="{{ url('/user') }}" class="btn btn-warning">Kembali</a>
+                    <a href="{{ url('/user') }}" class="btn btn-warning"><li class="fa fa-undo"></li> Kembali</a>
                 </div>
                 <div class="card-body">
                     <form id="form-edit-user" action="{{ url('/user/' . Crypt::encrypt($user->id)) }}" method="post">
@@ -86,7 +86,7 @@
                                 @endif
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary float-end">Simpan</button>
+                        <button type="submit" class="btn btn-primary float-end"><li class="fa fa-save"></li> Simpan</button>
                     </form>
                 </div>
             </div>
