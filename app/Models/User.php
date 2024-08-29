@@ -73,6 +73,6 @@ class User extends Authenticatable
     }
 
     function surattugas() {
-        return $this->hasMany(Surattugas::class, 'driver', 'id');
+        return $this->hasMany(Surattugas::class, 'driver_id', 'id');
     }
 }

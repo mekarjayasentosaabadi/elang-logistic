@@ -12,6 +12,7 @@ use App\Models\Traveldocument;
 use Illuminate\Support\Carbon;
 use Elibyy\TCPDF\Facades\TCPDF;
 use App\Models\Detailsurattugas;
+use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
 
 class ReportController extends Controller
@@ -20,7 +21,8 @@ class ReportController extends Controller
         $outlets = Outlet::all();
         $drivers = User::where('role_id', '5')->where('outlets_id', Auth::user()->outlets_id)->get();
         $destinations = Destination::all();
-        return view('pages.report.index', compact('outlets', 'destinations', 'drivers'));
+        $customers = User::where('role_id', '4')->where('outlets_id', Auth::user()->outlets_id)->get();
+        return view('pages.report.index', compact('outlets', 'destinations', 'drivers', 'customers'));
     }
 
 
@@ -38,7 +40,261 @@ class ReportController extends Controller
 
 
 
+
+
+
     public function getReportPengiriman(Request $request) {
+        $formData = $request->input('formData');
+        parse_str($formData, $params);
+
+        $query = Surattugas::with([
+            'driver',
+            'vehicle',
+            'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.destination',
+            'outlet.destination'
+        ]);
+
+        if (Auth::user()->role_id == 1) {
+            if (!empty($params['outlet_id'])) {
+                $query->where('surattugas.outlets_id', $params['outlet_id']);
+            }
+        } else {
+            $query->where('surattugas.outlets_id', Auth::user()->outlets_id);
+        }
+
+        if (!empty($params['driver'])) {
+            $query->where('surattugas.driver_id', $params['driver']);
+        }
+
+        if (!empty($params['destination'])) {
+            $query->whereHas('detailsurattugas.traveldocument', function ($q) use ($params) {
+                $q->where('traveldocuments.destinations_id', $params['destination']);
+            });
+        }
+
+        if (!empty($params['tanggal_awal_berangkat']) && !empty($params['tanggal_akhir_berangkat'])) {
+            $endOfDay = date('Y-m-d 23:59:59', strtotime($params['tanggal_akhir_berangkat']));
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($params, $endOfDay) {
+                $q->whereBetween('traveldocuments.start', [$params['tanggal_awal_berangkat'], $endOfDay]);
+            });
+        } elseif (!empty($params['tanggal_awal_berangkat'])) {
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($params) {
+                $q->whereDate('traveldocuments.start', $params['tanggal_awal_berangkat']);
+            });
+        } elseif (!empty($params['tanggal_akhir_berangkat'])) {
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($params) {
+                $q->whereDate('traveldocuments.start', $params['tanggal_akhir_berangkat']);
+            });
+        }
+
+        if (!empty($params['jenis_pengiriman'])) {
+            $query->whereHas('detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order', function($q) use ($params) {
+                $q->where('orders.armada', $params['jenis_pengiriman']);
+            });
+        }
+
+        if (is_numeric($params['status_surattugas'])) {
+            if ($params['status_surattugas'] == '5') {
+                $query->whereIn('surattugas.statussurattugas', ['0', '1', '2']);
+            } else {
+                $query->where('surattugas.statussurattugas', $params['status_surattugas']);
+            }
+        }
+
+
+        return DataTables::of($query)
+            ->editColumn('driver', function ($query) {
+                return optional($query->driver)->name ?? '-';
+            })
+            ->editColumn('travelno', function ($query) {
+                return optional(optional($query->detailsurattugas->first())->traveldocument)->travelno ?? '-';
+            })
+            ->editColumn('vehicle', function ($query) {
+                return optional($query->vehicle)->police_no ?? '-';
+            })
+            ->editColumn('start', function ($query) {
+                return optional(optional($query->detailsurattugas->first())->traveldocument)->start ?? '-';
+            })
+            ->editColumn('finish_date', function ($query) {
+                return optional(optional($query->detailsurattugas->first())->traveldocument)->finish_date ?? '-';
+            })
+            ->editColumn('armada', function ($query) {
+                $order = optional(
+                    optional(
+                        optional(
+                            optional(
+                                optional(
+                                    optional(
+                                        optional($query->detailsurattugas->first())->traveldocument
+                                    )->detailtraveldocument
+                                )->manifest
+                            )->first()
+                        )->detailmanifests
+                    )->first()
+                )->order;
+
+                $armada = optional($order)->armada;
+                return match ($armada) {
+                    1 => 'Darat',
+                    2 => 'Laut',
+                    3 => 'Udara',
+                    default => '-',
+                };
+            })
+            ->editColumn('outlets', function ($query) {
+                return optional(optional($query->outlet)->destination)->name ?? '-';
+            })
+            ->editColumn('destination', function ($query) {
+                $traveldocument = optional($query->detailsurattugas->first())->traveldocument;
+                return optional(optional($traveldocument)->destination)->name ?? '-';
+            })
+            ->editColumn('volume/weight', function ($query) {
+                $order = optional(
+                    optional(
+                        optional(
+                            optional(
+                                optional(
+                                    optional(
+                                        optional($query->detailsurattugas->first())->traveldocument
+                                    )->detailtraveldocument
+                                )->manifest
+                            )->first()
+                        )->detailmanifests
+                    )->first()
+                )->order;
+
+                return optional($order)->weight ?? optional($order)->volume ?? '-';
+            })
+            ->editColumn('totalvolume/berat', function ($query) {
+                $order = optional(
+                    optional(
+                        optional(
+                            optional(
+                                optional(
+                                    optional(
+                                        optional($query->detailsurattugas->first())->traveldocument
+                                    )->detailtraveldocument
+                                )->manifest
+                            )->first()
+                        )->detailmanifests
+                    )->first()
+                )->order;
+
+                return optional($order)->weight ?? optional($order)->volume ?? '-';
+            })
+            ->rawColumns([])
+            ->addIndexColumn()
+            ->make(true);
+    }
+
+
+
+
+
+
+
+
+
+
+    public function getCustomerByOutlet(Request $request) {
+        if ($request->outlet_id) {
+            $customers = User::where('role_id', '4')->where('outlets_id', $request->outlet_id)->get();
+            return response()->json(['customers' => $customers]);
+        }
+
+        return response()->json(['customers' => []]);
+    }
+
+
+
+
+
+
+
+
+    public function getReportTransaksi(Request $request) {
+        $formData = $request->input('formData');
+        parse_str($formData, $params);
+
+        $query = Order::with('customer', 'destination', 'outlet.destination', 'detailmanifests.manifest.detailtraveldocument.traveldocument');
+
+
+        if (Auth::user()->role_id == 1) {
+            if (isset($params['outlet_id'])) {
+                $query->where('outlet_id', $params['outlet_id']);
+            }
+        } else {
+            $query->where('outlet_id', Auth::user()->outlets_id);
+        }
+
+
+        if ($params['customer'] != null) {
+            $query->where('customer_id', $params['customer']);
+        }
+
+
+        if ($params['destination_transaksi'] != null) {
+            $query->where('destinations_id', $params['destination_transaksi']);
+        }
+
+        if (($params['tanggal_order_awal'] != null) && ($params['tanggal_order_akhir'] != null)) {
+            $endOfDay = date('Y-m-d 23:59:59', strtotime($params['tanggal_order_akhir']));
+            $query->whereBetween('created_at', [$params['tanggal_order_awal'], $endOfDay]);
+        } elseif ($params['tanggal_order_awal'] != null) {
+            $query->whereDate('created_at', $params['tanggal_order_awal']);
+        } elseif ($params['tanggal_order_akhir'] != null) {
+            $query->whereDate('created_at', $params['tanggal_order_akhir']);
+        }
+
+
+        if ($params['status'] != null) {
+            if ($params['status'] == '5') {
+                $query->whereIn('status_orders', ['1', '2', '3', '4']);
+            } else {
+                $query->where('status_orders', $params['status']);
+            }
+        }
+
+
+
+        return DataTables::of($query)
+            ->editColumn('customer', function ($query) {
+                return $query->customer->name ?? '-';
+            })
+            ->editColumn('numberorders', function ($query) {
+                return $query->numberorders ?? '-';
+            })
+            ->editColumn('created_at', function ($query) {
+                return $query->created_at ?? '-';
+            })
+            ->editColumn('finish_date', function ($query) {
+                return $query->detailmanifests->manifest->detailtraveldocument->traveldocument->finish_date ??  '-';
+            })
+            ->editColumn('outlets_id', function ($query) {
+                return $query->outlet->destination->name ?? '-';
+            })
+            ->editColumn('destinations_id', function ($query) {
+                return $query->destination->name ?? '-';
+            })
+            ->editColumn('volume/weight', function ($query) {
+                return $query->weight ?? $query->volume ?? '-';
+            })
+            ->editColumn('totalvolume/berat', function ($query) {
+                return $query->weight ?? $query->volume ?? '-';
+            })
+            ->editColumn('price', function ($query) {
+                return $query->price ?? '-';
+            })
+            ->rawColumns([])
+            ->addIndexColumn()
+            ->make(true);
+    }
+
+
+
+
+    public function downloadreportpengiriman(Request $request) {
+
         $query = Surattugas::with([
             'driver',
             'vehicle',
@@ -48,8 +304,8 @@ class ReportController extends Controller
 
 
         if (Auth::user()->role_id == 1) {
-            if ($request->outlet_id) {
-                $query->where('outlets_id', $request->outlet_id);
+            if ($request->outlet_id_select) {
+                $query->where('outlets_id', $request->outlet_id_select);
             }
         }else{
             $query->where('outlets_id', Auth::user()->outlets_id);
@@ -57,7 +313,7 @@ class ReportController extends Controller
 
 
         if ($request->driver) {
-            $query->where('driver', $request->driver);
+            $query->where('driver_id', $request->driver);
         }
 
 
@@ -69,8 +325,9 @@ class ReportController extends Controller
 
 
         if ($request->tanggal_awal_berangkat && $request->tanggal_akhir_berangkat) {
-            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
-                $q->whereBetween('start', [$request->tanggal_awal_berangkat, $request->tanggal_akhir_berangkat]);
+            $endOfDay = date('Y-m-d 23:59:59', strtotime($request->tanggal_akhir_berangkat));
+            $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request, $endOfDay) {
+                $q->whereBetween('start', [$request->tanggal_awal_berangkat, $endOfDay]);
             });
         }elseif($request->tanggal_awal_berangkat) {
             $query->whereHas('detailsurattugas.traveldocument', function($q) use ($request) {
@@ -100,83 +357,11 @@ class ReportController extends Controller
         }
 
 
-        $dataReport = $query->get()->map(function($report) {
-            return array_merge($report->toArray(), [
-                'travelno'          => $report->detailsurattugas->first()->traveldocument->travelno ?? null,
-                'start_date'        => $report->detailsurattugas->first()->traveldocument->start ?? null,
-                'finish_date'       => $report->detailsurattugas->first()->traveldocument->finish_date ?? null,
-                'jenis_pengiriman'  => $report->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->armada ?? null,
-                'destinasi'         => $report->detailsurattugas->first()->traveldocument->destination->name ?? null,
-                'berat_volume'      => $report->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->weight ??  $report->detailsurattugas->first()->traveldocument->first()->detailtraveldocument->first()->manifest->first()->detailmanifests->first()->order->volume,
-            ]);
-        });
-
-        return response()->json(['dataReport'=>$dataReport]);
-    }
+        $dataReports = $query->get();
 
 
+        // dd($dataReports);
 
-
-    public function getCustomerByOutlet(Request $request) {
-        if ($request->outlet_id) {
-            $customers = User::where('role_id', '4')->where('outlets_id', $request->outlet_id)->get();
-            return response()->json(['customers' => $customers]);
-        }
-
-        return response()->json(['customers' => []]);
-    }
-
-
-
-    public function getReportTransaksi(Request $request) {
-
-        $query = Order::with('customer', 'destination', 'outlet.destination', 'detailmanifests.manifest.detailtraveldocument.traveldocument');
-
-
-        if (Auth::user()->role_id == 1) {
-            if ($request->outlet_id) {
-                $query->where('outlet_id', $request->outlet_id);
-            }
-        }else{
-            $query->where('outlet_id', Auth::user()->outlets_id);
-        }
-
-
-
-        if ($request->customer) {
-            $query->where('customer_id', $request->customer);
-        }
-
-        if ($request->destination_transaksi) {
-            $query->where('destinations_id', $request->destination_transaksi);
-        }
-
-        if ($request->tanggal_order_awal && $request->tanggal_order_akhir) {
-            $query->whereBetween('created_at', [$request->tanggal_order_awal, $request->tanggal_order_akhir]);
-        } elseif ($request->tanggal_order_awal) {
-            $query->whereDate('created_at', $request->tanggal_order_awal);
-        } elseif ($request->tanggal_order_akhir) {
-            $query->whereDate('created_at', $request->tanggal_order_akhir);
-        }
-
-
-
-        if ($request->status) {
-            if ($request->status == '5') {
-                $query->whereIn('status_orders', ['1', '2', '3', '4']);
-            }else{
-                $query->where('status_orders', $request->status);
-            }
-        }
-
-        $orders = $query->get();
-        return response()->json(['orders' => $orders]);
-    }
-
-
-
-
-    public function downloadreportpengiriman() {
         $pdf = new TCPDF;
         $pdf::SetFont('helvetica', '', 12);
         $pdf::SetTitle("pengiriman");
@@ -186,10 +371,10 @@ class ReportController extends Controller
         $imagePath = public_path('assets/img/logo.png');
 
         $pdf::AddPage('L', 'A4');
-        $html = view()->make('pages.report.printreportpengiriman', compact('imagePath'));
+        $html = view()->make('pages.report.printreportpengiriman', compact('imagePath', 'dataReports'));
 
         $pdf::writeHTML($html, true, false, true, false, '');
-        $pdf::Output("pengiriman", 'I');
+        $pdf::Output("reportperngiriman.pdf", 'D');
         $pdf::reset();
     }
 
@@ -220,7 +405,8 @@ class ReportController extends Controller
         }
 
         if ($request->tanggal_order_awal && $request->tanggal_order_akhir) {
-            $query->whereBetween('created_at', [$request->tanggal_order_awal, $request->tanggal_order_akhir]);
+            $endOfDay = date('Y-m-d 23:59:59', strtotime($request->tanggal_order_akhir));
+            $query->whereBetween('created_at', [$request->tanggal_order_awal, $endOfDay]);
         } elseif ($request->tanggal_order_awal) {
             $query->whereDate('created_at', $request->tanggal_order_awal);
         } elseif ($request->tanggal_order_akhir) {

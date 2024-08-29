@@ -47,13 +47,13 @@ class OrderController extends Controller
                 return $query->destination->name;
             })
             ->addColumn('numberorders', function ($query) {
-                return $query->numberorders;
+                return $query->numberorders ?? '-';
             })
             ->addColumn('pengirim', function ($query) {
-                return $query->customer->name;
+                return $query->customer->name ?? '-';
             })
             ->addColumn('penerima', function ($query) {
-                return $query->penerima;
+                return $query->penerima ?? '-';
             })
             ->editColumn('status_orders', function ($query) {
                 $html = status_html($query->status_orders);
@@ -61,7 +61,7 @@ class OrderController extends Controller
                 return  $html;
             })
             ->editColumn('created_at', function ($query) {
-                return $query->created_at->format('d-m-Y H:i');
+                return $query->created_at ? $query->created_at->format('d-m-Y H:i') : '-';
             })
             ->addColumn('aksi', function ($query) {
                 $encryptId = Crypt::encrypt($query->id);
