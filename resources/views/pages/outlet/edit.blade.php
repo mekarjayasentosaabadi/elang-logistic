@@ -15,7 +15,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Edit Outlet</h4>
-                    <a href="{{ route('outlet.index') }}" class="btn btn-warning btn-md"> Kembali</a>
+                    <a href="{{ route('outlet.index') }}" class="btn btn-warning btn-md"><li class="fa fa-undo"></li> Kembali</a>
                 </div>
                 <div class="card-body">
                     <form action="{{ url('/outlet/' . Crypt::encrypt($outlet->id)) }}" method="post" id="formValidate">
@@ -84,7 +84,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary float-end">Ubah</button>
+                        <button type="submit" class="btn btn-primary float-end"><li class="fa fa-save"></li> Ubah</button>
                     </form>
                 </div>
             </div>
