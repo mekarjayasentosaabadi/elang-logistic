@@ -79,10 +79,11 @@ class OutletController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'name' => Rule::unique('outlets', 'name'),
+            'email' => Rule::unique('outlets', 'email')
         ]);
 
         if ($validate->fails()) {
-            Alert::error('Gagal', 'Nama Outlet Sudah Ada');
+            Alert::error('Gagal', 'Nama Outlet Sudah Ada atau Email sudah ada');
             return redirect()->back()->withInput();
         }
 

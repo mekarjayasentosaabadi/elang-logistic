@@ -15,7 +15,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Tambah Outlet</h4>
-                    <a href="{{ route('outlet.index') }}" class="btn btn-warning btn-md"> Kembali</a>
+                    <a href="{{ route('outlet.index') }}" class="btn btn-warning btn-md"><li class="fa fa-undo"></li> Kembali</a>
                 </div>
                 <div class="card-body">
                     <form action="{{ url('/outlet') }}" method="post" id="formValidate">
@@ -42,25 +42,19 @@
                                         class="form-control" required>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-5">
+                                    <div class="col-md-6">
                                         <div class="form-group mb-2">
                                             <label for="lat">Latitude</label>
                                             <input type="text" name="lat" id="lat" value="{{ old('lat') }}"
                                                 class="form-control" readonly required>
                                         </div>
                                     </div>
-                                    <div class="col-md-5">
+                                    <div class="col-md-6">
                                         <div class="form-group mb-2">
                                             <label for="long">Longitude</label>
                                             <input type="text" name="long" id="long" value="{{ old('long') }}"
                                                 class="form-control" readonly required>
                                         </div>
-                                    </div>
-                                    <div class="col-md-2 ">
-                                        <button type="button" class="btn btn-warning mt-2 mb-2" data-bs-toggle="modal"
-                                            data-bs-target="#default">
-                                            <i class="fas fa-search"></i>
-                                        </button>
                                     </div>
                                     <div class="col-12">
                                         <div id="maps" class="leaflet-container"></div>
@@ -89,7 +83,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary float-end">Simpan</button>
+                        <button type="submit" class="btn btn-primary float-end"><li class="fa fa-save"></li> Simpan</button>
                     </form>
                 </div>
             </div>
