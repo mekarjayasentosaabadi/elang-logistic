@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('surattugas', function (Blueprint $table) {
+        Schema::table('manifests', function (Blueprint $table) {
             //
-            $table->integer('driver_id')->nullable()->after('id');
-            $table->integer('vehicle_id')->nullable()->after('driver_id');
+            $table->integer('destination_id')->nullable()->after('outlet_id');
         });
     }
 
@@ -23,7 +22,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('surattugas', function (Blueprint $table) {
+        Schema::table('manifests', function (Blueprint $table) {
             //
         });
     }

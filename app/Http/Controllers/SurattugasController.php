@@ -18,6 +18,7 @@ use App\Models\Detailtraveldocument;
 use App\Models\Outlet;
 use App\Models\User;
 use App\Models\Vehicle;
+use Exception;
 use Illuminate\Support\Facades\Crypt;
 
 class SurattugasController extends Controller
@@ -70,34 +71,33 @@ class SurattugasController extends Controller
         $destination    = Destination::all();
         $vehicle        = Vehicle::where('is_active', '1')->get();
         $driver         = User::where('role_id', '5')->where('outlets_id', auth()->user()->outlets_id)->get();
-        return view('pages.surattugas.create', compact('destination', 'vehicle', 'driver'));
+        $outlets = Outlet::all();
+        return view('pages.surattugas.create', compact('destination', 'vehicle', 'driver', 'outlets'));
     }
 
-    function getSuratJalan($id)
+    function getManifest($id)
     {
-        $db = DB::table('traveldocuments')
-            ->leftJoin('detailtraveldocuments', 'traveldocuments.id', '=', 'detailtraveldocuments.traveldocuments_id')
-            ->leftJoin('destinations', 'traveldocuments.destinations_id', '=', 'destinations.id')
-            ->select('traveldocuments.id', 'traveldocuments.travelno', 'destinations.name as destination', DB::raw('count(detailtraveldocuments.manifests_id) as jml_manifest'))
-            ->where('traveldocuments.status_traveldocument', 1)
-            ->groupBy('traveldocuments.id', 'traveldocuments.travelno')
-            ->get();
-        return ResponseFormatter::success(['dataSuratJalan' => $db], 'Berhasil mengambil data');
+        $outletId = auth()->user()->role_id == 1 ? $id : auth()->user()->outlet->id;
+        $db = Manifest::with(['destination', 'detailmanifests'])->where('outlet_id', $outletId)->get();
+        return ResponseFormatter::success(['dataManifest' => $db], 'Berhasil mengambil data');
     }
 
     function store(Request $request)
     {
+        DB::beginTransaction();
         try {
             $request->validate([
                 'suratTugas'        => 'required|unique:surattugas,nosurattugas'
             ]);
+            $outletId = auth()->user()->role_id == 1 ? $request->outlet_id : auth()->user()->outlet->id;
             $storedDataSuratJalan = [
                 'nosurattugas'      => $request->suratTugas,
                 'statussurattugas'  => 1,
                 'note'              => $request->description,
-                'outlets_id'        => auth()->user()->outlets_id,
-                'vehicle_id'        => $request->kendaraan,
-                'driver_id'         => $request->driver,
+                'outlets_id'        => $outletId,
+                'vehicle_id'        => $request->vehicle_id,
+                'driver_id'         => $request->driver_id,
+                'destination_id'    => $request->destination_id
             ];
             $suratTugas = Surattugas::create($storedDataSuratJalan);
             $input = $request->input();
@@ -106,15 +106,19 @@ class SurattugasController extends Controller
                 foreach ($input['suratjalan'] as $key => $value) {
                     $dataDetail[] = [
                         'surattugas_id'         => $suratTugas->id,
-                        'traveldocuments_id'    => $value
+                        'manifest_id'    => $value,
+                        'created_at'            => now(),
+                        'updated_at'            => now()
                     ];
                 }
             }
             Detailsurattugas::insert($dataDetail);
+            DB::commit();
             return ResponseFormatter::success([
                 'detailSt'      => $dataDetail
             ], 'Surat tugas berhasil di simpan');
         } catch (Exception $error) {
+            DB::rollBack();
             return ResponseFormatter::error([$error], 'Something went wrong');
         }
     }
@@ -161,69 +165,47 @@ class SurattugasController extends Controller
 
     function onGoing($id)
     {
-        $dataSuratJalan = Detailsurattugas::where('surattugas_id', $id)->get();
-        Surattugas::where('id', $id)->update([
-            'statussurattugas' => 2
-        ]);
-        //suratjalan
-        $arrDataDetailSuratJalan = [];
-        foreach ($dataSuratJalan as $key => $value) {
-            $arrDataDetailSuratJalan[] = [
-                $value->traveldocuments_id
-            ];
-        }
-        //manifest
-        $dataManifest = Detailtraveldocument::whereIn('traveldocuments_id', $arrDataDetailSuratJalan)->get();
-        $arrDataManifests = [];
-        foreach ($dataManifest as $key => $value) {
-            $arrDataManifests[] = [
-                'manifests_id' => $value->manifests_id
-            ];
-        }
-        //data Order
-        $dataOrder = Detailmanifest::whereIn('manifests_id', $arrDataManifests)->get();
-        $arrDataOrder = [];
-        $orderAwb = [];
-        foreach ($dataOrder as $key => $value) {
-            $arrDataOrder[] = [
-                'orders_id' => $value->orders_id
-            ];
-            $orderAwb[] = [
-                'id'    => $value->orders_id
-            ];
-        }
-        //Update Data Order
-        Order::whereIn('id', $arrDataOrder)->update([
-            'status_orders'     => 2
-        ]);
-        //Update TravelDocuments
-        Traveldocument::whereIn('id', $arrDataDetailSuratJalan)->update([
-            'status_traveldocument'     => 2
-        ]);
-        //Update Manifests
-        Manifest::whereIn('id', $arrDataManifests)->update([
-            'status_manifest'     => 2
-        ]);
 
-        $orderDataComp = Order::whereIn('id', $orderAwb)->get();
-        //Insert data History AWB
-        $arrDataHistory = [];
-        foreach ($orderDataComp as $key => $value) {
-            $gudangLocation = Outlet::find($value->outlet_id);
-            $arrDataHistory[] = [
-                'order_id'      => $value['id'],
-                'awb'           => $value['numberorders'],
-                'status'        => 'Pesanan di berangkatkan dari ' . $gudangLocation->name,
-                'created_by'    => auth()->user()->id,
-                'created_at'    => now(),
-                'updated_at'    => now()
-            ];
-            $value = Order::find($value['id']);
-            $value->update([
-                'status_awb' => 'Pesanan di berangkatkan dari ' . $gudangLocation->name
+        DB::beginTransaction();
+        try {
+
+            $suratTugas = Surattugas::find($id);
+            foreach ($suratTugas->detailsurattugas as $key => $value) {
+                $value->manifest->update([
+                    'status_manifest' => 2
+                ]);
+                $order = Order::whereIn('id', $value->manifest->detailmanifests->pluck('orders_id'))->update([
+                    'status_orders' => 2
+                ]);
+
+                $orderDataComp = Order::whereIn('id', $value->manifest->detailmanifests->pluck('orders_id'))->get();
+                //Insert data History AWB
+                $arrDataHistory = [];
+                foreach ($orderDataComp as $key => $order) {
+                    $gudangLocation = Outlet::find($order->outlet_id);
+                    $arrDataHistory[] = [
+                        'order_id'      => $order['id'],
+                        'awb'           => $order['numberorders'],
+                        'status'        => 'Pesanan di berangkatkan dari ' . $gudangLocation->name,
+                        'created_by'    => auth()->user()->id,
+                        'created_at'    => now(),
+                        'updated_at'    => now()
+                    ];
+                    $order = Order::find($order['id']);
+                    $order->update([
+                        'status_awb' => 'Pesanan di berangkatkan dari ' . $gudangLocation->name
+                    ]);
+                }
+                HistoryAwb::insert($arrDataHistory);
+            }
+            Surattugas::where('id', $id)->update([
+                'statussurattugas' => 2
             ]);
+            DB::commit();
+            return ResponseFormatter::success([], 'Berhasil meng on goingkan surat tugas');
+        } catch (Exception $error) {
+            DB::rollBack();
+            return ResponseFormatter::error([], 'Something went wrong');
         }
-        HistoryAwb::insert($arrDataHistory);
-        return ResponseFormatter::success([], 'Berhasil meng on goingkan surat tugas');
     }
 }

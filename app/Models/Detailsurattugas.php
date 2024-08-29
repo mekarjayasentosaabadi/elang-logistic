@@ -8,10 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Detailsurattugas extends Model
 {
     use HasFactory;
-    protected $fillable = [
-        'surattugas_id',
-        'traveldocuments_id'
-    ];
+    protected $guarded = [];
     protected $table = 'detailsurattugas';
 
     public function surattugas()
@@ -19,8 +16,8 @@ class Detailsurattugas extends Model
         return $this->belongsTo(Surattugas::class, 'surattugas_id', 'id');
     }
 
-    public function traveldocument()
+    function manifest()
     {
-        return $this->belongsTo(Traveldocument::class, 'traveldocuments_id', 'id');
+        return $this->belongsTo(Manifest::class, 'manifest_id', 'id');
     }
 }

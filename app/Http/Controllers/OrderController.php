@@ -43,6 +43,9 @@ class OrderController extends Controller
 
 
         return DataTables::of($q)
+            ->editColumn('destination', function ($query) {
+                return $query->destination->name;
+            })
             ->addColumn('numberorders', function ($query) {
                 return $query->numberorders ?? '-';
             })
@@ -411,7 +414,8 @@ class OrderController extends Controller
     }
 
 
-    public function showHistoryupdateOrder($id) {
+    public function showHistoryupdateOrder($id)
+    {
         try {
             $id = Crypt::decrypt($id);
         } catch (DecryptException $e) {
@@ -420,11 +424,12 @@ class OrderController extends Controller
 
 
         $historyOrder      = HistoryUpdateOrder::find($id);
-        return view('pages.order.detailhistoryupdateorder',compact('historyOrder'));
+        return view('pages.order.detailhistoryupdateorder', compact('historyOrder'));
     }
 
 
-    public function historyupdate($id) {
+    public function historyupdate($id)
+    {
         try {
             $id = Crypt::decrypt($id);
         } catch (DecryptException $e) {
@@ -457,9 +462,6 @@ class OrderController extends Controller
         $outlets        = Outlet::all();
         return view('pages.order.edit', compact('order', 'customers', 'destinations', 'outlets'));
     }
-
-
-
 
     function update(Request $request, $id)
     {
@@ -560,31 +562,31 @@ class OrderController extends Controller
                 'created_by' => Auth::user()->id,
             ]);
 
-             //create history order
-             $historyOrder = new HistoryUpdateOrder();
-             $historyOrder->order_id         = $order->id;
-             $historyOrder->numberorders     = $order->numberorders;
-             $historyOrder->customer_id      = $order->customer_id;
-             $historyOrder->outlet_id        = $order->outlet_id;
-             $historyOrder->destinations_id  = $order->destinations_id;
-             $historyOrder->koli             = $order->koli;
-             $historyOrder->weight           = $order->weight;
-             $historyOrder->volume           = $order->volume;
-             $historyOrder->price            = $order->price;
-             $historyOrder->content          = $order->content;
-             $historyOrder->penerima         = $order->penerima;
-             $historyOrder->armada           = $order->armada;
-             $historyOrder->address          = $order->address;
-             $historyOrder->estimation       = $order->estimation;
-             $historyOrder->status_orders    = $order->status_orders;
-             $historyOrder->payment_method   = $order->payment_method;
-             $historyOrder->status_awb       = $order->status_awb;
-             $historyOrder->service          = $order->service;
-             $historyOrder->description      = $order->description;
-             $historyOrder->note             = $order->note;
-             $historyOrder->photos           = $order->photos;
-             $historyOrder->created_by       = Auth::user()->id;
-             $historyOrder->save();
+            //create history order
+            $historyOrder = new HistoryUpdateOrder();
+            $historyOrder->order_id         = $order->id;
+            $historyOrder->numberorders     = $order->numberorders;
+            $historyOrder->customer_id      = $order->customer_id;
+            $historyOrder->outlet_id        = $order->outlet_id;
+            $historyOrder->destinations_id  = $order->destinations_id;
+            $historyOrder->koli             = $order->koli;
+            $historyOrder->weight           = $order->weight;
+            $historyOrder->volume           = $order->volume;
+            $historyOrder->price            = $order->price;
+            $historyOrder->content          = $order->content;
+            $historyOrder->penerima         = $order->penerima;
+            $historyOrder->armada           = $order->armada;
+            $historyOrder->address          = $order->address;
+            $historyOrder->estimation       = $order->estimation;
+            $historyOrder->status_orders    = $order->status_orders;
+            $historyOrder->payment_method   = $order->payment_method;
+            $historyOrder->status_awb       = $order->status_awb;
+            $historyOrder->service          = $order->service;
+            $historyOrder->description      = $order->description;
+            $historyOrder->note             = $order->note;
+            $historyOrder->photos           = $order->photos;
+            $historyOrder->created_by       = Auth::user()->id;
+            $historyOrder->save();
 
 
 

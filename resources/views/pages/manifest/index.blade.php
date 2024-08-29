@@ -57,12 +57,12 @@
                         name: 'manifestno'
                     },
                     {
-                        data: 'namadestinasi',
-                        name: 'namadestinasi'
+                        data: 'destination',
+                        name: 'destination.name'
                     },
                     {
-                        data: 'jumlahmamnifest',
-                        name: 'jumlahmamnifest'
+                        data: 'jumlah',
+                        name: 'jumlah'
                     },
                     {
                         data: 'status',
@@ -75,7 +75,8 @@
                 ]
             });
         });
-        function deleteManifest(x,i) {
+
+        function deleteManifest(x, i) {
             Swal.fire({
                 title: 'Konfirmasi',
                 text: 'Apakah Anda yakin ingin akan menghapus data tersebut.?',
@@ -83,19 +84,20 @@
                 showCancelButton: true,
                 confirmButtonText: 'Ya, Lanjutkan!',
                 cancelButtonText: 'Batal'
-            }).then((result)=>{
-                if(result.isConfirmed){
+            }).then((result) => {
+                if (result.isConfirmed) {
                     $.ajax({
-                        url: window.location.origin + '/' + listRoutes['manifest.delete'].replace('{id}',i),
+                        url: window.location.origin + '/' + listRoutes['manifest.delete'].replace('{id}',
+                            i),
                         type: "POST",
                         dataType: "JSON",
                         processData: false,
                         contentType: false,
-                        success: function(e){
+                        success: function(e) {
                             notifSweetAlertSuccess(e.meta.message);
                             table.ajax.reload()
                         },
-                        error: function(e){
+                        error: function(e) {
                             console.log(e)
                         }
                     })

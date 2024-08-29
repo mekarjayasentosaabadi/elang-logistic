@@ -21,6 +21,7 @@
                                 <tr>
                                     <th>#</th>
                                     <th>No Order</th>
+                                    <th>Destinasi</th>
                                     <th>Pengirim</th>
                                     <th>Penerima</th>
                                     <th>Tanggal</th>
@@ -49,8 +50,7 @@
                     url: "{{ url('/order/getAll') }}",
                     type: 'GET'
                 },
-                columns: [
-                    {
+                columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
                         searchable: false
@@ -59,6 +59,11 @@
                         data: 'numberorders',
                         name: 'orders.numberorders',
                         orderable: true,
+                        searchable: true
+                    },
+                    {
+                        data: 'destination',
+                        name: 'destination.name',
                         searchable: true
                     },
                     {
@@ -88,8 +93,8 @@
                     {
                         data: 'aksi',
                         name: 'aksi',
-                        orderable: true,
-                        searchable: true
+                        orderable: false,
+                        searchable: false
                     }
                 ]
             });

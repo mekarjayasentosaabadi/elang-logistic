@@ -9,12 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Surattugas extends Model
 {
     use HasFactory;
-    protected $fillable = [
-        'nosurattugas',
-        'statussurattugas',
-        'note',
-        'outlets_id'
-    ];
+    protected $guarded = [];
     protected $table = 'surattugas';
 
     //relasi to table detail surat tugas
@@ -29,16 +24,14 @@ class Surattugas extends Model
     }
 
 
-    function vehicle() {
+    function vehicle()
+    {
         return $this->belongsTo(Vehicle::class, 'vehicle_id', 'id');
     }
 
 
-    function outlet() {
+    function outlet()
+    {
         return $this->belongsTo(Outlet::class, 'outlets_id', 'id');
     }
-
-
-
-
 }
