@@ -61,12 +61,10 @@ class UpdateResiController extends Controller
                         'statussurattugas' => $is_arived,
                     ]);
                     foreach ($details as $key2 => $detail) {
-                        $manifest = $detail->traveldocument->detailtraveldocument->manifest->detailmanifests;
 
-                        $status_manifest = Manifest::find($detail->traveldocument->detailtraveldocument->manifest->id);
-
+                        $status_manifest = Manifest::find($detail->manifest_id);
                         if ($status_manifest->status_manifest == '2') {
-                            foreach ($manifest as $key3 => $manifests) {
+                            foreach ($detail->manifest->detailmanifests as $key3 => $manifests) {
                                 $order = $manifests->order;
                                 $order->update([
                                     'status_awb' => $message,
@@ -78,14 +76,8 @@ class UpdateResiController extends Controller
                                     'created_by' => Auth::user()->id,
                                 ]);
                             }
-                        } else {
-                            $travelDocument = $detail->traveldocument->id;
-                            Traveldocument::where('id', $travelDocument)->update([
-                                'status_traveldocument' => $is_arived,
-                            ]);
-
                             // update status manifest
-                            $detail->traveldocument->detailtraveldocument->manifest->update([
+                            $detail->manifest->update([
                                 'status_manifest' => $is_arived,
                             ]);
                         }
@@ -96,18 +88,11 @@ class UpdateResiController extends Controller
                 // get manifest
                 $manifest = Manifest::whereIn('id', $request->noResi)->get();
                 foreach ($manifest as $key => $value) {
-                    $value->detailtraveldocument->traveldocument->update([
-                        'status_traveldocument' => $is_arived,
-                    ]);
-                    Traveldocument::where('id', $value->detailtraveldocument->traveldocument->id)->update([
-                        'status_traveldocument' => $is_arived,
-                    ]);
-
                     // get order 
-                    $details = $value->detailmanifests;
                     $value->update([
                         'status_manifest' => $is_arived,
                     ]);
+                    $details = $value->detailmanifests;
                     foreach ($details as $key2 => $detail) {
                         $order = $detail->order;
                         $order->update([

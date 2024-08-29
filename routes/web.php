@@ -175,7 +175,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/', [SurattugasController::class, 'index'])->name('surattugas.index');
         Route::get('/create', [SurattugasController::class, 'create'])->name('surattugas.create');
         Route::get('/getAll', [SurattugasController::class, 'getAll'])->name('surattugas.getAll');
-        Route::get('/{id}/suratjalan', [SurattugasController::class, 'getSuratJalan'])->name('surattugas.suratjalan');
+        Route::get('/{id}/manifest', [SurattugasController::class, 'getManifest'])->name('surattugas.manifest');
         Route::post('/', [SurattugasController::class, 'store'])->name('surattugas.store');
         Route::post('/{id}/delete', [SurattugasController::class, 'delete'])->name('surattugas.delete');
         Route::get('/{id}/edit', [SurattugasController::class, 'edit'])->name('surattugas.edit');
@@ -211,7 +211,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/cek', function () {
         return view('pages.cek');
     });
-    Route::prefix('profile')->group(function(){
+    Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
         Route::post('/', [ProfileController::class, 'update'])->name('profile.update');
         Route::post('/changepassword', [ProfileController::class, 'changePassword'])->name('profile.changepassword');

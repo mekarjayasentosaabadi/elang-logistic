@@ -6,6 +6,7 @@
     <!-- BEGIN Vendor JS-->
 
     <!-- BEGIN: Page Vendor JS-->
+    <script src="{{ asset('assets') }}/app-assets/vendors/js/extensions/sweetalert2.all.min.js"></script>
     <!-- END: Page Vendor JS-->
 
     <!-- BEGIN: Theme JS-->
@@ -41,4 +42,14 @@
                 }
             });
         })
+
+        function notifSweetAlert(type, message) {
+            const title = type == 'warning' ? 'Informasi' : type == 'error' ? 'Gagal' : 'Berhasil'
+            Swal.fire({
+                title: title,
+                text: message,
+                icon: type,
+                confirmButtonText: 'OK'
+            })
+        }
     </script>

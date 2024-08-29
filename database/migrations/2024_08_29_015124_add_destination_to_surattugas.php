@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::table('surattugas', function (Blueprint $table) {
             //
-            $table->integer('driver_id')->nullable()->after('id');
-            $table->integer('vehicle_id')->nullable()->after('driver_id');
+            $table->integer('destination_id')->nullable();
         });
     }
 

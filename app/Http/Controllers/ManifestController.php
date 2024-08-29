@@ -16,24 +16,25 @@ class ManifestController extends Controller
 {
     public function index()
     {
-        return view('pages.manifest.index');
+        $outlets = Outlet::all();
+        return view('pages.manifest.index', compact('outlets'));
     }
     public function getAll()
     {
 
-        $q = DB::table('manifests')
-            ->leftJoin('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
-            ->leftJoin('orders', 'detailmanifests.orders_id', '=', 'orders.id')
-            ->leftJoin('destinations', 'orders.destinations_id', '=', 'destinations.id')
-            ->select('manifests.id', 'manifests.manifestno', 'destinations.name as namadestinasi', 'orders.outlet_id', 'manifests.status_manifest', DB::raw('COUNT(detailmanifests.id) as jumlahmamnifest'));
+        $q = Manifest::with(['destination', 'outlet']);
         if (auth()->user()->role_id != 1) {
             $q->where('orders.outlet_id', auth()->user()->outlets_id);
         }
 
-        $q->groupBy('manifests.id', 'destinations.name', 'manifests.manifestno', 'orders.outlet_id');
 
-        $q = $q->get();
         return DataTables::of($q)
+            ->editColumn('destination', function ($e) {
+                return $e->destination->name;
+            })
+            ->editColumn('jumlah', function ($e) {
+                return $e->detailmanifests->count();
+            })
             ->addColumn('status', function ($e) {
                 if ($e->status_manifest == 0) {
                     $status = '<div class="text-danger">';
@@ -66,10 +67,9 @@ class ManifestController extends Controller
             ->addIndexColumn()
             ->make(true);
     }
-    function getOrders()
+    function getOrders(Request $request)
     {
-        $outletId = auth()->user()->outlet->id;
-
+        $outletId = auth()->user()->role_id == 1 ? $request->outlet_id : auth()->user()->outlet->id;
 
         $q = Order::with(['customer', 'destination'])->where('outlet_id', $outletId)->where('status_orders', '2');
         // where orders_id not in detailmanifests
@@ -83,10 +83,14 @@ class ManifestController extends Controller
             ->editColumn('destination', function ($e) {
                 return $e->destination->name;
             })
+            ->editColumn('weight', function ($e) {
+                return $e->weight ?? $e->volume;
+            })
             ->addColumn('check', function ($cek) {
                 $valueCheck = $cek->id;
+                $checked = in_array($valueCheck, request()->input('idOrders', [])) ? 'checked' : '';
                 $check = '<div>';
-                $check .= '<input class="form-check-input" name="checkbox' . $valueCheck . '" type="checkbox" id="checkbox[]" value="' . $valueCheck . '" onchange="check(this, ' . $valueCheck . ')"/>';
+                $check .= '<input class="form-check-input checkbox-table" id="checkbox-table-' . $valueCheck . '" name="checkbox' . $valueCheck . '" type="checkbox" id="checkbox[]" ' . $checked . ' value="' . $valueCheck . '" />';
                 $check .= '</div>';
                 return $check;
             })
@@ -116,7 +120,11 @@ class ManifestController extends Controller
             'commodity'     => $request->commodity,
             'flight_no'     => $request->flightno,
             'no_bags'       => $request->nobags,
-            'flight_file'   => $request->flagsfile
+            'flight_file'   => $request->flagsfile,
+            'notes'         => $request->notes,
+            'no_smd'        => $request->no_smd,
+            'outlet_id' => $request->outlet_id,
+            'destination_id' => $request->destination_id
         ];
         $manifest = Manifest::create($dataManifest);
         $dataDetail = [];

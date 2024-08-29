@@ -17,7 +17,11 @@ class Manifest extends Model
         'flight_no',
         'no_bags',
         'flight_file',
-        'status_manifest'
+        'status_manifest',
+        'notes',
+        'no_smd',
+        'outlet_id',
+        'destination_id'
     ];
     protected $table = 'manifests';
 
@@ -27,18 +31,13 @@ class Manifest extends Model
         return $this->hasMany(Detailmanifest::class, 'manifests_id', 'id');
     }
 
-    //Make a code customer automatic
-    // protected static function boot(){
-    //     parent::boot();
-    //     static::creating(function($model){
-    //         $lastItem = self::orderBy('manifestno', 'desc')->first();
-    //         $lastNumber = $lastItem ? $lastItem->manifestno : 0;
-    //         $model->manifestno = $lastNumber + 1;
-    //     });
-    // }
-
-    public function detailtraveldocument()
+    function destination()
     {
-        return $this->hasOne(Detailtraveldocument::class, 'manifests_id', 'id');
+        return $this->belongsTo(Destination::class, 'destination_id', 'id');
+    }
+
+    function outlet()
+    {
+        return $this->belongsTo(Outlet::class, 'outlet_id', 'id');
     }
 }

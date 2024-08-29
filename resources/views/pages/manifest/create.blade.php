@@ -24,7 +24,7 @@
                                     <input type="text" name="manifestno" id="manifestno" class="form-control" required>
                                 </div>
 
-                                <div class="form-group mt-1 hidden" id="form-commodity">
+                                <div class="form-group mt-1 " id="form-commodity">
                                     <label for="commodity">Commodity</label>
                                     <select name="commodity" id="commodity" class="form-control">
                                         <option value="">-- Select Commodity --</option>
@@ -34,9 +34,14 @@
                                         <option value="4">MIX</option>
                                     </select>
                                 </div>
-                                <div class="form-group mt-1 hidden" id="form-flight-no">
+                                <div class="form-group mt-1 " id="form-flight-no">
                                     <label for="flightno">Flight No</label>
                                     <input type="text" name="flightno" id="flightno" class="form-control">
+                                </div>
+                                <div class="form-group mt-1 " id="form-no-bags">
+                                    <label for="no_smd">No Surat Muatan Darat</label>
+                                    <input type="text" name="no_smd" id="no_smd" class="form-control">
+                                    <input type="hidden" name="destination_id" id="destination_id">
                                 </div>
                             </div>
                             <div class="col-md-6 col-lg-6 col-xs-12">
@@ -50,24 +55,53 @@
                                     </select>
                                 </div>
 
-                                <div class="form-group mt-1 hidden" id="form-no-bags">
+                                <div class="form-group mt-1 " id="form-no-bags">
                                     <label for="nobags">No Bags</label>
                                     <input type="text" name="nobags" id="nobags" class="form-control">
                                 </div>
-                                <div class="form-group mt-1 hidden" id="form-flags-file">
+                                <div class="form-group mt-1 " id="form-flags-file">
                                     <label for="flagsfile">Flags File</label>
                                     <input type="text" name="flagsfile" id="flagsfile" class="form-control">
+                                </div>
+                                {{-- notes --}}
+                                <div class="form-group mt-1">
+                                    <label for="notes">Notes</label>
+                                    <textarea name="notes" id="notes" class="form-control"></textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                @if (Auth::user()->role_id == '1')
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">Outlet Asal</h4>
+                                    <a href="{{ url('/order') }}" class="btn btn-warning">Kembali</a>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="outlet_id">Outlet Asal</label>
+                                        <select name="outlet_id" id="outlet_id" class="form-control">
+                                            <option value="">Pilih Outlet Asal</option>
+                                            @foreach ($outlets as $outlet)
+                                                <option value="{{ $outlet->id }}"
+                                                    {{ old('outlet_id') == $outlet->id ? 'selected' : '' }}>
+                                                    {{ $outlet->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
                 {{-- Card Detail --}}
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Detail Manifest</h3>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#exampleModalCenter"> Add
+                        <button type="button" class="btn btn-primary" id="add-order"> Add
                             Order</button>
                     </div>
                     <div class="card-body">
@@ -80,7 +114,8 @@
                                             <th>Order Numbers</th>
                                             <th>Customer</th>
                                             <th>Destinations</th>
-                                            <th>Kg</th>
+                                            <th>Berat</th>
+                                            <th>Koli</th>
                                             <th>Options</th>
                                         </tr>
                                     </thead>
@@ -105,7 +140,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                    Total Kg :
+                                                    Total Berat :
                                                 </div>
                                                 <div class="col-md-6" id="total-jumlah-kg">
 
@@ -113,9 +148,9 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                    Total AWB :
+                                                    Total Koli :
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-6" id="total-jumlah-koli">
 
                                                 </div>
                                             </div>
@@ -153,6 +188,8 @@
                                     <th>Nomor Order/ AWB</th>
                                     <th>Customer</th>
                                     <th>Destination</th>
+                                    <th>Berat</th>
+                                    <th>Koli</th>
                                     <th>Options</th>
                                 </tr>
                             </thead>
@@ -177,14 +214,21 @@
     <script>
         let arrOrders = [];
         let arrOrdersTemp = [];
+        let idOrders = [];
         var table
+        let destination = '';
+        const role_id = '{{ Auth::user()->role_id }}';
         $(document).ready(function() {
             table = $('#tbl-orders').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
                     url: "{{ url('/manifest/getOrders') }}",
-                    type: 'GET'
+                    type: 'GET',
+                    data: function(d) {
+                        d.outlet_id = $('#outlet_id').val();
+                        d.idOrders = idOrders;
+                    }
                 },
                 columns: [{
                         data: 'DT_RowIndex',
@@ -204,43 +248,102 @@
                         name: 'destination.name'
                     },
                     {
+                        data: 'weight',
+                        name: 'weight',
+                        searchable: false,
+                        orderable: false
+                    },
+                    {
+                        data: 'koli',
+                        name: 'koli',
+                        searchable: false,
+                        orderable: false
+                    },
+                    {
                         data: 'check',
                         name: 'check'
                     },
                 ]
             });
+
+            $('#add-order').click(function() {
+                if (role_id == '1') {
+                    if ($('#outlet_id').val() == '') {
+                        notifSweetAlert('warning', 'Pilih Outlet Asal terlebih dahulu');
+                    } else {
+                        $('#exampleModalCenter').modal('show');
+                    }
+                } else {
+
+                    $('#exampleModalCenter').modal('show');
+                }
+                table.ajax.reload();
+            });
+
+            $('#tbl-orders').on('click', '.checkbox-table', function() {
+                // check the checkbox checked or not
+                const checked = $(this).prop('checked');
+
+                if (checked) {
+                    const id = $(this).val();
+                    var baseUrl = window.location.origin + '/' + listRoutes['manifest.checkOrders'].replace(
+                        '{id}', id);
+                    $.getJSON(baseUrl, function() {
+
+                    }).done(function(e) {
+                        if (destination == '') {
+                            destination = e.data[0].destination.name;
+                            $('#destination_id').val(e.data[0].destination.id);
+                        } else {
+                            if (destination != e.data[0].destination.name) {
+                                // set to unchecked
+                                $('#tbl-orders #checkbox-table-' + id).prop('checked', false);
+                                notifSweetAlert('warning', 'Destination harus sama');
+                                return false;
+                            }
+                        }
+
+                        let dataArrCheck = {
+                            ordersid: e.data[0].id,
+                            numberorder: e.data[0].numberorders,
+                            customername: e.data[0].customer.name,
+                            destination: e.data[0].destination.name,
+                            volume: e.data[0].volume,
+                            weight: e.data[0].weight,
+                            koli: e.data[0].koli,
+                            content: e.data[0].content,
+                        }
+                        arrOrders.push(dataArrCheck);
+                        idOrders.push(e.data[0].id);
+                        getDataDetailOrders();
+
+
+                    }).fail(function(e) {
+                        console.log(e)
+                    })
+                } else {
+                    arrOrders = arrOrders.filter((x) => x.ordersid != $(this).val());
+                    idOrders = idOrders.filter((x) => x != $(this).val());
+                    getDataDetailOrders();
+                    if (arrOrders.length == 0) {
+                        destination = '';
+                        $('#destination_id').val('');
+                    }
+                }
+
+            });
+
+
         });
 
         function checkcarrier() {
-            var carrier = $('#carrier').val();
-            carrier == "3" ? $('#form-commodity').removeClass("hidden") && $('#form-flight-no').removeClass("hidden") && $(
-                    '#form-no-bags').removeClass("hidden") && $('#form-flags-file').removeClass("hidden") : $(
-                    '#form-commodity').addClass("hidden") && $('#form-flight-no').addClass("hidden") && $('#form-no-bags')
-                .addClass("hidden") && $('#form-flags-file').addClass("hidden");
+            // var carrier = $('#carrier').val();
+            // carrier == "3" ? $('#form-commodity').removeClass("hidden") && $('#form-flight-no').removeClass("hidden") && $(
+            //         '#form-no-bags').removeClass("hidden") && $('#form-flags-file').removeClass("hidden") : $(
+            //         '#form-commodity').addClass("hidden") && $('#form-flight-no').addClass("hidden") && $('#form-no-bags')
+            //     .addClass("hidden") && $('#form-flags-file').addClass("hidden");
         }
 
-        function check(x, id) {
-            var baseUrl = window.location.origin + '/' + listRoutes['manifest.checkOrders'].replace('{id}', id);
-            $.getJSON(baseUrl, function() {
-
-            }).done(function(e) {
-                console.log(e)
-                let dataArrCheck = {
-                    ordersid: e.data[0].id,
-                    numberorder: e.data[0].numberorders,
-                    customername: e.data[0].customer.name,
-                    destination: e.data[0].destination.name,
-                    items: e.data[0].volume,
-                    kg: e.data[0].weight,
-                    content: e.data[0].content,
-                }
-                arrOrders.push(dataArrCheck);
-                getDataDetailOrders();
-
-            }).fail(function(e) {
-                console.log(e)
-            })
-        }
 
         // function check(x, i){
         //     let checkedvalue = [];
@@ -261,8 +364,9 @@
                         <td>${x.numberorder}<input type="hidden" name="ordersid[]" value="${x.ordersid}"></td>
                         <td>${x.customername}</td>
                         <td>${x.destination}</td>
-                        <td>${x.kg}</td>
-                        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeDetail(${i})"><i class="fa fa-trash"></i></button></td>
+                        <td>${x.weight ?? x.volume}</td>
+                        <td>${x.koli}</td>
+                        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeDetail(${x.ordersid})"><i class="fa fa-trash"></i></button></td>
                     </tr>
                     `
                 )
@@ -271,9 +375,14 @@
             totalKg();
         }
 
-        const removeDetail = (i) => {
-            arrOrders.splice(i, 1)
-            getDataDetailOrders()
+        const removeDetail = (id) => {
+            arrOrders = arrOrders.filter((x) => x.ordersid != id);
+            idOrders = idOrders.filter((x) => x != id);
+            getDataDetailOrders();
+            if (arrOrders.length == 0) {
+                destination = '';
+                $('#destination_id').val('');
+            }
         }
 
         function totalItems() {
@@ -282,15 +391,20 @@
 
         function totalKg() {
             let jumlahKg = []
+            let jumlahKoli = []
             totalKgs = 0;
+            totalKoli = 0;
             arrOrders.map((x, i) => {
-                convert = Math.round(x.kg);
+                convert = Math.round(x.weight ?? x.volume);
                 jumlahKg.push(convert);
+                jumlahKoli.push(x.koli);
             })
             for (i in jumlahKg) {
                 totalKgs += jumlahKg[i];
+                totalKoli += jumlahKoli[i];
             }
             $('#total-jumlah-kg').html(totalKgs);
+            $('#total-jumlah-koli').html(totalKoli);
         }
 
         //save manifest
@@ -299,6 +413,7 @@
                 rules: {
                     'manifestno': 'required',
                     'carrier': 'required',
+                    'no_smd': 'required',
                 },
                 submitHandler: function() {
                     $.ajax({

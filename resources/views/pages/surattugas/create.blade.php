@@ -26,8 +26,7 @@
                                 </div>
                                 <div class="form-group mt-1">
                                     <label for="destination">Destination</label>
-                                    <select name="destination" id="destination" class="form-control select2"
-                                        onchange="listSuratJalan(this.value)">
+                                    <select name="destination" id="destination" class="form-control select2" onchange="">
                                         <option value="">-- Pilih Destination --</option>
                                         @foreach ($destination as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -63,6 +62,30 @@
                             </div>
                         </div>
                         <hr>
+                        @if (Auth::user()->role_id == '1')
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h4 class="card-title">Outlet Asal</h4>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="form-group">
+                                                <label for="outlet_id">Outlet Asal</label>
+                                                <select name="outlet_id" id="outlet_id" class="form-control">
+                                                    <option value="">Pilih Outlet Asal</option>
+                                                    @foreach ($outlets as $outlet)
+                                                        <option value="{{ $outlet->id }}"
+                                                            {{ old('outlet_id') == $outlet->id ? 'selected' : '' }}>
+                                                            {{ $outlet->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                         <div class="row mt-2">
                             <div class="table-responsive">
                                 <div class="col-12">
@@ -70,13 +93,14 @@
                                         <thead>
                                             <tr>
                                                 <th>#</th>
-                                                <th>No Surat Jalan</th>
+                                                <th>No Manifest</th>
+                                                <th>No SMD</th>
                                                 <th>Destination</th>
                                                 <th>Jumlah Manifest</th>
                                                 <th>Keterangan</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="tblListSuratJalan">
+                                        <tbody id="tblListManifest">
 
                                         </tbody>
                                     </table>
@@ -102,53 +126,65 @@
     <script src="{{ asset('assets/js/notifsweetalert.js') }}"></script>
     <script>
         var urlBase = window.location.origin;
-        let listArrDataSuratJalan = [];
+        let listArrDataManifest = [];
         let allId = [];
 
 
+        $(document).ready(function() {
+            listManifest($('#outlet_id').val());
+        });
+
         $('.select2').select2();
 
-        function listSuratJalan(x) {
-            $.getJSON(urlBase + '/' + listRoutes['surattugas.suratjalan'].replace('{id}', x), function(e) {}).done(function(
+        $('#outlet_id').change(function() {
+            let outlet_id = $(this).val();
+            listManifest(outlet_id);
+        });
+
+        function listManifest(x) {
+            $.getJSON(urlBase + '/' + listRoutes['surattugas.manifest'].replace('{id}', x), function(e) {}).done(function(
                 r) {
-                getListSuratJalan(r)
+                getListManifest(r)
             }).fail(function(r) {
                 console.log(r);
             })
         }
 
-        const getListSuratJalan = (x) => {
-            console.log(x)
-            if (x.data.dataSuratJalan.length <= 0) {
-                $('#tblListSuratJalan').html('')
-                listArrDataSuratJalan = []
+        const getListManifest = (x) => {
+            if (x.data.dataManifest.length <= 0) {
+                $('#tblListManifest').html('')
+                listArrDataManifest = []
             } else {
-                listArrDataSuratJalan = []
-                x.data.dataSuratJalan.map((x) => {
-                    let arrDataSuratJalan = {
-                        suratJalanId: x.id,
-                        noSuratJalan: x.travelno,
-                        destination: x.destination,
-                        jumlahManifest: x.jml_manifest,
+                listArrDataManifest = []
+                x.data.dataManifest.map((x) => {
+                    let arrDataManifest = {
+                        manifestId: x.id,
+                        noManifest: x.manifestno,
+                        noSmd: x.no_smd,
+                        destination: x.destination.name,
+                        jumlahManifest: x.detailmanifests.length,
+                        notes: x.notes
                     }
-                    listArrDataSuratJalan.push(arrDataSuratJalan);
+                    listArrDataManifest.push(arrDataManifest);
                 })
+                console.log(listArrDataManifest);
                 listDataManifest();
             }
         }
         const listDataManifest = () => {
-            $('#tblListSuratJalan').html('')
+            $('#tblListManifest').html('')
 
             let noUrut = 1;
-            listArrDataSuratJalan.map((x, i) => {
-                $('#tblListSuratJalan').append(
+            listArrDataManifest.map((x, i) => {
+                $('#tblListManifest').append(
                     `
                     <tr>
-                        <td><input type="checkbox" class="form-check-input cb-child" id="cb-child" value="${x.suratJalanId}"></td>
-                        <td>${x.noSuratJalan}</td>
+                        <td><input type="checkbox" class="form-check-input cb-child" id="cb-child" value="${x.manifestId}"></td>
+                        <td>${x.noManifest}</td>
+                        <td>${x.noSmd}</td>
                         <td>${x.destination}</td>
                         <td>${x.jumlahManifest}</td>
-                        <td>-</td>
+                        <td>${x.notes}</td>
                     </tr>
                     `
                 )
@@ -175,7 +211,7 @@
             },
             submitHandler: function() {
                 if (allId.length <= 0) {
-                    var messageErrors = ['pilih surat jalan terlebih dahulu'];
+                    var messageErrors = ['pilih manifest terlebih dahulu'];
                     notifSweetAlertErrors(messageErrors);
                 } else {
                     $.ajax({
@@ -184,9 +220,12 @@
                         dataType: "JSON",
                         data: {
                             suratTugas: $('#noSuratTugas').val(),
-                            destination: $('#destination').val(),
+                            destination_id: $('#destination').val(),
                             description: $('#description').val(),
-                            suratjalan: allId
+                            vehicle_id: $('#vehicle').val(),
+                            driver_id: $('#driver').val(),
+                            suratjalan: allId,
+                            outlet_id: $('#outlet_id').val()
                         },
                         success: function(e) {
                             console.log(e)

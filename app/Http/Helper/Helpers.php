@@ -68,11 +68,11 @@ if (!function_exists('listMenu')) {
                             'url' => '/manifest',
                             'icon' => 'circle'
                         ],
-                        [
-                            'title' => 'Surat Jalan',
-                            'url' => '/delivery',
-                            'icon' => 'circle'
-                        ],
+                        // [
+                        //     'title' => 'Surat Jalan',
+                        //     'url' => '/delivery',
+                        //     'icon' => 'circle'
+                        // ],
                         [
                             'title' => 'Surat Tugas',
                             'url' => '/surattugas',
