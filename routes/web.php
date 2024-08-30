@@ -34,10 +34,15 @@ use App\Http\Controllers\ShippingcourierController;
 Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware(['auth'])->group(function () {
-
+// dashboard admin, superadmin, courier, customer, directur
+Route::middleware(['auth', 'check.role:1,2,4,6'])->group(function (){
     Route::get('/', [DashboardController::class, 'index']);
     Route::get('/getData', [DashboardController::class, 'getData'])->name('dashboard.getData');
+});
+
+
+// master admin and superadmin
+Route::middleware(['auth', 'check.role:1,2'])->group(function () {
     Route::prefix('user')->group(function () {
         Route::get('/', [UserController::class, 'index'])->name('user.index');
         Route::get('/getAll', [UserController::class, 'getAll'])->name('user.getAll');
@@ -126,24 +131,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/{id}/print', [ManifestController::class, 'printresi'])->name('manifest.cetakresi');
     });
 
-    Route::prefix('shipping-courier')->group(function () {
-        Route::get('/', [ShippingcourierController::class, 'index'])->name('shipping.index');
-        Route::get('/getAll', [ShippingcourierController::class, 'getAll'])->name('shipping.getAll');
-        Route::get('/getDetail', [ShippingcourierController::class, 'getDetail'])->name('shipping.getDetail');
-        Route::get('/getOrders', [ShippingcourierController::class, 'getOrder'])->name('shipping.getOrder');
-        Route::get('/getOrdersByOutlet', [ShippingcourierController::class, 'getOrdersByOutlet'])->name('shipping.getOrdersByOutlet');
-        Route::get('/getOrderDetail', [ShippingcourierController::class, 'getOrderDetail'])->name('shipping.getOrderDetail');
-        Route::get('/getCourier', [ShippingcourierController::class, 'getCourier'])->name('shipping.getCourier');
-        Route::get('/create', [ShippingcourierController::class, 'create'])->name('shipping.create');
-        Route::post('/store', [ShippingcourierController::class, 'store'])->name('shipping.store');
-        Route::get('/{id}/done', [ShippingcourierController::class, 'done'])->name('shipping.done');
-        Route::get('/{id}/edit', [ShippingcourierController::class, 'edit'])->name('shipping.edit');
-        Route::get('/{id}/show', [ShippingcourierController::class, 'show'])->name('shipping.show');
-        Route::patch('/{id}/update', [ShippingcourierController::class, 'update'])->name('shipping.update');
-        Route::get('/{id}/sendShipping', [ShippingcourierController::class, 'sendShipping'])->name('shipping.sendShipping');
-        Route::post('/{id}/storeShippingDone', [ShippingcourierController::class, 'storeShippingDone'])->name('shipping.storeShippingDone');
-    });
-
     //Price
     Route::prefix('masterprice')->group(function () {
         Route::get('/', [MasterpriceController::class, 'index'])->name('masterprice.index');
@@ -183,7 +170,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/{id}/deleteList', [SurattugasController::class, 'deleteList'])->name('surattugas.deleteList');
         Route::post('/{id}/onGoing', [SurattugasController::class, 'onGoing'])->name('surattugas.onGoing');
     });
-    Route::get('/logout', [AuthController::class, 'logout']);
+
 
     Route::prefix('cek-resi')->group(function () {
         Route::get('/', [AwbController::class, 'index'])->name('cek-resi.index');
@@ -211,10 +198,41 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/cek', function () {
         return view('pages.cek');
     });
+});
+
+// shipping courier admin superadmin and courier
+Route::middleware(['auth', 'check.role:1,2,3'])->group(function () {
+    Route::prefix('shipping-courier')->group(function () {
+        Route::get('/', [ShippingcourierController::class, 'index'])->name('shipping.index');
+        Route::get('/getAll', [ShippingcourierController::class, 'getAll'])->name('shipping.getAll');
+        Route::get('/getDetail', [ShippingcourierController::class, 'getDetail'])->name('shipping.getDetail');
+        Route::get('/getOrders', [ShippingcourierController::class, 'getOrder'])->name('shipping.getOrder');
+        Route::get('/getOrdersByOutlet', [ShippingcourierController::class, 'getOrdersByOutlet'])->name('shipping.getOrdersByOutlet');
+        Route::get('/getOrderDetail', [ShippingcourierController::class, 'getOrderDetail'])->name('shipping.getOrderDetail');
+        Route::get('/getCourier', [ShippingcourierController::class, 'getCourier'])->name('shipping.getCourier');
+        Route::get('/create', [ShippingcourierController::class, 'create'])->name('shipping.create');
+        Route::post('/store', [ShippingcourierController::class, 'store'])->name('shipping.store');
+        Route::get('/{id}/done', [ShippingcourierController::class, 'done'])->name('shipping.done');
+        Route::get('/{id}/edit', [ShippingcourierController::class, 'edit'])->name('shipping.edit');
+        Route::get('/{id}/show', [ShippingcourierController::class, 'show'])->name('shipping.show');
+        Route::patch('/{id}/update', [ShippingcourierController::class, 'update'])->name('shipping.update');
+        Route::get('/{id}/sendShipping', [ShippingcourierController::class, 'sendShipping'])->name('shipping.sendShipping');
+        Route::post('/{id}/storeShippingDone', [ShippingcourierController::class, 'storeShippingDone'])->name('shipping.storeShippingDone');
+    });
+});
+
+
+//profile admin superadmin courier
+Route::middleware(['auth', 'check.role:1,2,3'])->group(function () {
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
         Route::post('/', [ProfileController::class, 'update'])->name('profile.update');
         Route::post('/changepassword', [ProfileController::class, 'changePassword'])->name('profile.changepassword');
         Route::post('/changepicture', [ProfileController::class, 'changepictures'])->name('profile.changepicture');
     });
+});
+
+// logout all role
+Route::middleware(['auth', 'check.role:1,2,3,4,6'])->group(function () {
+    Route::get('/logout', [AuthController::class, 'logout']);
 });
