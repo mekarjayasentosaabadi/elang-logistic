@@ -505,11 +505,12 @@ class ShippingcourierController extends Controller
             $validator = Validator::make($request->all(), [
                 'penerima'       => 'required',
                 'note'           => 'required',
-                'bukti_diterima' => 'required',
             ], [
                 'penerima.required'               => 'Nomor pengiriman harus diisi.',
                 'note.required'                   => 'Catatan harus diisi',
             ]);
+            $file = $request->file('bukti_diterima');
+
 
             if ($validator->fails()) {
                 $error = $validator->errors()->all();
@@ -517,6 +518,14 @@ class ShippingcourierController extends Controller
                 Alert::error('Gagal', $errorMessage);
                 return redirect()->back()->withInput();
             }
+
+            // reques hass file bukti_diterima
+            if ($request->hasFile('bukti_diterima')) {
+                $image = $request->file('bukti_diterima');
+                $imageName = time() . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('public/images', $imageName);
+            }
+
 
 
             $detailShippingCourier = DetailShippingCourier::find($id);
@@ -528,23 +537,6 @@ class ShippingcourierController extends Controller
             );
 
 
-            // handle base64 image bukti_diterima
-            $base64_string = $request->bukti_diterima;
-            // Decode the base64 image
-            $image = base64_decode(substr($base64_string, strpos($base64_string, ',') + 1));
-
-            // Create a unique file name
-            $imageName = time() . '.png'; // Assuming the image is a PNG. Adjust the extension as needed.
-
-            // Define the path where the image will be stored
-            $path = 'public/images/' . $imageName;
-
-            // Store the image
-            Storage::put($path, $image);
-
-            // Convert the storage path to a public path
-            $imagePath = str_replace('public/', 'storage/', $path);
-
 
             $dataOrder = [
                 'penerima'      => $request->penerima,
@@ -554,6 +546,7 @@ class ShippingcourierController extends Controller
             ];
 
             $order = Order::find($detailShippingCourier->orders_id);
+            $order->finish_date = now();
             $order->update($dataOrder);
 
             $dataHistoryAwb = [

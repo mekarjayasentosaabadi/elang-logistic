@@ -33,6 +33,10 @@ use App\Http\Controllers\ShippingcourierController;
 
 Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+// cek php info
+Route::get('/phpinfo', function () {
+    return phpinfo();
+});
 
 Route::middleware(['auth'])->group(function () {
 

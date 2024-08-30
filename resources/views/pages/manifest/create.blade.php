@@ -21,7 +21,8 @@
                             <div class="col-md-6 col-lg-6 col-xs-12">
                                 <div class="form-group">
                                     <label for="manifestsno">Manifest No</label>
-                                    <input type="text" name="manifestno" id="manifestno" class="form-control" required>
+                                    <input type="text" name="manifestno" id="manifestno" class="form-control" required
+                                        minlength="1" maxlength="10">
                                 </div>
 
                                 <div class="form-group mt-1 " id="form-commodity">
@@ -423,10 +424,14 @@
                         processData: false,
                         contentType: false,
                         success: function(e) {
-                            notifSweetAlertSuccess(e.meta.message);
-                            setTimeout(function() {
-                                location.replace(window.location.origin + '/manifest');
-                            }, 1500);
+                            if (e.meta.code == 200) {
+                                notifSweetAlertSuccess(e.meta.message);
+                                setTimeout(function() {
+                                    location.replace(window.location.origin + '/manifest');
+                                }, 1500);
+                            } else {
+                                notifSweetAlertErrors(e.meta.message);
+                            }
                         },
                         error: function(e) {
                             notifSweetAlertErrors(e.meta.message);

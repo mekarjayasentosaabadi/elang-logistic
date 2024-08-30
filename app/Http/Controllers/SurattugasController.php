@@ -53,12 +53,12 @@ class SurattugasController extends Controller
             })
             ->addColumn('option', function ($x) {
                 $option = '<div>';
-                $option .= '<a href="surattugas/' . Crypt::encrypt($x->id) . '/edit" class="btn btn-warning btn-sm "><i class="fa fa-edit"></i></a> ';
+
                 $option .= '<a class="btn btn-primary btn-sm" title="Cetak Surat Tugas"><li class="fa fa-print"></li></a> ';
                 if ($x->statussurattugas == 1) {
                     $option .= '<button class="btn btn-success btn-sm" title="Berangkatkan" onclick="onGoing(' . $x->id . ')"><li class="fa fa-truck"></li></button> ';
+                    $option .= '<button class="btn btn-danger btn-sm" onclick="deleteSuratTugas(this, ' . $x->id . ')"><i class="fa fa-trash"></i></button> ';
                 }
-                $option .= '<button class="btn btn-danger btn-sm" onclick="deleteSuratTugas(this, ' . $x->id . ')"><i class="fa fa-trash"></i></button> ';
                 return $option;
             })
             ->rawColumns(['status', 'option'])
@@ -89,9 +89,13 @@ class SurattugasController extends Controller
     {
         DB::beginTransaction();
         try {
-            $request->validate([
-                'suratTugas'        => 'required|unique:surattugas,nosurattugas'
-            ]);
+
+            // check if surat tugas already exist
+            $checkSuratTugas = Surattugas::where('nosurattugas', $request->suratTugas)->first();
+            if ($checkSuratTugas) {
+                return ResponseFormatter::error([], 'Nomor surat tugas sudah ada', 500);
+            }
+
             $outletId = auth()->user()->role_id == 1 ? $request->outlet_id : auth()->user()->outlet->id;
             $storedDataSuratJalan = [
                 'nosurattugas'      => $request->suratTugas,
@@ -136,15 +140,11 @@ class SurattugasController extends Controller
     function edit($id)
     {
         $destination    = Destination::all();
-        $surattugas = DB::table('surattugas')
-            ->leftJoin('detailsurattugas', 'surattugas.id', '=', 'detailsurattugas.surattugas_id')
-            ->leftJoin('traveldocuments', 'detailsurattugas.traveldocuments_id', '=', 'traveldocuments.id')
-            ->leftJoin('destinations', 'traveldocuments.destinations_id', '=', 'destinations.id')
-            ->select('surattugas.id', 'surattugas.nosurattugas', 'surattugas.statussurattugas', 'destinations.id as iddestination', 'destinations.name', DB::raw('count(detailsurattugas.traveldocuments_id) as jumlah_surat_tugas'))
-            ->where('surattugas.id', Crypt::decrypt($id))
-            ->groupBy('surattugas.id', 'surattugas.nosurattugas', 'surattugas.statussurattugas', 'destinations.name', 'destinations.id')
-            ->first();
-        return view('pages.surattugas.edit', compact('destination', 'surattugas'));
+        $vehicle        = Vehicle::where('is_active', '1')->get();
+        $driver         = User::where('role_id', '5')->where('outlets_id', auth()->user()->outlets_id)->get();
+        $outlets = Outlet::all();
+        $surattugas     = Surattugas::find(Crypt::decrypt($id));
+        return view('pages.surattugas.edit', compact('destination', 'surattugas', 'vehicle', 'driver', 'outlets'));
     }
 
     function getListSuratJalan($id)

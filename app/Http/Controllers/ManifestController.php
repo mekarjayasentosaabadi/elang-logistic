@@ -114,56 +114,78 @@ class ManifestController extends Controller
     //stored
     function store(Request $request)
     {
-
-        $outletId = auth()->user()->role_id == 1 ? $request->outlet_id : auth()->user()->outlet->id;
-        $dataManifest = [
-            'manifestno'    => $request->manifestno,
-            'carier'        => $request->carrier,
-            'commodity'     => $request->commodity,
-            'flight_no'     => $request->flightno,
-            'no_bags'       => $request->nobags,
-            'flight_file'   => $request->flagsfile,
-            'notes'         => $request->notes,
-            'no_smd'        => $request->no_smd,
-            'outlet_id' => $outletId,
-            'destination_id' => $request->destination_id
-        ];
-        $manifest = Manifest::create($dataManifest);
-        $dataDetail = [];
-        $input = $request->input();
-        if (@$input['ordersid']) {
-            foreach ($input['ordersid'] as $key => $value) {
-                $dataDetail[] = [
-                    'manifests_id'      => $manifest->id,
-                    'orders_id'         => $input['ordersid'][$key]
-                ];
+        DB::beginTransaction();
+        try {
+            // check maniest if exist
+            $checkManifest = Manifest::where('manifestno', $request->manifestno)->first();
+            if ($checkManifest) {
+                return ResponseFormatter::error([], 'Nomor manifest sudah ada');
             }
+
+            // check if manifest long then 10 char
+            if (strlen($request->manifestno) > 10) {
+                return ResponseFormatter::error([], 'Nomor manifest tidak boleh lebih dari 10 karakter');
+            }
+
+            // check no_smd
+            if (strlen($request->no_smd) > 10) {
+                return ResponseFormatter::error([], 'Nomor SMD tidak boleh lebih dari 10 karakter');
+            }
+
+            $checkSmd = Manifest::where('no_smd', $request->no_smd)->first();
+            if ($checkSmd) {
+                return ResponseFormatter::error([], 'Nomor SMD sudah ada');
+            }
+
+            $outletId = auth()->user()->role_id == 1 ? $request->outlet_id : auth()->user()->outlet->id;
+            $dataManifest = [
+                'manifestno'    => $request->manifestno,
+                'carier'        => $request->carrier,
+                'commodity'     => $request->commodity,
+                'flight_no'     => $request->flightno,
+                'no_bags'       => $request->nobags,
+                'flight_file'   => $request->flagsfile,
+                'notes'         => $request->notes,
+                'no_smd'        => $request->no_smd,
+                'outlet_id' => $outletId,
+                'destination_id' => $request->destination_id
+            ];
+            $manifest = Manifest::create($dataManifest);
+            $dataDetail = [];
+            $input = $request->input();
+            if (@$input['ordersid']) {
+                foreach ($input['ordersid'] as $key => $value) {
+                    $dataDetail[] = [
+                        'manifests_id'      => $manifest->id,
+                        'orders_id'         => $input['ordersid'][$key]
+                    ];
+                }
+            }
+            Detailmanifest::insert($dataDetail);
+            DB::commit();
+            return ResponseFormatter::success([], 'Manifest berhasil di simpan.!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ResponseFormatter::error([$e->getMessage()], 'Gagal menambahkan data');
         }
-        Detailmanifest::insert($dataDetail);
-        return ResponseFormatter::success([], 'Manifest berhasil di simpan.!');
     }
 
     //edit
     function edit($id)
     {
-        return view('pages.manifest.update');
+        $outlets = Outlet::all();
+        $manifest = Manifest::where('id', Crypt::decrypt($id))->firstOrFail();
+        $manifest->listArrayId = json_encode($manifest->detailmanifests->pluck('orders_id')->toArray());
+        return view('pages.manifest.update', compact('outlets', 'manifest'));
     }
 
     //get detail
     function getdetail($id)
     {
-        $datamanifest           = Manifest::where('id', Crypt::decrypt($id))->firstOrFail();
-        $q = DB::table('orders')
-            ->join('users', 'orders.customer_id', '=', 'users.id')
-            ->join('destinations', 'orders.destinations_id', '=', 'destinations.id')
-            ->join('detailmanifests', 'orders.id', '=', 'detailmanifests.orders_id')
-            ->select('orders.id', 'orders.outlet_id', 'orders.status_orders', 'orders.numberorders', 'users.name as namacustomer', 'destinations.name as destination', 'detailmanifests.manifests_id', 'orders.weight', 'detailmanifests.id as detailmanifestid')
-            ->where('detailmanifests.manifests_id', Crypt::decrypt($id))
-            ->where('status_orders', '2')
-            ->get();
+        $datamanifest           = Manifest::where('id', $id)->firstOrFail();
         return ResponseFormatter::success([
             'manifest'          => $datamanifest,
-            'detailmanifest'    => $q
+            'detailmanifest'    => $datamanifest->detailmanifests
         ], 'Success get data');
     }
 
@@ -184,17 +206,63 @@ class ManifestController extends Controller
 
     function update(Request $request, $id)
     {
-        $dataManifest = [
-            'manifestno'    => $request->manifestno,
-            'carier'        => $request->carrier,
-            'commodity'     => $request->commodity,
-            'flight_no'     => $request->flightno,
-            'no_bags'       => $request->nobags,
-            'flight_file'   => $request->flagsfile
-        ];
-        // $manifest = Manifest::create($dataManifest);
-        Manifest::where('id', Crypt::decrypt($id))->update($dataManifest);
-        return ResponseFormatter::success([], 'Manifest berhasil di perbaharui.!');
+        DB::beginTransaction();
+        try {
+            // check if manifest long then 10 char
+            if (strlen($request->manifestno) > 10) {
+                return ResponseFormatter::error([], 'Nomor manifest tidak boleh lebih dari 10 karakter');
+            }
+
+            // check maniest if exist
+            $checkManifest = Manifest::where('manifestno', $request->manifestno)->where('id', '!=', $id)->first();
+            if ($checkManifest) {
+                return ResponseFormatter::error([], 'Nomor manifest sudah ada', 500);
+            }
+
+            // check no_smd
+            if (strlen($request->no_smd) > 10) {
+                return ResponseFormatter::error([], 'Nomor SMD tidak boleh lebih dari 10 karakter');
+            }
+
+            $checkSmd = Manifest::where('no_smd', $request->no_smd)->where('id', '!=', $id)->first();
+            if ($checkSmd) {
+                return ResponseFormatter::error([], 'Nomor SMD sudah ada', 500);
+            }
+
+            // remove detail manifest
+            Detailmanifest::where('manifests_id', $id)->delete();
+            $outletId = auth()->user()->role_id == 1 ? $request->outlet_id : auth()->user()->outlet->id;
+            $dataManifest = [
+                'manifestno'    => $request->manifestno,
+                'carier'        => $request->carrier,
+                'commodity'     => $request->commodity,
+                'flight_no'     => $request->flightno,
+                'no_bags'       => $request->nobags,
+                'flight_file'   => $request->flagsfile,
+                'notes'         => $request->notes,
+                'no_smd'        => $request->no_smd,
+                'outlet_id' => $outletId,
+                'destination_id' => $request->destination_id
+            ];
+            $manifest = Manifest::where('id', $id)->update($dataManifest);
+
+            $dataDetail = [];
+            $input = $request->input();
+            if (@$input['ordersid']) {
+                foreach ($input['ordersid'] as $key => $value) {
+                    $dataDetail[] = [
+                        'manifests_id'      => $id,
+                        'orders_id'         => $input['ordersid'][$key]
+                    ];
+                }
+            }
+            Detailmanifest::insert($dataDetail);
+            DB::commit();
+            return ResponseFormatter::success([], 'Manifest berhasil di ubah.!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ResponseFormatter::error([$e->getMessage()], 'Gagal menambahkan data');
+        }
     }
 
     function adddetail(Request $request, $id, $ordersid)
