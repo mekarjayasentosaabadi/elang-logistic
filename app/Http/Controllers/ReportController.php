@@ -107,7 +107,7 @@ class ReportController extends Controller
 
         if (is_numeric($params['status_surattugas'])) {
             if ($params['status_surattugas'] == '5') {
-                $query->whereIn('surattugas.statussurattugas', ['0', '1', '2']);
+                $query->whereIn('surattugas.statussurattugas', ['0', '1', '2', '3']);
             } else {
                 $query->where('surattugas.statussurattugas', $params['status_surattugas']);
             }
@@ -349,8 +349,8 @@ class ReportController extends Controller
         }
 
         if (is_numeric($request->status_surattugas)) {
-            if ($request->status_surattugas) {
-                $query->whereIn('surattugas.statussurattugas', ['0', '1', '2']);
+            if ($request->status_surattugas == '5') {
+                $query->whereIn('surattugas.statussurattugas', ['0', '1', '2', '3']);
             } else {
                 $query->where('surattugas.statussurattugas', $request->status_surattugas);
             }
