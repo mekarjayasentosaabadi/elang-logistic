@@ -175,7 +175,8 @@ class ManifestController extends Controller
 
     function deletedetailold(Request $request, $id)
     {
-        DetailManifest::where('id', $id)->delete();
+        // cek
+        Detailmanifest::where('id', $id)->delete();
         return ResponseFormatter::success([], 'Berhasil menghaputs data');
     }
 

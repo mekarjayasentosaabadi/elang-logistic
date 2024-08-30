@@ -78,7 +78,7 @@ class SurattugasController extends Controller
     function getManifest($id)
     {
         $outletId = auth()->user()->role_id == 1 ? $id : auth()->user()->outlet->id;
-        $db = Manifest::with(['destination', 'detailmanifests'])->where('outlet_id', $outletId)->get();
+        $db = Manifest::with(['destination', 'detailmanifests'])->where('outlet_id', $outletId)->where('status_manifest', '1')->get();
         return ResponseFormatter::success(['dataManifest' => $db], 'Berhasil mengambil data');
     }
 

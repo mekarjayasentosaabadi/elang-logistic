@@ -36,7 +36,7 @@ class Order extends Model
     //relation to detailmanifests
     function detailmanifests()
     {
-        return $this->hasOne(DetailManifest::class, 'orders_id', 'id');
+        return $this->hasOne(Detailmanifest::class, 'orders_id', 'id');
     }
 
     function detailshippingcourier()
@@ -50,7 +50,8 @@ class Order extends Model
     }
 
 
-    function users(){
+    function users()
+    {
         return $this->belongsTo(User::class, 'customer_id', 'id');
     }
 }
