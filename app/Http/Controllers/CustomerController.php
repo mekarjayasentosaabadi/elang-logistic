@@ -91,14 +91,13 @@ class CustomerController extends Controller
                 'phone'         => 'required|unique:users,phone',
                 'address'       => 'required',
                 'email'         => 'required|unique:users,email',
-                // 'photos'        => 'required|mimes:jpg,png',
             ]);
             $dataStored = [
                 'name'          => $request->name,
                 'phone'         => $request->phone,
                 'address'       => $request->address,
                 'email'         => $request->email,
-                'photos'        => 'default.jpg',
+                'picures'        => 'img_default.jpg',
                 'role_id'       => '4',
                 'password'      => Hash::make('elang123'),
                 'code_customer' => $request->code_customer,
@@ -119,14 +118,11 @@ class CustomerController extends Controller
                 $dataStored['code_customer'] = $kode_customer;
                 $dataStored['is_otomatis']  = '1';
             }
-            if($request->file('photos')){
-                $request->validate([
-                    'photos'    => 'required|mimes:png,jpg|max:1024'
-                ]);
+            if($request->hasFile('photos')){
                 $files          = $request->file('photos');
                 $fileName       = time().'.'.$files->getClientOriginalExtension();
                 $files->storeAs('public/customer', $fileName);
-                $dataStored['photos']=$fileName;
+                $dataStored['picures']=$fileName;
             }
             $customer = User::create($dataStored);
             $dataCustomer = User::where('id', $customer->id)->firstOrFail();
@@ -141,7 +137,7 @@ class CustomerController extends Controller
      */
     public function show($id)
     {
-        $customer       = User::where('id', Crypt::decrypt($id))->firstOrFail();
+        $customer       = User::where('id', Crypt::decrypt($id))->first();
         $outlet         = Outlet::where('is_active', '1')->get();
         $destination    = Destination::all();
         // $customer_prices_outlet = $customer->customer_prices->load('destination')->groupBy('outlet_id');
@@ -199,13 +195,13 @@ class CustomerController extends Controller
                 $dataStored['outlets_id']   = auth()->user()->outlets_id;
             }
             if($request->file('photos')){
-                $request->validate([
-                    'photos'        => 'required|mimes:jpg,png',
-                ]);
+                // $request->validate([
+                //     'photos'        => 'required|mimes:jpg,png',
+                // ]);
                 $files          = $request->file('photos');
                 $fileName       = time().'.'.$files->getClientOriginalExtension();
                 $files->storeAs('public/customer', $fileName);
-                $dataStored['photos']=$fileName;
+                $dataStored['picures']=$fileName;
             }
             User::where('id', Crypt::decrypt($id))->update($dataStored);
             // Alert::success('Success', 'Data berhasil di perbaharui.');
@@ -230,13 +226,15 @@ class CustomerController extends Controller
                 $update=[
                     'is_active' => 0
                 ];
+                $status->update($update);
+                return ResponseFormatter::success([$status], 'Berhasil menonaktifkan Customer');
             } else {
                 $update=[
                     'is_active' => 1
                 ];
+                $status->update($update);
+                return ResponseFormatter::success([$status], 'Berhasil mengaktifkan Customer');
             }
-            $status->update($update);
-            return ResponseFormatter::success([$status], 'Success Memperbaharui data');
         } catch (Exception $error) {
             return ResponseFormatter::error([$error], 'Gagal Memperbaharui data');
         }

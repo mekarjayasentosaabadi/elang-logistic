@@ -28,4 +28,10 @@ class Destination extends Model
     function traveldocument(){
         return $this->hasMany(Traveldocument::class, 'destinations_id', 'id');
     }
+
+
+    //relation to surattugas
+    function surattugas(){
+        return $this->hasMany(Surattugas::class, 'destination_id', 'id');
+    }
 }

@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Daftar Customer</h4>
-                    <a href="{{ route('customer.create') }}" class="btn btn-primary">Tambah Customer</a>
+                    <a href="{{ route('customer.create') }}" class="btn btn-primary"><li class="fa fa-plus"></li> Tambah Customer</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">

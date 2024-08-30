@@ -12,13 +12,15 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Detail Customer</h4>
-                    <a href="{{ route('customer.index') }}" class="btn btn-warning"> Kembali </a>
+                    <a href="{{ route('customer.index') }}" class="btn btn-warning"><li class="fa fa-undo"></li> Kembali </a>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-2 col-lg-2 col-sm-12">
-                            <img src="{{ Storage::url('customer/' . $customer->pictures) }}" alt=""
-                                class="img-thumnail">
+                            <img class="img-fluid rounded mb-2"
+                            {{-- src="{{ asset('storage/customer/')$customer->picures }}" height="110" --}}
+                            src="{{ asset( $customer->picures == null ? 'assets/img/img_default.jpg' : 'storage/customer/'.$customer->picures) }}"
+                            width="110" alt="User avatar" />
                         </div>
                         <div class="col-md-10 col-lg-10 col-sm-12">
                             <table class="table ">

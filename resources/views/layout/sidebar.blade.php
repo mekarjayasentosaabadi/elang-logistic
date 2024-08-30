@@ -18,7 +18,7 @@
     <div class="shadow-bottom"></div>
     <div class="main-menu-content">
         <ul class="navigation navigation-main" id="main-menu-navigation" data-menu="menu-navigation">
-            @foreach (listMenu('superadmin') as $item)
+            @foreach (listMenu(Auth::user()->role_id) as $item)
                 @if ($item['hasChild'])
                     <li
                         class=" nav-item {{ in_array(cekUri(Route::current()->uri()), $item['url']) ? 'sidebar-group-active open' : '' }}">

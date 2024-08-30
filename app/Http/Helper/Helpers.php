@@ -1,12 +1,13 @@
 <?php
 
 use App\Models\Order;
+use Illuminate\Support\Facades\Auth;
 
 if (!function_exists('listMenu')) {
     function listMenu($role)
     {
         $data = [];
-        if ($role == 'superadmin') {
+        if ($role == 1 || $role == 2) {
             $data = [
                 [
                     'title' => 'Dashboard',
@@ -103,6 +104,60 @@ if (!function_exists('listMenu')) {
                     'url' => '/report',
                     'hasChild' => false,
                     'icon' => 'file'
+                ],
+                [
+                    'title' => 'Profile',
+                    'url' => 'profile',
+                    'hasChild' => false,
+                    'icon' => 'users'
+                ]
+            ];
+        }
+        if ($role == 3) {
+            $data = [
+                [
+                    'title' => 'Shipping Courier',
+                    'url' => '/shipping-courier',
+                    'hasChild' => false,
+                    'icon' => 'truck'
+                ],
+                [
+                    'title' => 'Profile',
+                    'url' => 'profile',
+                    'hasChild' => false,
+                    'icon' => 'users'
+                ]
+            ];
+        }
+        if ($role == 4) {
+            $data = [
+                [
+                    'title' => 'Dashboard',
+                    'url' => '/',
+                    'hasChild' => false,
+                    'icon' => 'home'
+                ],
+                [
+                    'title' => 'Profile',
+                    'url' => 'profile',
+                    'hasChild' => false,
+                    'icon' => 'users'
+                ]
+            ];
+        }
+        if ($role == 6) {
+            $data = [
+                [
+                    'title' => 'Dashboard',
+                    'url' => '/',
+                    'hasChild' => false,
+                    'icon' => 'home'
+                ],
+                [
+                    'title' => 'Log Actifity',
+                    'url' => '/logactifity',
+                    'hasChild' => false,
+                    'icon' => 'clock'
                 ],
                 [
                     'title' => 'Profile',
@@ -268,3 +323,10 @@ if (!function_exists('generateAwb')) {
         return $data;
     }
 }
+
+if (!function_exists('formatRupiah')) {
+    function formatRupiah($angka) {
+        return 'Rp ' . number_format($angka, 0, ',', '.');
+    }
+}
+

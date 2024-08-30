@@ -125,7 +125,8 @@
                                             <select name="status_surattugas" id="status_surattugas" class="form-control">
                                                 <option value="">Pilih Status</option>
                                                 <option value="1">Process</option>
-                                                <option value="2">Done</option>
+                                                <option value="2">On The Way</option>
+                                                <option value="3">Done</option>
                                                 <option value="0">Cancle</option>
                                                 <option value="5">All</option>
                                             </select>
@@ -144,7 +145,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Driver</th>
-                                        <th>No Surat Jalan</th>
+                                        <th>Surat Tugas</th>
                                         <th>No Kendaraan</th>
                                         <th>Tanggal Berangat</th>
                                         <th>Tanggal Finish</th>
@@ -406,55 +407,51 @@
                             searchable: false
                         },
                         {
-                            data: 'driver',
-                            name: 'driver.name',
-                            orderable: false,
+                            data: 'driver_name',
+                            name: 'driver_name',
                         },
                         {
-                            data: 'travelno',
-                            name: 'detailsurattugas.traveldocument.travelno'
+                            data: 'nosurattugas',
+                            name: 'nosurattugas'
                         },
                         {
-                            data: 'vehicle',
-                            name: 'vehicle.police_no',
-                            orderable: false,
+                            data: 'vehicle_police_no',
+                            name: 'vehicle_police_no',
                         },
                         {
-                            data: 'start',
-                            name: 'detailsurattugas.traveldocument.start'
+                            data: 'order_created_at',
+                            name: 'order_created_at'
                         },
                         {
-                            data: 'finish_date',
-                            name: 'detailsurattugas.traveldocument.finish_date'
+                            data: 'order_finish_date',
+                            name: 'order_finish_date'
                         },
                         {
-                            data: 'armada',
-                            name: 'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.armada',
-                            orderable: false,
+                            data: 'order_armada',
+                            name: 'order_armada',
                         },
                         {
-                            data: 'outlets',
-                            name: 'outlet.destination.name',
-                            orderable: false,
+                            data: 'origin_name',
+                            name: 'origin_name',
                         },
                         {
-                            data: 'destination',
-                            name: 'detailsurattugas.traveldocument.destination.name',
-                            orderable: false,
+                            data: 'destination_name',
+                            name: 'destination_name',
                         },
                         {
                             data: 'volume/weight',
-                            name: 'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.weight',
+                            name: 'volume/weight',
                             orderable: false,
+                            searchable: false
                         },
                         {
                             data: 'totalvolume/berat',
-                            name: 'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.weight',
+                            name: 'volume/weight',
                             orderable: false,
+                            searchable: false
                         }
                     ]
                 });
-
             })
             //------end pengiriman js------//
 
@@ -539,9 +536,8 @@
                                 searchable: false
                             },
                             {
-                                data: 'customer',
-                                name: 'customer.name',
-                                orderable: false,
+                                data: 'customer_name',
+                                name: 'customer_name',
                             },
                             {
                                 data: 'numberorders',
@@ -553,18 +549,16 @@
                             },
                             {
                                 data: 'finish_date',
-                                name: 'detailmanifests.manifest.detailtraveldocument.traveldocument.finish_date',
-                                orderable: false,
+                                name: 'finish_date',
                             },
                             {
-                                data: 'outlets_id',
-                                name: 'outlet.destination.name',
-                                orderable: false,
+                                data: 'outlet_destination_name',
+                                name: 'outlet_destination_name',
+
                             },
                             {
-                                data: 'destinations_id',
-                                name: 'destination.name',
-                                orderable: false,
+                                data: 'destination_name',
+                                name: 'destination_name',
                             },
                             {
                                 data: 'volume/weight',
