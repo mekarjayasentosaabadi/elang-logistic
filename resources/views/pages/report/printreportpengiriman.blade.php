@@ -74,6 +74,8 @@
             @elseif ($dataFilter['status_surattugas'] == '1')
                 Status Surat Tugas: Process,
             @elseif ($dataFilter['status_surattugas'] == '2')
+                Status Surat Tugas: On The Way,
+            @elseif ($dataFilter['status_surattugas'] == '3')
                 Status Surat Tugas: Done,
             @elseif ($dataFilter['status_surattugas'] == '5')
                 Status Surat Tugas: All,

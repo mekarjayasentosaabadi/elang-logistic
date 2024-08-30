@@ -125,7 +125,8 @@
                                             <select name="status_surattugas" id="status_surattugas" class="form-control">
                                                 <option value="">Pilih Status</option>
                                                 <option value="1">Process</option>
-                                                <option value="2">Done</option>
+                                                <option value="2">On The Way</option>
+                                                <option value="3">Done</option>
                                                 <option value="0">Cancle</option>
                                                 <option value="5">All</option>
                                             </select>
