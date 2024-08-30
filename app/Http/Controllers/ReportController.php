@@ -49,28 +49,31 @@ class ReportController extends Controller
         parse_str($formData, $params);
 
         $query = DB::table('surattugas')
-            ->select(
-                'surattugas.*',
-                'users.name as driver_name',
-                'vehicles.police_no as vehicle_police_no',
-                'outlets.name as outlet_name',
-                'origin_destinations.name as origin_name',
-                'destinations.name as destination_name',
-                'orders.created_at as order_created_at',
-                'orders.finish_date as order_finish_date',
-                'orders.armada as order_armada',
-                'orders.weight as order_weight',
-                'orders.volume as order_volume'
-            )
-            ->leftJoin('users', 'surattugas.driver_id', '=', 'users.id')
-            ->leftJoin('vehicles', 'surattugas.vehicle_id', '=', 'vehicles.id')
-            ->leftJoin('outlets', 'surattugas.outlets_id', '=', 'outlets.id')
-            ->leftJoin('destinations as origin_destinations', 'outlets.location_id', '=', 'origin_destinations.id')
-            ->leftJoin('detailsurattugas', 'surattugas.id', '=', 'detailsurattugas.surattugas_id')
-            ->leftJoin('manifests', 'detailsurattugas.manifest_id', '=', 'manifests.id')
-            ->leftJoin('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
-            ->leftJoin('orders', 'detailmanifests.orders_id', '=', 'orders.id')
-            ->leftJoin('destinations', 'surattugas.destination_id', '=', 'destinations.id');
+        ->select(
+            'surattugas.id',
+            'surattugas.*',
+            'users.name as driver_name',
+            'vehicles.police_no as vehicle_police_no',
+            'outlets.name as outlet_name',
+            'origin_destinations.name as origin_name',
+            'destinations.name as destination_name',
+            DB::raw('max(orders.created_at) as order_created_at'),
+            DB::raw('max(orders.finish_date) as order_finish_date'),
+            DB::raw('max(orders.armada) as order_armada'),
+            DB::raw('max(orders.weight) as order_weight'),
+            DB::raw('max(orders.volume) as order_volume')
+        )
+        ->leftJoin('users', 'surattugas.driver_id', '=', 'users.id')
+        ->leftJoin('vehicles', 'surattugas.vehicle_id', '=', 'vehicles.id')
+        ->leftJoin('outlets', 'surattugas.outlets_id', '=', 'outlets.id')
+        ->leftJoin('destinations as origin_destinations', 'outlets.location_id', '=', 'origin_destinations.id')
+        ->leftJoin('detailsurattugas', 'surattugas.id', '=', 'detailsurattugas.surattugas_id')
+        ->leftJoin('manifests', 'detailsurattugas.manifest_id', '=', 'manifests.id')
+        ->leftJoin('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
+        ->leftJoin('orders', 'detailmanifests.orders_id', '=', 'orders.id')
+        ->leftJoin('destinations', 'surattugas.destination_id', '=', 'destinations.id')
+        ->groupBy('surattugas.id');
+
 
 
         if (Auth::user()->role_id == 1) {
@@ -187,7 +190,17 @@ class ReportController extends Controller
         $formData = $request->input('formData');
         parse_str($formData, $params);
 
-        $query = Order::with('customer', 'destination', 'outlet.destination');
+        $query = DB::table('orders')
+                ->leftJoin('users as customer', 'orders.customer_id', '=', 'customer.id')
+                ->leftJoin('destinations as destination', 'orders.destinations_id', '=', 'destination.id')
+                ->leftJoin('outlets', 'orders.outlet_id', '=', 'outlets.id')
+                ->leftJoin('destinations as outlet_destination', 'outlets.location_id', '=', 'outlet_destination.id')
+                ->select(
+                    'orders.*',
+                    'customer.name as customer_name',
+                    'destination.name as destination_name',
+                    'outlet_destination.name as outlet_destination_name'
+                );
 
 
         if (Auth::user()->role_id == 1) {
@@ -210,11 +223,12 @@ class ReportController extends Controller
 
         if (($params['tanggal_order_awal'] != null) && ($params['tanggal_order_akhir'] != null)) {
             $endOfDay = date('Y-m-d 23:59:59', strtotime($params['tanggal_order_akhir']));
-            $query->whereBetween('created_at', [$params['tanggal_order_awal'], $endOfDay]);
+
+            $query->whereBetween('orders.created_at', [$params['tanggal_order_awal'], $endOfDay]);
         } elseif ($params['tanggal_order_awal'] != null) {
-            $query->whereDate('created_at', $params['tanggal_order_awal']);
+            $query->whereDate('orders.created_at', $params['tanggal_order_awal']);
         } elseif ($params['tanggal_order_akhir'] != null) {
-            $query->whereDate('created_at', $params['tanggal_order_akhir']);
+            $query->whereDate('orders.created_at', $params['tanggal_order_akhir']);
         }
 
 
@@ -226,11 +240,11 @@ class ReportController extends Controller
             }
         }
 
-
+        $query = $query->get();
 
         return DataTables::of($query)
-            ->editColumn('customer', function ($query) {
-                return $query->customer->name ?? '-';
+            ->editColumn('customer_name', function ($query) {
+                return $query->customer_name  ?? '-';
             })
             ->editColumn('numberorders', function ($query) {
                 return $query->numberorders ?? '-';
@@ -239,13 +253,13 @@ class ReportController extends Controller
                 return $query->created_at ?? '-';
             })
             ->editColumn('finish_date', function ($query) {
-                return $query->finish_date;
+                return $query->finish_date ?? '-';
             })
-            ->editColumn('outlets_id', function ($query) {
-                return $query->outlet->destination->name ?? '-';
+            ->editColumn('outlet_destination_name ', function ($query) {
+                return $query->outlet_destination_name  ?? '-';
             })
-            ->editColumn('destinations_id', function ($query) {
-                return $query->destination->name ?? '-';
+            ->editColumn('destination_name', function ($query) {
+                return $query->destination_name ?? '-';
             })
             ->editColumn('volume/weight', function ($query) {
                 return $query->weight ?? $query->volume ?? '-';
@@ -254,7 +268,7 @@ class ReportController extends Controller
                 return $query->weight ?? $query->volume ?? '-';
             })
             ->editColumn('price', function ($query) {
-                return $query->price ?? '-';
+                return formatRupiah($query->price) ?? '-';
             })
             ->rawColumns([])
             ->addIndexColumn()
@@ -267,28 +281,31 @@ class ReportController extends Controller
     public function downloadreportpengiriman(Request $request) {
         $dataFilter = $request->except('_token');
         $query = DB::table('surattugas')
-            ->select(
-                'surattugas.*',
-                'users.name as driver_name',
-                'vehicles.police_no as vehicle_police_no',
-                'outlets.name as outlet_name',
-                'origin_destinations.name as origin_name',
-                'destinations.name as destination_name',
-                'orders.created_at as order_created_at',
-                'orders.finish_date as order_finish_date',
-                'orders.armada as order_armada',
-                'orders.weight as order_weight',
-                'orders.volume as order_volume'
-            )
-            ->leftJoin('users', 'surattugas.driver_id', '=', 'users.id')
-            ->leftJoin('vehicles', 'surattugas.vehicle_id', '=', 'vehicles.id')
-            ->leftJoin('outlets', 'surattugas.outlets_id', '=', 'outlets.id')
-            ->leftJoin('destinations as origin_destinations', 'outlets.location_id', '=', 'origin_destinations.id')
-            ->leftJoin('detailsurattugas', 'surattugas.id', '=', 'detailsurattugas.surattugas_id')
-            ->leftJoin('manifests', 'detailsurattugas.manifest_id', '=', 'manifests.id')
-            ->leftJoin('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
-            ->leftJoin('orders', 'detailmanifests.orders_id', '=', 'orders.id')
-            ->leftJoin('destinations', 'surattugas.destination_id', '=', 'destinations.id');
+        ->select(
+            'surattugas.id',
+            'surattugas.*',
+            'users.name as driver_name',
+            'vehicles.police_no as vehicle_police_no',
+            'outlets.name as outlet_name',
+            'origin_destinations.name as origin_name',
+            'destinations.name as destination_name',
+            DB::raw('max(orders.created_at) as order_created_at'),
+            DB::raw('max(orders.finish_date) as order_finish_date'),
+            DB::raw('max(orders.armada) as order_armada'),
+            DB::raw('max(orders.weight) as order_weight'),
+            DB::raw('max(orders.volume) as order_volume')
+        )
+        ->leftJoin('users', 'surattugas.driver_id', '=', 'users.id')
+        ->leftJoin('vehicles', 'surattugas.vehicle_id', '=', 'vehicles.id')
+        ->leftJoin('outlets', 'surattugas.outlets_id', '=', 'outlets.id')
+        ->leftJoin('destinations as origin_destinations', 'outlets.location_id', '=', 'origin_destinations.id')
+        ->leftJoin('detailsurattugas', 'surattugas.id', '=', 'detailsurattugas.surattugas_id')
+        ->leftJoin('manifests', 'detailsurattugas.manifest_id', '=', 'manifests.id')
+        ->leftJoin('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
+        ->leftJoin('orders', 'detailmanifests.orders_id', '=', 'orders.id')
+        ->leftJoin('destinations', 'surattugas.destination_id', '=', 'destinations.id')
+        ->groupBy('surattugas.id');
+
 
 
         if (Auth::user()->role_id == 1) {
@@ -317,15 +334,14 @@ class ReportController extends Controller
             $dataFilter['destination'] = $destination->name;
         }
 
-        if (($request->tanggal_awal_berangkat) && ($request->tanggal_akhir_berangkat)) {
-            $endOfDay = date('Y-m-d 23:59:59', strtotime($request->tanggal_awal_berangkat));
+        if (!empty($request->tanggal_awal_berangkat) && !empty($request->tanggal_akhir_berangkat)) {
+            $endOfDay = date('Y-m-d 23:59:59', strtotime($request->tanggal_akhir_berangkat));
             $query->whereBetween('orders.created_at', [$request->tanggal_awal_berangkat, $endOfDay]);
-        } elseif ($request->tanggal_akhir_berangkat) {
-            $query->whereDate('orders.created_at', $request->tanggal_akhir_berangkat);
-        } elseif ($request->tanggal_awal_berangkat) {
+        } elseif (!empty($request->tanggal_awal_berangkat)) {
             $query->whereDate('orders.created_at', $request->tanggal_awal_berangkat);
+        } elseif (!empty($request->tanggal_akhir_berangkat)) {
+            $query->whereDate('orders.created_at', $request->tanggal_akhir_berangkat);
         }
-
 
 
         if ($request->jenis_pengiriman) {
@@ -341,7 +357,6 @@ class ReportController extends Controller
         }
 
         $dataReports = $query->get();
-
 
         $user = User::find(Auth::user()->id);
         if($user->role_id == '1'){
