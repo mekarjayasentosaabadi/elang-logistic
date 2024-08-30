@@ -41,7 +41,8 @@ class Manifest extends Model
         return $this->belongsTo(Outlet::class, 'outlet_id', 'id');
     }
 
-    function detailsurattugas() {
-        return $this->hasOne(Detailsurattugas::class, 'surattugas_id', 'id');
+    function detailSuratTugas()
+    {
+        return $this->hasOne(Detailsurattugas::class, 'manifest_id', 'id');
     }
 }
