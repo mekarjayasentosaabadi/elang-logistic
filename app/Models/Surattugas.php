@@ -34,4 +34,10 @@ class Surattugas extends Model
     {
         return $this->belongsTo(Outlet::class, 'outlets_id', 'id');
     }
+
+    function destination(){
+        return $this->belongsTo(Destination::class, 'destination_id', 'id');
+    }
+
+
 }

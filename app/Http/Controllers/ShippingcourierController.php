@@ -536,8 +536,6 @@ class ShippingcourierController extends Controller
                 ]
             );
 
-
-
             $dataOrder = [
                 'penerima'      => $request->penerima,
                 'photos'        => $imageName,

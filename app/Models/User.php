@@ -27,7 +27,7 @@ class User extends Authenticatable
         'is_active',
         'email',
         'password',
-        'pictures',
+        'picures',
         'outlets_id',
         'is_otomatis'
     ];

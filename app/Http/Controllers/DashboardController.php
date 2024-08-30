@@ -119,6 +119,40 @@ class DashboardController extends Controller
                                 ->limit(10)
                                 ->get();
         }
+        if($roleId == '4'){
+            $trxToday = Order::whereDate('created_at', $today)
+            ->where('customer_id', auth()->user()->id)
+            ->count();
+            $trxProcess = Order::where('status_orders', '2')->where('customer_id', auth()->user()->id)->count();
+            $totalIncome = null;
+            $transaksiperbulan = Order::where('customer_id', auth()->user()->id)->count();
+            $startOfWeek    = Carbon::now()->startOfWeek(Carbon::SUNDAY);
+            $endOfWeek      = Carbon::now()->endOfWeek(Carbon::SATURDAY);
+
+            $startOfWeek = Carbon::now()->startOfWeek();
+            $endOfWeek = Carbon::now()->endOfWeek();
+
+            $dailyTransactions = Order::select(DB::raw('DAYOFWEEK(created_at) as day_of_week'), DB::raw('SUM(price) as total'))
+                            ->whereBetWeen('created_at', [$startOfWeek, $endOfWeek])
+                            ->where('outlet_id', $outletId)
+                            ->groupBy('day_of_week')
+                            ->orderBy('day_of_week')
+                            ->get();
+            $daysOfWeek = [
+            1 => 'Minggu',
+            2 => 'Senin',
+            3 => 'Selasa',
+            4 => 'Rabu',
+            5 => 'Kamis',
+            6 => 'Jumat',
+            7 => 'Sabtu'
+            ];
+            $dailyTransactions = $dailyTransactions->map(function ($transaction) use ($daysOfWeek) {
+            $transaction->day_name = $daysOfWeek[$transaction->day_of_week];
+            return $transaction;
+            });
+            $topCustomer = Order::with('destination')->where('customer_id', auth()->user()->id)->limit('20')->get();
+        }
         return ResponseFormatter::success([
             'trxToday' => $trxToday,
             'trxProcess' => $trxProcess,

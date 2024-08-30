@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Daftar Vehicle</h4>
-                    <a href="{{ url('/vehicle/create') }}" class="btn btn-primary">Tambah Vehicle</a>
+                    <a href="{{ url('/vehicle/create') }}" class="btn btn-primary"><li class="fa fa-plus"></li> Tambah Vehicle</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
