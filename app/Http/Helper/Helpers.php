@@ -121,16 +121,12 @@ if (!function_exists('listMenu')) {
                     'hasChild' => false,
                     'icon' => 'truck'
                 ],
-            ];
-        }
-        if ($role == 3) {
-            $data = [
                 [
-                    'title' => 'Shipping Courier',
-                    'url' => '/shipping-courier',
+                    'title' => 'Profile',
+                    'url' => 'profile',
                     'hasChild' => false,
-                    'icon' => 'truck'
-                ],
+                    'icon' => 'users'
+                ]
             ];
         }
         if ($role == 4) {
