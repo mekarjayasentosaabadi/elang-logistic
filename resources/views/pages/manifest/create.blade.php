@@ -78,7 +78,6 @@
                             <div class="card">
                                 <div class="card-header">
                                     <h4 class="card-title">Outlet Asal</h4>
-                                    <a href="{{ url('/order') }}" class="btn btn-warning">Kembali</a>
                                 </div>
                                 <div class="card-body">
                                     <div class="form-group">
