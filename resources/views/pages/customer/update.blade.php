@@ -3,7 +3,7 @@
 @section('title')
     <span>Customer</span>
     <small>/</small>
-    <small>Create</small>
+    <small>Update</small>
 @endsection
 
 @section('content')
@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Form Update Customer</h4>
-                    <a href="{{ route('customer.index') }}" class="btn btn-warning"> Kembali</a>
+                    <a href="{{ route('customer.index') }}" class="btn btn-warning"><li class="fa fa-undo"></li> Kembali</a>
                 </div>
                 <div class="card-body">
                     <form action="#" method="POST" enctype="multipart/form-data" id="form-update-customer">
@@ -56,7 +56,13 @@
                                     <input type="file" name="photos" id="photos" class="form-control">
                                 </div>
                                 <div class="form-group mt-1">
-                                    <button type="submit" class="btn btn-primary btn-md pull-right">Simpan</button>
+                                    <img class="img-fluid rounded mb-2"
+                                    {{-- src="{{ asset('storage/customer/')$customer->picures }}" height="110" --}}
+                                    src="{{ asset( $customer->picures == null ? 'assets/img/img_default.jpg' : 'storage/customer/'.$customer->picures) }}"
+                                    width="110" alt="User avatar" />
+                                </div>
+                                <div class="form-group mt-1">
+                                    <button type="submit" class="btn btn-primary btn-md pull-right"><li class="fa fa-save"></li> Simpan</button>
                                 </div>
                             </div>
                         </div>

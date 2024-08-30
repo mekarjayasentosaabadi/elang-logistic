@@ -195,13 +195,13 @@ class CustomerController extends Controller
                 $dataStored['outlets_id']   = auth()->user()->outlets_id;
             }
             if($request->file('photos')){
-                $request->validate([
-                    'photos'        => 'required|mimes:jpg,png',
-                ]);
+                // $request->validate([
+                //     'photos'        => 'required|mimes:jpg,png',
+                // ]);
                 $files          = $request->file('photos');
                 $fileName       = time().'.'.$files->getClientOriginalExtension();
                 $files->storeAs('public/customer', $fileName);
-                $dataStored['photos']=$fileName;
+                $dataStored['picures']=$fileName;
             }
             User::where('id', Crypt::decrypt($id))->update($dataStored);
             // Alert::success('Success', 'Data berhasil di perbaharui.');
