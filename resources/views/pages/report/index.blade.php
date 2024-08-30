@@ -144,7 +144,7 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Driver</th>
-                                        <th>No Surat Jalan</th>
+                                        <th>Surat Tugas</th>
                                         <th>No Kendaraan</th>
                                         <th>Tanggal Berangat</th>
                                         <th>Tanggal Finish</th>
@@ -406,55 +406,56 @@
                             searchable: false
                         },
                         {
-                            data: 'driver',
-                            name: 'driver.name',
-                            orderable: false,
+                            data: 'driver_name',
+                            name: 'driver_name',
+                            orderable: true,
                         },
                         {
-                            data: 'travelno',
-                            name: 'detailsurattugas.traveldocument.travelno'
+                            data: 'nosurattugas',
+                            name: 'nosurattugas'
                         },
                         {
-                            data: 'vehicle',
-                            name: 'vehicle.police_no',
-                            orderable: false,
+                            data: 'vehicle_police_no',
+                            name: 'vehicle_police_no',
+                            orderable: true,
                         },
                         {
-                            data: 'start',
-                            name: 'detailsurattugas.traveldocument.start'
+                            data: 'order_created_at',
+                            name: 'order_created_at'
                         },
                         {
-                            data: 'finish_date',
-                            name: 'detailsurattugas.traveldocument.finish_date'
+                            data: 'order_finish_date',
+                            name: 'order_finish_date'
                         },
                         {
-                            data: 'armada',
-                            name: 'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.armada',
-                            orderable: false,
+                            data: 'order_armada',
+                            name: 'order_armada',
+                            orderable: true,
                         },
                         {
-                            data: 'outlets',
-                            name: 'outlet.destination.name',
-                            orderable: false,
+                            data: 'origin_name',
+                            name: 'origin_name',
+                            orderable: true,
                         },
                         {
-                            data: 'destination',
-                            name: 'detailsurattugas.traveldocument.destination.name',
-                            orderable: false,
+                            data: 'destination_name',
+                            name: 'destination_name',
+                            orderable: true,
                         },
                         {
                             data: 'volume/weight',
-                            name: 'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.weight',
+                            name: 'volume/weight',
                             orderable: false,
+                            searchable: false
                         },
                         {
                             data: 'totalvolume/berat',
-                            name: 'detailsurattugas.traveldocument.detailtraveldocument.manifest.detailmanifests.order.weight',
+                            name: 'volume/weight',
                             orderable: false,
+                            searchable: false
                         }
                     ]
                 });
-
             })
             //------end pengiriman js------//
 
@@ -553,8 +554,7 @@
                             },
                             {
                                 data: 'finish_date',
-                                name: 'detailmanifests.manifest.detailtraveldocument.traveldocument.finish_date',
-                                orderable: false,
+                                name: 'finish_date',
                             },
                             {
                                 data: 'outlets_id',

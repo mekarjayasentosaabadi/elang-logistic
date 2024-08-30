@@ -20,4 +20,5 @@ class Detailsurattugas extends Model
     {
         return $this->belongsTo(Manifest::class, 'manifest_id', 'id');
     }
+    
 }
