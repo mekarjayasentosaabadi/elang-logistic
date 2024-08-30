@@ -33,6 +33,10 @@ use App\Http\Controllers\ShippingcourierController;
 
 Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+// cek php info
+Route::get('/phpinfo', function () {
+    return phpinfo();
+});
 
 // dashboard admin, superadmin, courier, customer, directur
 Route::middleware(['auth', 'check.role:1,2,4,6'])->group(function (){

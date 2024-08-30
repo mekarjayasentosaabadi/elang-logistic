@@ -31,13 +31,17 @@
                                     <div class="form-group mb-2">
                                         <div>
                                             <label for="bukti_diterima">Foto bukti pengiriman</label>
-                                            <input name="bukti_diterima" class="form-control" type="file"
-                                                id="bukti_diterima" accept="image/*;capture=camera">
+                                            <div id="my_camera"></div>
+                                            <div id="my_result" class=" my-2"></div>
+                                            <button type="button" id="capture" onclick="take_snapshot()"
+                                                class="btn btn-primary">Ambil
+                                                Foto</button>
+
+                                            <input type="hidden" name="bukti_diterima" class="image-tag">
                                         </div>
                                     </div>
                                     {{-- preview --}}
                                     <div class="form-group mb-2">
-                                        <img id="preview" class="img-fluid" src="" alt="">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -81,12 +85,38 @@
                     reader.onload = (e) => {
                         $('#preview').attr('src', e.target.result);
                     }
-
                     reader.readAsDataURL(this.files[0]);
-                    // assign files to hidden input
-
                 });
 
             })
+            Webcam.set({
+
+                width: 300,
+
+                height: 200,
+
+                image_format: 'jpeg|png',
+
+
+            });
+
+
+
+            Webcam.attach('#my_camera');
+
+
+
+            function take_snapshot() {
+
+                Webcam.snap(function(data_uri) {
+                    $(".image-tag").val(data_uri);
+                    document.getElementById('my_result').innerHTML = '<img src="' + data_uri + '" class="img-fluid" />';
+                    // close camera
+                    Webcam.reset();
+
+                    $('#my_camera').hide();
+                });
+
+            }
         </script>
     @endsection

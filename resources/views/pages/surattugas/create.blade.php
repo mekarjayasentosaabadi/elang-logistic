@@ -228,11 +228,14 @@
                             outlet_id: $('#outlet_id').val()
                         },
                         success: function(e) {
-                            console.log(e)
-                            notifSweetAlertSuccess(e.meta.message);
-                            setTimeout(function() {
-                                location.replace(window.location.origin + '/surattugas')
-                            }, 1500)
+                            if (e.meta.code == 200) {
+                                notifSweetAlertSuccess(e.meta.message);
+                                setTimeout(function() {
+                                    location.replace(window.location.origin + '/surattugas')
+                                }, 1500)
+                            } else {
+                                notifSweetAlertErrors(e.meta.message);
+                            }
                         },
                         error: function(e) {
                             notifSweetAlertErrors(e.responseJSON.errors);

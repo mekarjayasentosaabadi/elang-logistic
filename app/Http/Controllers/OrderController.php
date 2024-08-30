@@ -355,6 +355,13 @@ class OrderController extends Controller
 
                 $gudangLocation = Outlet::find($outlet->id);
 
+                // cek awb
+                $cekAwb = Order::where('numberorders', $request->awb)->first();
+                if ($cekAwb) {
+                    Alert::error('Gagal', 'AWB Sudah Digunakan Harap Gunakan AWB Lain');
+                    return redirect()->back()->withInput();
+                }
+
                 $order = new Order();
                 $order->numberorders    =  $request->awb;
                 $order->customer_id     =  $request->customer_id;
@@ -390,7 +397,6 @@ class OrderController extends Controller
                 return redirect()->to('/order');
             }
         } catch (\Throwable $th) {
-            dd($th);
             DB::rollBack();
             Alert::error('Gagal', 'Terjadi Kesalahan');
             return redirect()->back();
@@ -521,6 +527,13 @@ class OrderController extends Controller
                 $errorMessage = implode(', ', $errors);
 
                 Alert::error('Gagal', $errorMessage);
+                return redirect()->back()->withInput();
+            }
+
+            // cek awb
+            $cekAwb = Order::where('numberorders', $request->awb)->where('id', '!=', $order->id)->first();
+            if ($cekAwb) {
+                Alert::error('Gagal', 'AWB Sudah Digunakan Harap Gunakan AWB Lain');
                 return redirect()->back()->withInput();
             }
 

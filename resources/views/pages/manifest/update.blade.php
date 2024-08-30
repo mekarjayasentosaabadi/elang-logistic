@@ -2,39 +2,54 @@
 @section('title')
     <span>Manifest</span>
     <small>/</small>
-    <small>Update</small>
+    <small>Create</small>
 @endsection
 @section('content')
     <div class="row">
         <div class="col-12">
-            <form action="#" id="form-update-manifest">
+            <form action="#" id="form-add-manifest">
                 @csrf
+
                 <div class="card">
                     <div class="card-header">
-                        <h4 class="card-title">Form Update</h4>
+                        <h4 class="card-title">Form Update Manifest</h4>
                         <a href="{{ route('manifest.index') }}" class="btn btn-warning">Kembali</a>
                     </div>
                     <div class="card-body">
+
                         <div class="row">
                             <div class="col-md-6 col-lg-6 col-xs-12">
                                 <div class="form-group">
                                     <label for="manifestsno">Manifest No</label>
-                                    <input type="text" name="manifestno" id="manifestno" class="form-control" required>
+                                    <input type="text" name="manifestno" id="manifestno" class="form-control" required
+                                        value="{{ $manifest->manifestno }}">
                                 </div>
 
-                                <div class="form-group mt-1 hidden" id="form-commodity">
+                                <div class="form-group mt-1 " id="form-commodity">
                                     <label for="commodity">Commodity</label>
                                     <select name="commodity" id="commodity" class="form-control">
                                         <option value="">-- Select Commodity --</option>
-                                        <option value="1">LV</option>
-                                        <option value="2">HV</option>
-                                        <option value="3">FE</option>
-                                        <option value="4">MIX</option>
+                                        <option value="1" {{ $manifest->commodity == '1' ? 'selected' : '' }}>LV
+                                        </option>
+                                        <option value="2" {{ $manifest->commodity == '2' ? 'selected' : '' }}>HV
+                                        </option>
+                                        <option value="3" {{ $manifest->commodity == '3' ? 'selected' : '' }}>FE
+                                        </option>
+                                        <option value="4" {{ $manifest->commodity == '4' ? 'selected' : '' }}>MIX
+                                        </option>
                                     </select>
                                 </div>
-                                <div class="form-group mt-1 hidden" id="form-flight-no">
+                                <div class="form-group mt-1 " id="form-flight-no">
                                     <label for="flightno">Flight No</label>
-                                    <input type="text" name="flightno" id="flightno" class="form-control">
+                                    <input type="text" name="flightno" id="flightno" class="form-control"
+                                        value="{{ $manifest->flight_no }}">
+                                </div>
+                                <div class="form-group mt-1 " id="form-no-bags">
+                                    <label for="no_smd">No Surat Muatan Darat</label>
+                                    <input type="text" name="no_smd" id="no_smd" class="form-control"
+                                        value="{{ $manifest->no_smd }}">
+                                    <input type="hidden" name="destination_id" id="destination_id"
+                                        value="{{ $manifest->destination_id }}">
                                 </div>
                             </div>
                             <div class="col-md-6 col-lg-6 col-xs-12">
@@ -42,30 +57,63 @@
                                     <label for="carrier">Carrier</label>
                                     <select name="carrier" id="carrier" class="form-control" onchange="checkcarrier()">
                                         <option value="">-- Pilih Carrier --</option>
-                                        <option value="1">Darat</option>
-                                        <option value="2">Laut</option>
-                                        <option value="3">Udara</option>
+                                        <option value="1" {{ $manifest->carier == '1' ? 'selected' : '' }}>Darat
+                                        </option>
+                                        <option value="2" {{ $manifest->carier == '2' ? 'selected' : '' }}>Laut
+                                        </option>
+                                        <option value="3" {{ $manifest->carier == '3' ? 'selected' : '' }}>Udara
+                                        </option>
                                     </select>
                                 </div>
 
-                                <div class="form-group mt-1 hidden" id="form-no-bags">
+                                <div class="form-group mt-1 " id="form-no-bags">
                                     <label for="nobags">No Bags</label>
-                                    <input type="text" name="nobags" id="nobags" class="form-control">
+                                    <input type="text" name="nobags" id="nobags" class="form-control"
+                                        value="{{ $manifest->no_bags }}">
                                 </div>
-                                <div class="form-group mt-1 hidden" id="form-flags-file">
+                                <div class="form-group mt-1 " id="form-flags-file">
                                     <label for="flagsfile">Flags File</label>
-                                    <input type="text" name="flagsfile" id="flagsfile" class="form-control">
+                                    <input type="text" name="flagsfile" id="flagsfile" class="form-control"
+                                        value="{{ $manifest->flight_file }}">
+                                </div>
+                                {{-- notes --}}
+                                <div class="form-group mt-1">
+                                    <label for="notes">Notes</label>
+                                    <textarea name="notes" id="notes" class="form-control" rows="3">{{ $manifest->notes }}</textarea>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                @if (Auth::user()->role_id == '1')
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h4 class="card-title">Outlet Asal</h4>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="outlet_id">Outlet Asal</label>
+                                        <select name="outlet_id" id="outlet_id" class="form-control">
+                                            <option value="">Pilih Outlet Asal</option>
+                                            @foreach ($outlets as $outlet)
+                                                <option value="{{ $outlet->id }}"
+                                                    {{ $manifest->outlet_id == $outlet->id ? 'selected' : '' }}>
+                                                    {{ $outlet->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
                 {{-- Card Detail --}}
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Detail Manifest</h3>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                            data-bs-target="#exampleModalCenter"> Add
+                        <button type="button" class="btn btn-primary" id="add-order"> Add
                             Order</button>
                     </div>
                     <div class="card-body">
@@ -78,9 +126,8 @@
                                             <th>Order Numbers</th>
                                             <th>Customer</th>
                                             <th>Destinations</th>
-                                            <th>Items</th>
-                                            <th>Kg</th>
-                                            <th>Content</th>
+                                            <th>Berat</th>
+                                            <th>Koli</th>
                                             <th>Options</th>
                                         </tr>
                                     </thead>
@@ -105,7 +152,7 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                    Total Kg :
+                                                    Total Berat :
                                                 </div>
                                                 <div class="col-md-6" id="total-jumlah-kg">
 
@@ -113,15 +160,15 @@
                                             </div>
                                             <div class="row">
                                                 <div class="col-md-6">
-                                                    Total AWB :
+                                                    Total Koli :
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-6" id="total-jumlah-koli">
 
                                                 </div>
                                             </div>
                                             <div class="row mt-2">
                                                 <div class="col-md-6">
-                                                    <button class="btn btn-primary btn-md" onclick="updateManifest()">
+                                                    <button class="btn btn-primary btn-md" onclick="saveManifest()">
                                                         Simpan</button>
                                                 </div>
                                             </div>
@@ -153,6 +200,8 @@
                                     <th>Nomor Order/ AWB</th>
                                     <th>Customer</th>
                                     <th>Destination</th>
+                                    <th>Berat</th>
+                                    <th>Koli</th>
                                     <th>Options</th>
                                 </tr>
                             </thead>
@@ -175,18 +224,29 @@
     <script src="{{ asset('assets/js/notifsweetalert.js') }}"></script>
     {{-- <script src="{{ asset('assets/app-assets/vendor/js/forms/validation/jquery.validate.min.js') }}"></script> --}}
     <script>
-        let base = new URL(window.location.href);
-        let path = base.pathname;
-        let segment = path.split("/");
-        let manifestId = segment["2"];
         let arrOrders = [];
+        let arrOrdersTemp = [];
+        let idOrders = [];
         var table
+        let destination = '';
+        const manifestId = '{{ $manifest->id }}';
+        const role_id = '{{ Auth::user()->role_id }}';
         $(document).ready(function() {
-            $.getJSON(window.location.origin + '/' + listRoutes['manifest.getdetail'].replace('{id}', manifestId),
-                function() {
 
-                }).done(function(e) {
-                listDetail(e)
+            // get detail manifest
+            $.ajax({
+                url: window.location.origin + '/' + listRoutes['manifest.getdetail'].replace(
+                    '{id}', manifestId),
+                type: "GET",
+                dataType: "JSON",
+                success: function(e) {
+                    e.data.detailmanifest.map((x, i) => {
+                        getData(x.orders_id);
+                    })
+                },
+                error: function(e) {
+                    console.log(e)
+                }
             })
 
             table = $('#tbl-orders').DataTable({
@@ -194,23 +254,40 @@
                 serverSide: true,
                 ajax: {
                     url: "{{ url('/manifest/getOrders') }}",
-                    type: 'GET'
+                    type: 'GET',
+                    data: function(d) {
+                        d.outlet_id = $('#outlet_id').val();
+                        d.idOrders = idOrders;
+                    }
                 },
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'numberorders',
                         name: 'numberorders'
                     },
                     {
-                        data: 'namacustomer',
-                        name: 'namacustomer'
+                        data: 'namecustomer',
+                        name: 'customer.name'
                     },
                     {
                         data: 'destination',
-                        name: 'destination'
+                        name: 'destination.name'
+                    },
+                    {
+                        data: 'weight',
+                        name: 'weight',
+                        searchable: false,
+                        orderable: false
+                    },
+                    {
+                        data: 'koli',
+                        name: 'koli',
+                        searchable: false,
+                        orderable: false
                     },
                     {
                         data: 'check',
@@ -218,68 +295,112 @@
                     },
                 ]
             });
-        })
-        const loadNewData = () =>{
-            $.getJSON(window.location.origin + '/' + listRoutes['manifest.getdetail'].replace('{id}', manifestId),
-                function() {
 
-                }).done(function(e) {
-                listDetail(e)
-            })
-        }
-        const listDetail = (e) => {
-            if (e.data.detailmanifest.length > 0) {
-                e.data.detailmanifest.map((x) => {
-                    let dataArrOrders = {
-                        idorders: x.id,
-                        orders_number: x.numberorders,
-                        namacustomer: x.namacustomer,
-                        destination: x.destination,
-                        kg: x.weight,
-                        items: 1,
-                        status: "old",
-                        detailManifestId: x.detailmanifestid
+            $('#add-order').click(function() {
+                if (role_id == '1') {
+                    if ($('#outlet_id').val() == '') {
+                        notifSweetAlert('warning', 'Pilih Outlet Asal terlebih dahulu');
+                    } else {
+                        $('#exampleModalCenter').modal('show');
                     }
-                    arrOrders.push(dataArrOrders);
-                });
-            }
-            getDetailOrders();
-            getDetailManifest(e.data.manifest);
-        }
-        const getDetailManifest = (e) => {
-            $('#manifestno').val(e.manifestno);
-            $('#carrier').val(e.carier);
-            e.carier == "3" ? $('#form-commodity').removeClass("hidden") && $('#form-flight-no').removeClass(
-                "hidden") && $(
-                    '#form-no-bags').removeClass("hidden") && $('#form-flags-file').removeClass("hidden") : $(
-                    '#form-commodity').addClass("hidden") && $('#form-flight-no').addClass("hidden") && $(
-                    '#form-no-bags')
-                .addClass("hidden") && $('#form-flags-file').addClass("hidden");
+                } else {
+
+                    $('#exampleModalCenter').modal('show');
+                }
+                table.ajax.reload();
+            });
+
+            $('#tbl-orders').on('click', '.checkbox-table', function() {
+                // check the checkbox checked or not
+                const checked = $(this).prop('checked');
+
+                if (checked) {
+                    const id = $(this).val();
+                    getData(id)
+                } else {
+                    arrOrders = arrOrders.filter((x) => x.ordersid != $(this).val());
+                    idOrders = idOrders.filter((x) => x != $(this).val());
+                    getDataDetailOrders();
+                    if (arrOrders.length == 0) {
+                        destination = '';
+                        $('#destination_id').val('');
+                    }
+                }
+
+            });
+
+
+        });
+
+        const getData = (id) => {
+            var baseUrl = window.location.origin + '/' + listRoutes['manifest.checkOrders'].replace(
+                '{id}', id);
+            $.getJSON(baseUrl, function() {
+
+            }).done(function(e) {
+                if (destination == '') {
+                    destination = e.data[0].destination.name;
+                    $('#destination_id').val(e.data[0].destination.id);
+                } else {
+                    if (destination != e.data[0].destination.name) {
+                        // set to unchecked
+                        $('#tbl-orders #checkbox-table-' + id).prop('checked', false);
+                        notifSweetAlert('warning', 'Destination harus sama');
+                        return false;
+                    }
+                }
+
+                let dataArrCheck = {
+                    ordersid: e.data[0].id,
+                    numberorder: e.data[0].numberorders,
+                    customername: e.data[0].customer.name,
+                    destination: e.data[0].destination.name,
+                    volume: e.data[0].volume,
+                    weight: e.data[0].weight,
+                    koli: e.data[0].koli,
+                    content: e.data[0].content,
+                }
+                arrOrders.push(dataArrCheck);
+                idOrders.push(e.data[0].id);
+                getDataDetailOrders();
+
+
+            }).fail(function(e) {
+                console.log(e)
+            })
         }
 
         function checkcarrier() {
-            var carrier = $('#carrier').val();
-            carrier == "3" ? $('#form-commodity').removeClass("hidden") && $('#form-flight-no').removeClass("hidden") && $(
-                    '#form-no-bags').removeClass("hidden") && $('#form-flags-file').removeClass("hidden") : $(
-                    '#form-commodity').addClass("hidden") && $('#form-flight-no').addClass("hidden") && $('#form-no-bags')
-                .addClass("hidden") && $('#form-flags-file').addClass("hidden");
+            // var carrier = $('#carrier').val();
+            // carrier == "3" ? $('#form-commodity').removeClass("hidden") && $('#form-flight-no').removeClass("hidden") && $(
+            //         '#form-no-bags').removeClass("hidden") && $('#form-flags-file').removeClass("hidden") : $(
+            //         '#form-commodity').addClass("hidden") && $('#form-flight-no').addClass("hidden") && $('#form-no-bags')
+            //     .addClass("hidden") && $('#form-flags-file').addClass("hidden");
         }
 
-        const getDetailOrders = () => {
-            $('#tbl-detail-manifests').html('');
-            let noUrutDetailOrders = 1;
+
+        // function check(x, i){
+        //     let checkedvalue = [];
+        //     // let checkboxes = $('input[name="checkbox'+i+'"]').prop()
+        //     let checkboxes = document.getElementById('checkbox'+i);
+        //     // checkedvalue.push(checkboxes, checkboxes.val())
+        //     console.log(checkboxes.prop("chekced"));
+        // }
+
+        const getDataDetailOrders = () => {
+            $('#tbl-detail-manifests').html('')
+            let noOrders = 1;
             arrOrders.map((x, i) => {
                 $('#tbl-detail-manifests').append(
                     `
                     <tr>
-                        <td>${noUrutDetailOrders++}</td>
-                        <td>${x.orders_number}<input type="hidden" name="ordersid[]" value="${x.ordersid}"></td>
-                        <td>${x.namacustomer}</td>
+                        <td>${noOrders++}</td>
+                        <td>${x.numberorder}<input type="hidden" name="ordersid[]" value="${x.ordersid}"></td>
+                        <td>${x.customername}</td>
                         <td>${x.destination}</td>
-                        <td>${x.items}</td>
-                        <td>${x.kg}</td>
-                        <td>${x.kg}<input type="hidden" name="statusmanifest[]" value="${x.status}"></td>
-                        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeDetail(${i})"><i class="fa fa-trash"></i></button></td>
+                        <td>${x.weight ?? x.volume}</td>
+                        <td>${x.koli}</td>
+                        <td><button type="button" class="btn btn-danger btn-sm" onclick="removeDetail(${x.ordersid})"><i class="fa fa-trash"></i></button></td>
                     </tr>
                     `
                 )
@@ -288,94 +409,45 @@
             totalKg();
         }
 
-        function check(x, id) {
-            $.ajax({
-                url: window.location.origin + '/manifest/' + manifestId + '/addDetail/' + id,
-                type: "POST",
-                dataType: "JSON",
-                processData: false,
-                contentType: false,
-                success: function(e) {
-                    console.log(e)
-                    loadNewData()
-                },
-                error: function(e) {
-                    console.log(e)
-                }
-            })
-
+        const removeDetail = (id) => {
+            arrOrders = arrOrders.filter((x) => x.ordersid != id);
+            idOrders = idOrders.filter((x) => x != id);
+            getDataDetailOrders();
+            if (arrOrders.length == 0) {
+                destination = '';
+                $('#destination_id').val('');
+            }
         }
 
         function totalItems() {
-            let jumlahItem = []
-            totalItem = 0;
-            arrOrders.map((x, i) => {
-                convert = Math.round(x.items);
-                jumlahItem.push(convert);
-            })
-            for (i in jumlahItem) {
-                totalItem += jumlahItem[i];
-            }
-            $('#total-item').html(totalItem);
+            $('#total-item').html(arrOrders.length);
         }
 
         function totalKg() {
             let jumlahKg = []
+            let jumlahKoli = []
             totalKgs = 0;
+            totalKoli = 0;
             arrOrders.map((x, i) => {
-                convert = Math.round(x.kg);
+                convert = Math.round(x.weight ?? x.volume);
                 jumlahKg.push(convert);
+                jumlahKoli.push(x.koli);
             })
             for (i in jumlahKg) {
                 totalKgs += jumlahKg[i];
+                totalKoli += jumlahKoli[i];
             }
             $('#total-jumlah-kg').html(totalKgs);
+            $('#total-jumlah-koli').html(totalKoli);
         }
 
-        const removeDetail = (i) => {
-            Swal.fire({
-                title: 'Konfirmasi',
-                text: 'Apakah Anda yakin akan menghapus nya.?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Lanjutkan!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    let pencarian = arrOrders[i];
-                    console.log(pencarian)
-                    if (pencarian.status == "old") {
-                        $.ajax({
-                            url: window.location.origin + '/' + listRoutes['manifest.deletedetailold']
-                                .replace('{id}', pencarian.detailManifestId),
-                            type: "POST",
-                            dataType: "JSON",
-                            processData: false,
-                            contentType: false,
-                            success: function(e) {
-                                // console.log(e)
-                            },
-                            error: function(e) {
-                                // console.log(e)
-                            }
-                        })
-                        arrOrders.splice(i, 1)
-                        getDetailOrders()
-                    } else {
-                        arrOrders.splice(i, 1)
-                        getDetailOrders()
-
-                    }
-                }
-            })
-
-        }
-
-        //update manifest
-        function updateManifest() {
-            $('#form-update-manifest').validate({
+        //save manifest
+        function saveManifest() {
+            $('#form-add-manifest').validate({
                 rules: {
-                    'manifestno': 'required'
+                    'manifestno': 'required',
+                    'carrier': 'required',
+                    'no_smd': 'required',
                 },
                 submitHandler: function() {
                     $.ajax({
@@ -383,17 +455,21 @@
                             '{id}', manifestId),
                         type: "POST",
                         dataType: "JSON",
-                        data: new FormData($('#form-update-manifest')[0]),
+                        data: new FormData($('#form-add-manifest')[0]),
                         processData: false,
                         contentType: false,
                         success: function(e) {
-                            notifSweetAlertSuccess(e.meta.message);
-                            setTimeout(function(){
-                                location.replace(window.location.origin + '/manifest');
-                            }, 1500);
+                            if (e.meta.code == 200) {
+                                notifSweetAlertSuccess(e.meta.message);
+                                setTimeout(function() {
+                                    location.replace(window.location.origin + '/manifest');
+                                }, 1500);
+                            } else {
+                                notifSweetAlertErrors(e.meta.message);
+                            }
                         },
                         error: function(e) {
-                            console.log(e)
+                            notifSweetAlertErrors(e.meta.message);
                         }
                     })
                 }
