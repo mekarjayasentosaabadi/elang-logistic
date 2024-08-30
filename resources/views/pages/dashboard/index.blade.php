@@ -54,7 +54,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6" id="grafik-mingguan">
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Grafik Transaksi Mingguan</h4>
@@ -64,7 +64,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6" id="grafik-bulanan">
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Grafik Transaksi Tahun {{ date("Y") }}</h4>
@@ -76,7 +76,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-12" id="tabel-top-customer">
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Top 10 Customer</h4>
@@ -93,6 +93,31 @@
                                 </tr>
                             </thead>
                             <tbody id="tbody-customer">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 hidden" id="tabel-transaksi">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Transaksi Customer</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nomor Order</th>
+                                    <th>Destination</th>
+                                    <th>Weight</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-transaksi">
 
                             </tbody>
                         </table>
@@ -128,18 +153,29 @@
             style: 'currency',
             currency: 'IDR'
         });
+        var roleAccess = '{{ Auth::user()->role_id }}';
+
         $(document).ready(function(){
             getData();
         })
         const getData=()=>{
             $.getJSON("{{ url('/getData') }}", function(e) {}).done(function(e) {
+                console.log(e)
                 $('#itemTrxToday').html(e.data.trxToday)
                 $('#itemTrxProcess').html(e.data.trxProcess)
-                $('#itemIncomeThisMonth').html(formatter.format(e.data.totalIncome))
+                if(roleAccess == "4"){
+                    $('#incomeThisMonth').html('Jumlah Transaksi')
+                    $('#itemIncomeThisMonth').html(e.data.transaksiperbulan)
+                    $('#grafik-mingguan').addClass('hidden')
+                    $('#grafik-bulanan').addClass('hidden')
+                } else {
+                    $('#itemIncomeThisMonth').html(formatter.format(e.data.totalIncome))
+                }
                 transaksiBulanan(e)
                 transaksiMingguan(e)
                 topCustomer(e)
                 getMap(e)
+
             })
         }
         //transaksi bulanan
@@ -257,24 +293,50 @@
         }
         //top customer
         function topCustomer(e){
-            if(e.data.topcustomer.length > 0){
+            if(roleAccess == "4"){
+                $('#tabel-top-customer').addClass('hidden')
+                $('#tabel-transaksi').removeClass('hidden')
+                if(e.data.topcustomer.length > 0){
                 let noUrut = 1;
                 e.data.topcustomer.map((x, i)=>{
-                    $('#tbody-customer').append(`
-                        <tr>
-                            <td>${noUrut++}</td>
-                            <td>${x.name}</td>
-                            <td>${x.total_transaksi}</td>
-                            <td>${formatter.format(x.total_orders)}</td>
-                        </tr>
-                    `)
-                })
+                        var dataStatus = x.status_orders;
+                        $('#tbody-transaksi').append(`
+                            <tr>
+                                <td>${noUrut++}</td>
+                                <td>${x.numberorders}</td>
+                                <td>${x.destination.name}</td>
+                                <td>${x.weight}</td>
+                                <td>${dataStatus == 1 ? 'Pending' : dataStatus == 2 ? 'Process' : dataStatus== 3 ? 'Done' : 'Cancel' }</td>
+                            </tr>
+                        `)
+                    })
+                } else {
+                    $('#tbody-transaksi').append(`
+                            <tr>
+                                <td colspan="4" class="text-center"> Belum ada top customer</td>
+                            </tr>
+                        `)
+                }
             } else {
-                $('#tbody-customer').append(`
-                        <tr>
-                            <td colspan="4" class="text-center"> Belum ada top customer</td>
-                        </tr>
-                    `)
+                if(e.data.topcustomer.length > 0){
+                    let noUrut = 1;
+                    e.data.topcustomer.map((x, i)=>{
+                        $('#tbody-customer').append(`
+                            <tr>
+                                <td>${noUrut++}</td>
+                                <td>${x.name}</td>
+                                <td>${x.total_transaksi}</td>
+                                <td>${formatter.format(x.total_orders)}</td>
+                            </tr>
+                        `)
+                    })
+                } else {
+                    $('#tbody-customer').append(`
+                            <tr>
+                                <td colspan="4" class="text-center"> Belum ada top customer</td>
+                            </tr>
+                        `)
+                }
             }
         }
         // Map
