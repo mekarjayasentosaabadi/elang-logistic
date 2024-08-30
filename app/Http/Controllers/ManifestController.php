@@ -24,7 +24,7 @@ class ManifestController extends Controller
 
         $q = Manifest::with(['destination', 'outlet']);
         if (auth()->user()->role_id != 1) {
-            $q->where('orders.outlet_id', auth()->user()->outlets_id);
+            $q->where('outlet_id', auth()->user()->outlets_id);
         }
 
 
@@ -114,6 +114,8 @@ class ManifestController extends Controller
     //stored
     function store(Request $request)
     {
+
+        $outletId = auth()->user()->role_id == 1 ? $request->outlet_id : auth()->user()->outlet->id;
         $dataManifest = [
             'manifestno'    => $request->manifestno,
             'carier'        => $request->carrier,
@@ -123,7 +125,7 @@ class ManifestController extends Controller
             'flight_file'   => $request->flagsfile,
             'notes'         => $request->notes,
             'no_smd'        => $request->no_smd,
-            'outlet_id' => $request->outlet_id,
+            'outlet_id' => $outletId,
             'destination_id' => $request->destination_id
         ];
         $manifest = Manifest::create($dataManifest);
