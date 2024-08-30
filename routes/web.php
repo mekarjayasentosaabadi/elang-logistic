@@ -62,6 +62,7 @@ Route::middleware(['auth', 'check.role:1,2'])->group(function () {
         Route::post('/{id}', [DestinationController::class, 'update'])->name('destination.update');
         Route::get('/listoutlet/{id}', [DestinationController::class, 'listoutlet'])->name('destination.listoutlet');
     });
+
     Route::prefix('customer')->group(function () {
         Route::get('/', [CustomerController::class, 'index'])->name('customer.index');
         Route::get('/create', [CustomerController::class, 'create'])->name('customer.create');
@@ -223,16 +224,24 @@ Route::middleware(['auth', 'check.role:1,2,3'])->group(function () {
 
 
 //profile admin superadmin courier
-Route::middleware(['auth', 'check.role:1,2,3'])->group(function () {
+Route::middleware(['auth', 'check.role:1,2,3,4,6'])->group(function () {
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
         Route::post('/', [ProfileController::class, 'update'])->name('profile.update');
         Route::post('/changepassword', [ProfileController::class, 'changePassword'])->name('profile.changepassword');
         Route::post('/changepicture', [ProfileController::class, 'changepictures'])->name('profile.changepicture');
     });
-});
 
-// logout all role
-Route::middleware(['auth', 'check.role:1,2,3,4,6'])->group(function () {
     Route::get('/logout', [AuthController::class, 'logout']);
 });
+
+
+// logactifity directur
+Route::middleware(['auth', 'check.role:6'])->group(function () {
+    Route::prefix('logactifity')->group(function () {
+        Route::get('/', function () {
+            return 'ppp';
+        });
+    });
+});
+

@@ -137,6 +137,12 @@ if (!function_exists('listMenu')) {
                     'hasChild' => false,
                     'icon' => 'home'
                 ],
+                [
+                    'title' => 'Profile',
+                    'url' => 'profile',
+                    'hasChild' => false,
+                    'icon' => 'users'
+                ]
             ];
         }
         if ($role == 6) {
@@ -147,6 +153,18 @@ if (!function_exists('listMenu')) {
                     'hasChild' => false,
                     'icon' => 'home'
                 ],
+                [
+                    'title' => 'Log Actifity',
+                    'url' => '/logactifity',
+                    'hasChild' => false,
+                    'icon' => 'clock'
+                ],
+                [
+                    'title' => 'Profile',
+                    'url' => 'profile',
+                    'hasChild' => false,
+                    'icon' => 'users'
+                ]
             ];
         }
         return $data;
