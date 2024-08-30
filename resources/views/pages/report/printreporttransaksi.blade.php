@@ -51,7 +51,7 @@
 
 
         @if (($dataFilter['tanggal_order_awal'] != null) && ($dataFilter['tanggal_order_akhir']  != null))
-            Dari Tanggal {{ $dataFilter['tanggal_order_awal'] }} s.d {{ $dataFilter['tanggal_order_akhir'] }},
+            Tanggal Order Dari Tanggal {{ $dataFilter['tanggal_order_awal'] }} s.d {{ $dataFilter['tanggal_order_akhir'] }},
         @elseif ($dataFilter['tanggal_order_awal']!= null)
             Tanggal Awal Order {{ $dataFilter['tanggal_order_awal'] }},
         @elseif ($dataFilter['tanggal_order_akhir'])
@@ -68,6 +68,8 @@
                 Status Order: Done,
             @elseif ($dataFilter['status'] == '4')
                 Status Order: Dibatalkan,
+            @elseif ($dataFilter['status'] == '5')
+                Status Order: All,
             @endif
         @endif
 
@@ -98,9 +100,9 @@
                     <td>{{ $order->finish_date ?? '-' }}</td>
                     <td>{{ $order->outlet->destination->name ?? '-' }}</td>
                     <td>{{ $order->destination->name ?? '-' }}</td>
-                    <td>{{ $order->weight ?? '-' }}</td>
-                    <td>{{ $order->weight ?? '-'  }}</td>
-                    <td>{{ $order->price ?? '-' }}</td>
+                    <td>{{ $order->weight  ?? $order->volume ?? '-' }}</td>
+                    <td>{{ $order->weight  ?? $order->volume ?? '-'  }}</td>
+                    <td>{{ formatRupiah($order->price) ?? '-' }}</td>
                 </tr>
               @endforeach
         </tbody>

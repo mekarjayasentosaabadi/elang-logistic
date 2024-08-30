@@ -32,7 +32,7 @@
 
     <p>Rincian Filter:
         @if (Auth::user()->role_id == 1)
-            @if ($dataFilter['outlet'])
+            @if (!empty($dataFilter['outlet']))
                 Outlet:  {{ $dataFilter['outlet'] }},
             @endif
         @else

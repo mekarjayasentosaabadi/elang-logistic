@@ -408,7 +408,6 @@
                         {
                             data: 'driver_name',
                             name: 'driver_name',
-                            orderable: true,
                         },
                         {
                             data: 'nosurattugas',
@@ -417,7 +416,6 @@
                         {
                             data: 'vehicle_police_no',
                             name: 'vehicle_police_no',
-                            orderable: true,
                         },
                         {
                             data: 'order_created_at',
@@ -430,17 +428,14 @@
                         {
                             data: 'order_armada',
                             name: 'order_armada',
-                            orderable: true,
                         },
                         {
                             data: 'origin_name',
                             name: 'origin_name',
-                            orderable: true,
                         },
                         {
                             data: 'destination_name',
                             name: 'destination_name',
-                            orderable: true,
                         },
                         {
                             data: 'volume/weight',
@@ -540,9 +535,8 @@
                                 searchable: false
                             },
                             {
-                                data: 'customer',
-                                name: 'customer.name',
-                                orderable: false,
+                                data: 'customer_name',
+                                name: 'customer_name',
                             },
                             {
                                 data: 'numberorders',
@@ -557,14 +551,13 @@
                                 name: 'finish_date',
                             },
                             {
-                                data: 'outlets_id',
-                                name: 'outlet.destination.name',
-                                orderable: false,
+                                data: 'outlet_destination_name',
+                                name: 'outlet_destination_name',
+
                             },
                             {
-                                data: 'destinations_id',
-                                name: 'destination.name',
-                                orderable: false,
+                                data: 'destination_name',
+                                name: 'destination_name',
                             },
                             {
                                 data: 'volume/weight',
