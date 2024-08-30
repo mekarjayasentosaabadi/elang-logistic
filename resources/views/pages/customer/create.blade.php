@@ -16,6 +16,7 @@
                 </div>
                 <div class="card-body">
                     <form action="#" method="POST" enctype="multipart/form-data" id="form-add-customer">
+                        @csrf
                         <div class="row">
                             <div class="col-md-6 col-sm-12 col-lg-6">
                                 <div class="form-group">
