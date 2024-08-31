@@ -26,7 +26,7 @@ class DashboardController extends Controller
         $roleId = Auth::user()->role_id;
         $outletId = Auth::user()->outlets_id;
         $dataAllOutlet = Outlet::where('is_active', '1')->get();
-        if($roleId == '1'){
+        if($roleId == '1' || $roleId == '6'){
             $trxToday = Order::whereDate('created_at', $today)->count();
             $trxProcess = Order::where('status_orders', '2')->count();
             $totalIncome = Order::whereBetween('created_at', [$tglAwal, $tglAkhir])->sum('price');

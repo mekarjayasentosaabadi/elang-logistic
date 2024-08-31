@@ -15,6 +15,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SurattugasController;
 use App\Http\Controllers\UpdateResiController;
 use App\Http\Controllers\DestinationController;
+use App\Http\Controllers\LogActivityController;
 use App\Http\Controllers\MasterpriceController;
 use App\Http\Controllers\ShippingcourirController;
 use App\Http\Controllers\TraveldocumentController;
@@ -243,9 +244,8 @@ Route::middleware(['auth', 'check.role:1,2,3,4,6'])->group(function () {
 // logactifity directur
 Route::middleware(['auth', 'check.role:6'])->group(function () {
     Route::prefix('logactifity')->group(function () {
-        Route::get('/', function () {
-            return 'ppp';
-        });
+        Route::get('/', [LogActivityController::class, 'index'])->name('logactivity.index');
+        Route::get('/getData', [LogActivityController::class, 'getData'])->name('logactivity.getData');
     });
 });
 

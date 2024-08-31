@@ -75,4 +75,8 @@ class User extends Authenticatable
     function surattugas() {
         return $this->hasMany(Surattugas::class, 'driver_id', 'id');
     }
+    //relation to logactivity
+    function logactivites(){
+        return $this->hasMany(LogActivity::class, 'users_id', 'id');
+    }
 }
