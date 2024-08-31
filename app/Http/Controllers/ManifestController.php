@@ -57,8 +57,9 @@ class ManifestController extends Controller
             ->addColumn('option', function ($x) {
                 if ($x->status_manifest != 3 && $x->status_manifest != 2) {
                     $option = '<div>';
-                    $option .= '<a href="manifest/' . Crypt::encrypt($x->id) . '/edit" class="btn btn-warning btn-sm "><i class="fa fa-edit"></i></a> ';
-                    $option .= '<button class="btn btn-danger btn-sm" onclick="deleteManifest(this, ' . $x->id . ')"><i class="fa fa-trash"></i></button> ';
+                    $option .= '<a title="Edit Manifest" href="manifest/' . Crypt::encrypt($x->id) . '/edit" class="btn btn-warning btn-sm "><i class="fa fa-edit"></i></a> ';
+                    $option .= '<a title="Detail Manifest" href="manifest/' . Crypt::encrypt($x->id) . '/detail" class="btn btn-success btn-sm "><i class="fa fa-list"></i></a> ';
+                    $option .= '<button title="Delete Manifest" class="btn btn-danger btn-sm" onclick="deleteManifest(this, ' . $x->id . ')"><i class="fa fa-trash"></i></button> ';
                     $option .= '<a href="manifest/' . Crypt::encrypt($x->id) . '/print" target="_blank" class="btn btn-success btn-sm" title="Cetak Resi Manifest"><i class="fa fa-print"></i></a></div>';
                     return $option;
                 }
@@ -281,5 +282,13 @@ class ManifestController extends Controller
         $dataManifest   = Detailmanifest::with('order.destination')->where('manifests_id', Crypt::decrypt($id))->get();
         $manifest       = Manifest::where('id', Crypt::decrypt($id))->first();
         return view('pages.manifest.resi', compact('dataManifest', 'manifest'));
+    }
+
+    //detail manifest
+    function detailmanifest($id){
+        $outlets = Outlet::all();
+        $manifest = Manifest::where('id', Crypt::decrypt($id))->firstOrFail();
+        $manifest->listArrayId = json_encode($manifest->detailmanifests->pluck('orders_id')->toArray());
+        return view('pages.manifest.detail', compact('outlets', 'manifest'));
     }
 }
