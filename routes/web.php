@@ -40,7 +40,7 @@ Route::get('/phpinfo', function () {
 });
 
 // dashboard admin, superadmin, courier, customer, directur
-Route::middleware(['auth', 'check.role:1,2,4,6'])->group(function (){
+Route::middleware(['auth', 'check.role:1,2,4,6'])->group(function () {
     Route::get('/', [DashboardController::class, 'index']);
     Route::get('/getData', [DashboardController::class, 'getData'])->name('dashboard.getData');
 });
@@ -188,6 +188,8 @@ Route::middleware(['auth', 'check.role:1,2'])->group(function () {
         Route::get('/', [UpdateResiController::class, 'index'])->name('update-resi.index');
         Route::post('/', [UpdateResiController::class, 'store'])->name('update-resi.store');
         Route::get('/getResi', [UpdateResiController::class, 'getResi'])->name('update-resi.getResi');
+        Route::get('/getListOrder', [UpdateResiController::class, 'getListOrder'])->name('order.getListOrder');
+        Route::get('/getListManifest', [UpdateResiController::class, 'getListManifest'])->name('order.getListManifest');
     });
 
     Route::prefix('report')->group(function () {
@@ -248,4 +250,3 @@ Route::middleware(['auth', 'check.role:6'])->group(function () {
         Route::get('/getData', [LogActivityController::class, 'getData'])->name('logactivity.getData');
     });
 });
-
