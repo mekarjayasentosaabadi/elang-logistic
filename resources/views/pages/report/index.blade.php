@@ -301,16 +301,32 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    <form action="/report/downloadreporttransaksi" method="post" id="form-hidden-report-transaksi">
-                                        @csrf
-                                        <input type="hidden" name="tanggal_order_awal" id="tanggal_order_awal_hidden" value="">
-                                        <input type="hidden" name="tanggal_order_akhir" id="tanggal_order_akhir_hidden" value="">
-                                        <input type="hidden" name="customer_id" id="customer_id_hidden" value="">
-                                        <input type="hidden" name="destination_id" id="destination_id_hidden" value="">
-                                        <input type="hidden" name="status" id="status_hidden" value="">
-                                        <input type="hidden" name="outlet_id_select_customer" id="outlet_id_select_customer_hidden" value="">
-                                        <button type="submit" class="btn btn-success mt-3 mb-3 float-end btn-sm d-none" id="btn-download-reporttransaksi"><i data-feather="download" class="font-medium-3 me-50"></i>Download</button>
-                                    </form>
+                                    <div class="d-flex gap-1 float-end">
+                                        <div id="downloadReporttransaksi" class="hidden">
+                                            <form action="/report/downloadreporttransaksi" method="post" id="form-hidden-report-transaksi">
+                                                @csrf
+                                                <input type="hidden" name="tanggal_order_awal" id="tanggal_order_awal_hidden" value="">
+                                                <input type="hidden" name="tanggal_order_akhir" id="tanggal_order_akhir_hidden" value="">
+                                                <input type="hidden" name="customer_id" id="customer_id_hidden" value="">
+                                                <input type="hidden" name="destination_id" id="destination_id_hidden" value="">
+                                                <input type="hidden" name="status" id="status_hidden" value="">
+                                                <input type="hidden" name="outlet_id_select_customer" id="outlet_id_select_customer_hidden" value="">
+                                                <button type="submit" class="btn btn-danger mt-3 mb-3 float-end" id=""><i class="fa-regular fa-file-pdf"></i> Download PDF</button>
+                                            </form>
+                                        </div>
+                                        <div id="exportExcelReporttransaksi" class="hidden mx-2">
+                                            <form action="/report/exportexcelreporttransaksi" method="post" id="form-hidden-report-transaksi">
+                                                @csrf
+                                                <input type="hidden" name="tanggal_order_awal" class="tanggal_order_awal_hidden" id="" value="">
+                                                <input type="hidden" name="tanggal_order_akhir" class="tanggal_order_akhir_hidden" id="" value="">
+                                                <input type="hidden" name="customer_id" class="customer_id_hidden" id="" value="">
+                                                <input type="hidden" name="destination_id" class="destination_id_hidden" id="" value="">
+                                                <input type="hidden" name="status" class="status_hidden" id="" value="">
+                                                <input type="hidden" name="outlet_id_select_customer" class="outlet_id_select_customer_hidden" id="" value="">
+                                                <button type="submit" class="btn btn-success mt-3 mb-3 float-end  my-3"><i class="fa-regular fa-file"></i> Export Excel</button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -523,7 +539,16 @@
                                     $('#tanggal_order_akhir_hidden').val($('#tanggal_order_akhir').val());
                                     $('#status_hidden').val($('#status').val());
 
-                                    $('#btn-download-reporttransaksi').removeClass('d-none');
+                                    $('.outlet_id_select_customer_hidden').val($('#outlet_id_select_customer').val());
+                                    $('.customer_id_hidden').val($('#customer').val());
+                                    $('.destination_id_hidden').val($('#destination_transaksi').val());
+                                    $('.tanggal_order_awal_hidden').val($('#tanggal_order_awal').val());
+                                    $('.tanggal_order_akhir_hidden').val($('#tanggal_order_akhir').val());
+                                    $('.status_hidden').val($('#status').val());
+
+
+                                    $('#downloadReporttransaksi').removeClass('hidden');
+                                    $('#exportExcelReporttransaksi').removeClass('hidden');
                                 }
                             }
 
