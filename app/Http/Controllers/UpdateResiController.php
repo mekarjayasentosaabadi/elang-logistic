@@ -3,13 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Manifest;
+use App\Models\Order;
 use App\Models\Outlet;
 use App\Models\Surattugas;
 use App\Models\Traveldocument;
 use RealRashid\SweetAlert\Facades\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Yajra\DataTables\DataTables;
 
 class UpdateResiController extends Controller
 {
@@ -37,6 +40,130 @@ class UpdateResiController extends Controller
 
         return response()->json($data);
     }
+
+    function getListOrder(Request $request)
+    {
+        if (Auth::user()->role_id == '1') {
+            $q = Order::with('customer', 'histories');
+        } else {
+            $q = Order::where('outlet_id', Auth::user()->outlets_id)->with('customer', 'histories')->get();
+        }
+
+        if ($request->update_data == '2' && $request->noResi) {
+            // $q where order id in manifest detail
+            $q = $q->whereHas('detailmanifests', function ($query) use ($request) {
+                $query->whereIn('manifests_id', $request->noResi);
+            });
+        } elseif ($request->update_data == '1' && $request->noResi) {
+            //    get list manifest from surat tugas
+            $surattugas = Surattugas::whereIn('id', $request->noResi)->get();
+            $data = [];
+            foreach ($surattugas as $key => $value) {
+                $data[] = $value->detailsurattugas->pluck('manifest_id')->toArray();
+            }
+            $q = $q->whereHas('detailmanifests', function ($query) use ($data) {
+                $query->whereIn('manifests_id', $data);
+            });
+        } else {
+            $q = $q->where('id', 0);
+        }
+
+
+        return DataTables::of($q)
+            ->editColumn('destination', function ($query) {
+                return $query->destination->name;
+            })
+            ->addColumn('numberorders', function ($query) {
+                return $query->numberorders ?? '-';
+            })
+            ->addColumn('pengirim', function ($query) {
+                return $query->customer->name ?? '-';
+            })
+            ->addColumn('penerima', function ($query) {
+                return $query->penerima ?? '-';
+            })
+            ->editColumn('status_orders', function ($query) {
+                $html = status_html($query->status_orders);
+                $html .= '<small class="text-sm"><br/><i class="fas fa-truck"></i> ' . $query->status_awb . '</small>';
+                return  $html;
+            })
+            ->editColumn('created_at', function ($query) {
+                return $query->created_at ? $query->created_at->format('d-m-Y H:i') : '-';
+            })
+            ->addColumn('aksi', function ($query) {
+                $encryptId = Crypt::encrypt($query->id);
+                $btn = '';
+                //detail
+                $btn .= '<a href="' . url('/order/' . $encryptId . '/detail') . '" target="_blank" class="btn btn-primary btn-sm" title="Detail"><i class="fa fa-eye"></i></a> ';
+                return $btn;
+            })->rawColumns(['numberorders', 'pengirim', 'penerima', 'created_at', 'status_orders', 'aksi', 'created_at'])
+            ->addIndexColumn()
+            ->make(true);
+    }
+
+    public function getListManifest(Request $request)
+    {
+
+        $q = Manifest::with(['destination', 'outlet']);
+        if (auth()->user()->role_id != 1) {
+            $q->where('outlet_id', auth()->user()->outlets_id);
+        }
+
+
+        if ($request->update_data == '2' && $request->noResi) {
+            // $q where order id in manifest detail
+            $q = $q->whereHas('detailmanifests', function ($query) use ($request) {
+                $query->whereIn('manifests_id', $request->noResi);
+            });
+        } elseif ($request->update_data == '1' && $request->noResi) {
+            //    get list manifest from surat tugas
+            $surattugas = Surattugas::whereIn('id', $request->noResi)->get();
+            $data = [];
+            foreach ($surattugas as $key => $value) {
+                $data[] = $value->detailsurattugas->pluck('manifest_id')->toArray();
+            }
+            $q = $q->whereHas('detailmanifests', function ($query) use ($data) {
+                $query->whereIn('manifests_id', $data);
+            });
+        } else {
+            $q = $q->where('id', 0);
+        }
+
+
+        return DataTables::of($q)
+            ->editColumn('destination', function ($e) {
+                return $e->destination->name;
+            })
+            ->editColumn('jumlah', function ($e) {
+                return $e->detailmanifests->count();
+            })
+            ->addColumn('status', function ($e) {
+                if ($e->status_manifest == 0) {
+                    $status = '<div class="text-danger">';
+                    $status .= 'Cancel</div>';
+                    return $status;
+                } elseif ($e->status_manifest == 1) {
+                    $status = '<div class="text-primary"><li class="fa fa-gears"></li> ';
+                    $status .= 'Process</div>';
+                    return $status;
+                } elseif ($e->status_manifest == 2) {
+                    $status = '<div class="text-primary"><li class="fa fa-truck"></li> ';
+                    $status .= 'On The Way</div>';
+                    return $status;
+                } else {
+                    $status = '<div class="text-success"><li class="fa fa-check"></li> ';
+                    $status .= 'Done</div>';
+                    return $status;
+                }
+            })
+            ->addColumn('option', function ($x) {
+                return "";
+            })
+            ->rawColumns(['status', 'option'])
+            ->addIndexColumn()
+            ->make(true);
+    }
+
 
     function store(Request $request)
     {
