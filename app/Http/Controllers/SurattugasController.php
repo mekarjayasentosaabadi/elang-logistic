@@ -55,6 +55,7 @@ class SurattugasController extends Controller
                 $option = '<div>';
 
                 $option .= '<a class="btn btn-primary btn-sm" title="Cetak Surat Tugas"><li class="fa fa-print"></li></a> ';
+                $option .= '<a title="Detail Surat Tugas" href="surattugas/' . Crypt::encrypt($x->id) . '/detail" class="btn btn-success btn-sm "><i class="fa fa-list"></i></a> ';
                 if ($x->statussurattugas == 1) {
                     $option .= '<button class="btn btn-success btn-sm" title="Berangkatkan" onclick="onGoing(' . $x->id . ')"><li class="fa fa-truck"></li></button> ';
                     $option .= '<button class="btn btn-danger btn-sm" onclick="deleteSuratTugas(this, ' . $x->id . ')"><i class="fa fa-trash"></i></button> ';
@@ -210,5 +211,12 @@ class SurattugasController extends Controller
             DB::rollBack();
             return ResponseFormatter::error([], 'Something went wrong');
         }
+    }
+
+    //detail surat tugas
+    function detailsurattugas($id){
+        $datailSuratTugas = Surattugas::with(['outlet', 'driver', 'vehicle', 'destination'])->where('id', Crypt::decrypt($id))->first();
+        $listSuratTugasManifest = Surattugas::with(['destination', 'detailsurattugas.manifest'])->where('id', Crypt::decrypt($id))->get();
+        return view('pages.surattugas.detail', compact('datailSuratTugas', 'listSuratTugasManifest' ));
     }
 }
