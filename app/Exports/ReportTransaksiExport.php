@@ -25,7 +25,7 @@ class ReportTransaksiExport implements FromView, WithHeadings
     public function headings(): array
     {
         return [
-            'Nama Customer', 'AWB', 'Tanggal Order', 'Tanggal Finish', 'Asal', 'Destinasi', 'Volume/Berat', 'Total Volume/Berat', 'Total Harga'
+            'No', 'Nama Customer', 'AWB', 'Tanggal Order', 'Tanggal Finish', 'Asal', 'Destinasi', 'Volume/Berat', 'Total Volume/Berat', 'Total Harga'
         ];
     }
 }

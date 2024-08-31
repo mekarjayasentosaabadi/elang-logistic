@@ -202,6 +202,7 @@ Route::middleware(['auth', 'check.role:1,2'])->group(function () {
         Route::post('/getReportTransaksi', [ReportController::class, 'getReportTransaksi'])->name('report.getReportTransaksi');
         Route::post('/downloadreportpengiriman', [ReportController::class, 'downloadreportpengiriman'])->name('report.downloadreportpengiriman');
         Route::post('/downloadreporttransaksi', [ReportController::class, 'downloadreporttransaksi'])->name('report.downloadreporttransaksi');
+        Route::post('/exportexcelreportpengiriman', [ReportController::class, 'exportExcelReportPengiriman'])->name('report.exportExcelReportPengiriman');
         Route::post('/exportexcelreporttransaksi', [ReportController::class, 'exportExcelReportTransaksi'])->name('report.exportExcelReportTransaksi');
     });
 

@@ -161,17 +161,34 @@
                                 </tbody>
                             </table>
                         </div>
-                        <form action="/report/downloadreportpengiriman" method="post">
-                            @csrf
-                            <input type="hidden" name="outlet_id_select" id="outlet_id_select-hidden" value="">
-                            <input type="hidden" name="driver" id="driver-hidden" value="">
-                            <input type="hidden" name="jenis_pengiriman" id="jenis_pengiriman-hidden" value="">
-                            <input type="hidden" name="tanggal_awal_berangkat" id="tanggal_awal_berangkat-hidden" value="">
-                            <input type="hidden" name="tanggal_akhir_berangkat" id="tanggal_akhir_berangkat-hidden" value="">
-                            <input type="hidden" name="destination" id="destination-hidden" value="">
-                            <input type="hidden" name="status_surattugas" id="status_surattugas-hidden" value="">
-                            <button type="submit" class="btn btn-success mt-3 mb-3 float-end btn-sm d-none" id="btn-download-reportpengiriman"><i data-feather="download" class="font-medium-3 me-50"></i>Download</button>
-                        </form>
+                        <div class="d-flex gap-1 float-end">
+                            <div id="downloadReportPengiriman" class="hidden">
+                                <form action="/report/downloadreportpengiriman" method="post">
+                                    @csrf
+                                    <input type="hidden" name="outlet_id_select" id="outlet_id_select-hidden" value="">
+                                    <input type="hidden" name="driver" id="driver-hidden" value="">
+                                    <input type="hidden" name="jenis_pengiriman" id="jenis_pengiriman-hidden" value="">
+                                    <input type="hidden" name="tanggal_awal_berangkat" id="tanggal_awal_berangkat-hidden" value="">
+                                    <input type="hidden" name="tanggal_akhir_berangkat" id="tanggal_akhir_berangkat-hidden" value="">
+                                    <input type="hidden" name="destination" id="destination-hidden" value="">
+                                    <input type="hidden" name="status_surattugas" id="status_surattugas-hidden" value="">
+                                    <button type="submit" class="btn btn-danger mt-3 mb-3 float-end" id="btn-download-reportpengiriman"><i class="fa-regular fa-file-pdf"></i> Download</button>
+                                </form>
+                            </div>
+                            <div id="exportExcelReportPengiriman" class="hidden">
+                                <form action="/report/exportexcelreportpengiriman" method="post">
+                                    @csrf
+                                    <input type="hidden" name="outlet_id_select" class="outlet_id_select-hidden" id="" value="">
+                                    <input type="hidden" name="driver" class="driver-hidden" id="" value="">
+                                    <input type="hidden" name="jenis_pengiriman" class="jenis_pengiriman-hidden" id="" value="">
+                                    <input type="hidden" name="tanggal_awal_berangkat" class="tanggal_awal_berangkat-hidden" id="" value="">
+                                    <input type="hidden" name="tanggal_akhir_berangkat" class="tanggal_akhir_berangkat-hidden" id="" value="">
+                                    <input type="hidden" name="destination" class="destination-hidden" id="" value="">
+                                    <input type="hidden" name="status_surattugas" class="status_surattugas-hidden" id="" value="">
+                                    <button type="submit" class="btn btn-success mt-3 mb-3 float-end"><i class="fa-regular fa-file"></i> Export Excel</button>
+                                </form>
+                            </div>
+                        </div>
                         {{-- <a href="/report/downloadreportpengiriman" class="btn btn-success mt-3 mb-3 float-end btn-sm"><i data-feather="download" class="font-medium-3 me-50"></i>Download</a> --}}
                     </div>
                 </div>
@@ -411,7 +428,18 @@
                                 $('#tanggal_akhir_berangkat-hidden').val($('#tanggal_akhir_berangkat').val());
                                 $('#destination-hidden').val($('#destination').val());
                                 $('#status_surattugas-hidden').val($('#status_surattugas').val());
-                                $('#btn-download-reportpengiriman').removeClass('d-none');
+
+                                $('.outlet_id_select-hidden').val($('#outlet_id_select').val());
+                                $('.driver-hidden').val($('#driver').val());
+                                $('.jenis_pengiriman-hidden').val($('#jenis_pengiriman').val());
+                                $('.tanggal_awal_berangkat-hidden').val($('#tanggal_awal_berangkat').val());
+                                $('.tanggal_akhir_berangkat-hidden').val($('#tanggal_akhir_berangkat').val());
+                                $('.destination-hidden').val($('#destination').val());
+                                $('.status_surattugas-hidden').val($('#status_surattugas').val());
+
+
+                                $('#downloadReportPengiriman').removeClass('hidden');
+                                $('#exportExcelReportPengiriman').removeClass('hidden');
                             }
                         }
                     },
