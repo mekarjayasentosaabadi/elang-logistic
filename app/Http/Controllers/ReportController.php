@@ -15,6 +15,8 @@ use App\Models\Detailsurattugas;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ReportTransaksiExport;
 
 class ReportController extends Controller
 {
@@ -463,5 +465,47 @@ class ReportController extends Controller
         $pdf::writeHTML($html, true, false, true, false, '');
         $pdf::Output("reporttransaksi.pdf", 'D');
         $pdf::reset();
+    }
+
+
+    public function exportExcelReportTransaksi(Request $request)  {
+        $query = Order::with('customer', 'destination', 'outlet.destination');
+
+        if (Auth::user()->role_id == 1) {
+            if ($request->outlet_id_select_customer) {
+                $query->where('outlet_id', $request->outlet_id_select_customer);
+            }
+        } else {
+            $query->where('outlet_id', Auth::user()->outlets_id);
+        }
+
+        if ($request->customer_id) {
+            $query->where('customer_id', $request->customer_id);
+        }
+
+        if ($request->destination_id) {
+            $query->where('destinations_id', $request->destination_id);
+        }
+
+        if ($request->tanggal_order_awal && $request->tanggal_order_akhir) {
+            $endOfDay = date('Y-m-d 23:59:59', strtotime($request->tanggal_order_akhir));
+            $query->whereBetween('created_at', [$request->tanggal_order_awal, $endOfDay]);
+        } elseif ($request->tanggal_order_awal) {
+            $query->whereDate('created_at', $request->tanggal_order_awal);
+        } elseif ($request->tanggal_order_akhir) {
+            $query->whereDate('created_at', $request->tanggal_order_akhir);
+        }
+
+        if ($request->status) {
+            if ($request->status == '5') {
+                $query->whereIn('status_orders', ['1', '2', '3', '4']);
+            } else {
+                $query->where('status_orders', $request->status);
+            }
+        }
+
+        $orders = $query->get();
+
+        return Excel::download(new ReportTransaksiExport($orders), 'reporttransaksi.xlsx');
     }
 }
