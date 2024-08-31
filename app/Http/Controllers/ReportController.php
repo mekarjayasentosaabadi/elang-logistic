@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ReportPengirimanExport;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Outlet;
@@ -382,6 +383,86 @@ class ReportController extends Controller
         $pdf::writeHTML($html, true, false, true, false, '');
         $pdf::Output("reportperngiriman.pdf", 'D');
         $pdf::reset();
+    }
+
+
+
+
+
+    public function exportExcelReportPengiriman(Request $request) {
+        $query = DB::table('surattugas')
+        ->select(
+            'surattugas.id',
+            'surattugas.*',
+            'users.name as driver_name',
+            'vehicles.police_no as vehicle_police_no',
+            'outlets.name as outlet_name',
+            'origin_destinations.name as origin_name',
+            'destinations.name as destination_name',
+            DB::raw('max(orders.created_at) as order_created_at'),
+            DB::raw('max(orders.finish_date) as order_finish_date'),
+            DB::raw('max(orders.armada) as order_armada'),
+            DB::raw('max(orders.weight) as order_weight'),
+            DB::raw('max(orders.volume) as order_volume')
+        )
+        ->leftJoin('users', 'surattugas.driver_id', '=', 'users.id')
+        ->leftJoin('vehicles', 'surattugas.vehicle_id', '=', 'vehicles.id')
+        ->leftJoin('outlets', 'surattugas.outlets_id', '=', 'outlets.id')
+        ->leftJoin('destinations as origin_destinations', 'outlets.location_id', '=', 'origin_destinations.id')
+        ->leftJoin('detailsurattugas', 'surattugas.id', '=', 'detailsurattugas.surattugas_id')
+        ->leftJoin('manifests', 'detailsurattugas.manifest_id', '=', 'manifests.id')
+        ->leftJoin('detailmanifests', 'manifests.id', '=', 'detailmanifests.manifests_id')
+        ->leftJoin('orders', 'detailmanifests.orders_id', '=', 'orders.id')
+        ->leftJoin('destinations', 'surattugas.destination_id', '=', 'destinations.id')
+        ->groupBy('surattugas.id');
+
+
+
+        if (Auth::user()->role_id == 1) {
+            if ($request->outlet_id_select) {
+                $query->where('surattugas.outlets_id', $request->outlet_id_select);
+            }
+        } else {
+            $query->where('surattugas.outlets_id', Auth::user()->outlets_id);
+        }
+
+
+        if ($request->driver) {
+            $query->where('surattugas.driver_id', $request->driver);
+        }
+
+
+        if ($request->destination) {
+            $query->where('surattugas.destination_id', $request->destination);
+        }
+
+        if (!empty($request->tanggal_awal_berangkat) && !empty($request->tanggal_akhir_berangkat)) {
+            $endOfDay = date('Y-m-d 23:59:59', strtotime($request->tanggal_akhir_berangkat));
+            $query->whereBetween('orders.created_at', [$request->tanggal_awal_berangkat, $endOfDay]);
+        } elseif (!empty($request->tanggal_awal_berangkat)) {
+            $query->whereDate('orders.created_at', $request->tanggal_awal_berangkat);
+        } elseif (!empty($request->tanggal_akhir_berangkat)) {
+            $query->whereDate('orders.created_at', $request->tanggal_akhir_berangkat);
+        }
+
+
+        if ($request->jenis_pengiriman) {
+            $query->where('orders.armada', $request->jenis_pengiriman);
+        }
+
+        if (is_numeric($request->status_surattugas)) {
+            if ($request->status_surattugas == '5') {
+                $query->whereIn('surattugas.statussurattugas', ['0', '1', '2', '3']);
+            } else {
+                $query->where('surattugas.statussurattugas', $request->status_surattugas);
+            }
+        }
+
+
+        $dataReports = $query->get();
+
+
+        return Excel::download(new ReportPengirimanExport($dataReports), 'reportpengiriman.xlsx');
     }
 
 

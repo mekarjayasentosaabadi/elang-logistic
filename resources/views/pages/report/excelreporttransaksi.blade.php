@@ -1,6 +1,7 @@
 <table>
     <thead>
         <tr>
+            <th>No</th>
             <th>Nama Customer</th>
             <th>AWB</th>
             <th>Tanggal Order</th>
@@ -13,8 +14,9 @@
         </tr>
     </thead>
     <tbody>
-        @foreach($orders as $order)
+        @foreach($orders as $index => $order)
             <tr>
+                <td>{{ $index + 1 }}</td>
                 <td>{{ $order->customer->name ?? '-' }}</td>
                 <td>{{ $order->numberorders ?? '-' }}</td>
                 <td>{{ $order->created_at ?? '-' }}</td>
