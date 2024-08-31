@@ -56,7 +56,7 @@
                         orderable: false,
                     },
                     {
-                        data: 'user.name',
+                        data: 'user',
                         name: 'user.name'
                     },
                     {
