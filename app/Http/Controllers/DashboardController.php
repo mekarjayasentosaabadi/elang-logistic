@@ -66,6 +66,7 @@ class DashboardController extends Controller
                                 ->select('users.id', 'users.name', DB::raw('SUM(orders.price) as total_orders'), DB::raw('COUNT(orders.id) as total_transaksi'))
                                 ->where('users.role_id', '4')
                                 ->groupBy('users.id')
+                                ->groupBy('users.name')
                                 ->orderBy(DB::raw('SUM(orders.price)'), 'DESC')
                                 ->limit(10)
                                 ->get();
@@ -115,6 +116,7 @@ class DashboardController extends Controller
                                 ->where('users.role_id', '4')
                                 ->where('users.outlets_id', $outletId)
                                 ->groupBy('users.id')
+                                ->groupBy('users.name')
                                 ->orderBy(DB::raw('SUM(orders.price)'), 'DESC')
                                 ->limit(10)
                                 ->get();
