@@ -18,4 +18,9 @@ class LogActivity extends Model
         'user_agent'
     ];
     protected $table = 'log_activities';
+
+    //return relation to users
+    function user(){
+        return $this->belongsTo(User::class, 'users_id', 'id');
+    }
 }

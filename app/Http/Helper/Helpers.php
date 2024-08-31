@@ -107,7 +107,7 @@ if (!function_exists('listMenu')) {
                 ],
                 [
                     'title' => 'Profile',
-                    'url' => 'profile',
+                    'url' => '/profile',
                     'hasChild' => false,
                     'icon' => 'users'
                 ]
@@ -123,7 +123,7 @@ if (!function_exists('listMenu')) {
                 ],
                 [
                     'title' => 'Profile',
-                    'url' => 'profile',
+                    'url' => '/profile',
                     'hasChild' => false,
                     'icon' => 'users'
                 ]
@@ -139,7 +139,7 @@ if (!function_exists('listMenu')) {
                 ],
                 [
                     'title' => 'Profile',
-                    'url' => 'profile',
+                    'url' => '/profile',
                     'hasChild' => false,
                     'icon' => 'users'
                 ]
@@ -161,7 +161,7 @@ if (!function_exists('listMenu')) {
                 ],
                 [
                     'title' => 'Profile',
-                    'url' => 'profile',
+                    'url' => '/profile',
                     'hasChild' => false,
                     'icon' => 'users'
                 ]

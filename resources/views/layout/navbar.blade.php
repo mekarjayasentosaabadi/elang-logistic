@@ -9,7 +9,7 @@
              </ul>
              <ul class="nav navbar-nav bookmark-icons">
                  <li class="nav-item d-none d-lg-block">
-                     <h1>{{ Auth::user()->role_id != '1' ? Auth::user()->outlet->name : 'Pusat' }}</h1>
+                     <h1>{{ Auth::user()->role_id != '1' && Auth::user()->role_id != '6' ? Auth::user()->outlet->name : 'Pusat' }}</h1>
                  </li>
              </ul>
          </div>
