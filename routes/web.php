@@ -129,6 +129,7 @@ Route::middleware(['auth', 'check.role:1,2'])->group(function () {
         Route::get('/checkOrders/{id}', [ManifestController::class, 'checkOrders'])->name('manifest.checkOrders');
         Route::post('/store', [ManifestController::class, 'store'])->name('manifest.store');
         Route::get('/{id}/edit', [ManifestController::class, 'edit'])->name('manifest.edit');
+        Route::get('/{id}/detail', [ManifestController::class, 'detailmanifest'])->name('manifest.detail');
         Route::get('/{id}/getdetail', [ManifestController::class, 'getdetail'])->name('manifest.getdetail');
         Route::post('/{id}/delete', [ManifestController::class, 'delete'])->name('manifest.delete');
         Route::post('/{id}/deletedetailold', [ManifestController::class, 'deletedetailold'])->name('manifest.deletedetailold');
