@@ -36,15 +36,24 @@ class OrderController extends Controller
     function getAll()
     {
         if (Auth::user()->role_id == '1') {
-            $q = Order::with('customer', 'histories');
+            $q = Order::with('customer', 'histories', 'destination');
         } else {
-            $q = Order::where('outlet_id', Auth::user()->outlets_id)->with('customer', 'histories')->get();
+            $q = Order::where('outlet_id', Auth::user()->outlets_id)->with('customer', 'histories', 'destination')->get();
         }
 
 
+        $q->orderByRaw("
+            CASE
+                WHEN status_orders = 1 THEN 1
+                WHEN status_orders = 2 THEN 2
+                WHEN status_orders = 3 THEN 3
+                WHEN status_orders = 4 THEN 4
+            END
+        ");
+
         return DataTables::of($q)
             ->editColumn('destination', function ($query) {
-                return $query->destination->name;
+                return $query->destination->name ?? '-' ;
             })
             ->addColumn('numberorders', function ($query) {
                 return $query->numberorders ?? '-';
@@ -62,6 +71,9 @@ class OrderController extends Controller
             })
             ->editColumn('created_at', function ($query) {
                 return $query->created_at ? $query->created_at->format('d-m-Y H:i') : '-';
+            })
+            ->editColumn('note', function ($query) {
+                return $query->note ??  '-';
             })
             ->addColumn('aksi', function ($query) {
                 $encryptId = Crypt::encrypt($query->id);
@@ -103,7 +115,7 @@ class OrderController extends Controller
                 }
                 $btn .= '</div></div>';
                 return $btn;
-            })->rawColumns(['numberorders', 'pengirim', 'penerima', 'created_at', 'status_orders', 'aksi', 'created_at'])
+            })->rawColumns(['numberorders', 'destination', 'pengirim', 'penerima', 'created_at', 'note','status_orders', 'aksi', 'created_at'])
             ->addIndexColumn()
             ->make(true);
     }
