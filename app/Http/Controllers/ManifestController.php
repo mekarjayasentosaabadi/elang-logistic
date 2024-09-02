@@ -27,6 +27,13 @@ class ManifestController extends Controller
             $q->where('outlet_id', auth()->user()->outlets_id);
         }
 
+        $q->orderByRaw("
+                CASE
+                    WHEN status_manifest = 1 THEN 1
+                    WHEN status_manifest = 2 THEN 2
+                    WHEN status_manifest = 3 THEN 3
+                END
+        ");
 
         return DataTables::of($q)
             ->editColumn('destination', function ($e) {
@@ -34,6 +41,9 @@ class ManifestController extends Controller
             })
             ->editColumn('jumlah', function ($e) {
                 return $e->detailmanifests->count();
+            })
+            ->editColumn('notes', function ($e) {
+                return $e->notes;
             })
             ->addColumn('status', function ($e) {
                 if ($e->status_manifest == 0) {
