@@ -63,7 +63,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="form-group mb-2">
+                                <div class="form-group mb-2 hidden">
                                     <label for="shipping_no">Nomor Pengiriman</label>
                                     @if ($statusDetailDone)
                                         <input type="text" name="shipping_no" id="shipping_no" class="form-control"
@@ -73,6 +73,8 @@
                                         placeholder="Masukan nomor pengiriman" value="{{ $shippingCourier->shippingno }}" disabled>
                                     @endif
                                 </div>
+                            </div>
+                            <div class="">
                                 <div class="form-group mb-2">
                                     <label for="courier">Kurir</label>
                                     @if ($statusDetailDone)
@@ -94,10 +96,7 @@
                                             @endif
                                         </select>
                                     @endif
-
                                 </div>
-                            </div>
-                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="note">Catatan</label>
                                     @if ($statusDetailDone)

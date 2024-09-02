@@ -62,9 +62,9 @@ class ShippingcourierController extends Controller
 
 
         return DataTables::of($q)
-            ->editColumn('shippingno', function ($query) {
-                return $query->shippingno;
-            })
+            // ->editColumn('shippingno', function ($query) {
+            //     return $query->shippingno;
+            // })
             ->editColumn('nama_kurir', function ($query) {
                 return $query->driver->name;
             })
