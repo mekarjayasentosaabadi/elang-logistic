@@ -161,7 +161,7 @@
                         manifestId: x.id,
                         noManifest: x.manifestno,
                         noSmd: x.no_smd,
-                        destination: x.destination.name,
+                        destination: x.destination?.name ?? '-',
                         jumlahManifest: x.detailmanifests.length,
                         notes: x.notes
                     }
