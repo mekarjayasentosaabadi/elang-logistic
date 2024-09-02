@@ -30,7 +30,7 @@ class ManifestController extends Controller
 
         return DataTables::of($q)
             ->editColumn('destination', function ($e) {
-                return $e->destination->name;
+                return $e->destination->name ?? '-';
             })
             ->editColumn('jumlah', function ($e) {
                 return $e->detailmanifests->count();
@@ -55,14 +55,15 @@ class ManifestController extends Controller
                 }
             })
             ->addColumn('option', function ($x) {
+                $option = '<div>';
                 if ($x->status_manifest != 3 && $x->status_manifest != 2) {
-                    $option = '<div>';
                     $option .= '<a title="Edit Manifest" href="manifest/' . Crypt::encrypt($x->id) . '/edit" class="btn btn-warning btn-sm "><i class="fa fa-edit"></i></a> ';
-                    $option .= '<a title="Detail Manifest" href="manifest/' . Crypt::encrypt($x->id) . '/detail" class="btn btn-success btn-sm "><i class="fa fa-list"></i></a> ';
                     $option .= '<button title="Delete Manifest" class="btn btn-danger btn-sm" onclick="deleteManifest(this, ' . $x->id . ')"><i class="fa fa-trash"></i></button> ';
-                    $option .= '<a href="manifest/' . Crypt::encrypt($x->id) . '/print" target="_blank" class="btn btn-success btn-sm" title="Cetak Resi Manifest"><i class="fa fa-print"></i></a></div>';
-                    return $option;
                 }
+                $option .= '<a title="Detail Manifest" href="manifest/' . Crypt::encrypt($x->id) . '/detail" class="btn btn-success btn-sm "><i class="fa fa-list"></i></a> ';
+                $option .= '<a href="manifest/' . Crypt::encrypt($x->id) . '/print" target="_blank" class="btn btn-success btn-sm" title="Cetak Resi Manifest"><i class="fa fa-print"></i></a></div>';
+                // $option .= '<a href="manifest/' . Crypt::encrypt($x->id) . '/printSmd" target="_blank" class="btn btn-success btn-sm" title="Cetak SMD"><i class="fa fa-print"></i></a></div>';
+                return $option;
             })
             ->rawColumns(['status', 'option'])
             ->addIndexColumn()
@@ -285,7 +286,8 @@ class ManifestController extends Controller
     }
 
     //detail manifest
-    function detailmanifest($id){
+    function detailmanifest($id)
+    {
         $outlets = Outlet::all();
         $manifest = Manifest::where('id', Crypt::decrypt($id))->firstOrFail();
         $manifest->listArrayId = json_encode($manifest->detailmanifests->pluck('orders_id')->toArray());

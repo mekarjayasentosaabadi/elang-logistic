@@ -136,6 +136,7 @@ Route::middleware(['auth', 'check.role:1,2'])->group(function () {
         Route::post('/{id}/update', [ManifestController::class, 'update'])->name('manifest.update');
         Route::post('/{id}/addDetail/{ordersid}', [ManifestController::class, 'addDetail'])->name('manifest.addDetail');
         Route::get('/{id}/print', [ManifestController::class, 'printresi'])->name('manifest.cetakresi');
+        Route::get('/{id}/printSmd', [ManifestController::class, 'printSmd'])->name('manifest.cetaksmd');
     });
 
     //Price
