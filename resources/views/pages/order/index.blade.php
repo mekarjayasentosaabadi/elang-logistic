@@ -25,6 +25,7 @@
                                     <th>Pengirim</th>
                                     <th>Penerima</th>
                                     <th>Tanggal</th>
+                                    <th>Catatan</th>
                                     <th>Status</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -83,6 +84,10 @@
                         name: 'orders.created_at',
                         orderable: true,
                         searchable: true
+                    },
+                    {
+                        data: 'note',
+                        name: 'note',
                     },
                     {
                         data: 'status_orders',
