@@ -22,7 +22,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>No Pengiriman</th>
+                                    {{-- <th>No Pengiriman</th> --}}
                                     <th>Nama Kurir</th>
                                     <th>Paket Yang dikirim</th>
                                     <th>Status</th>
@@ -56,12 +56,12 @@
                         orderable: false,
                         searchable: false
                     },
-                    {
-                        data: 'shippingno',
-                        name: 'shippingno',
-                        orderable: false,
-                        searchable: true
-                    },
+                    // {
+                    //     data: 'shippingno',
+                    //     name: 'shippingno',
+                    //     orderable: false,
+                    //     searchable: true
+                    // },
                     {
                         data: 'nama_kurir',
                         name: 'driver.name',

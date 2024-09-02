@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Order;
+use App\Models\ShippingCourier;
 use Illuminate\Support\Facades\Auth;
 
 if (!function_exists('listMenu')) {
@@ -330,3 +331,11 @@ if (!function_exists('formatRupiah')) {
     }
 }
 
+if (!function_exists('generateShippingNo')) {
+    function generateShippingNo()
+    {
+        $last = ShippingCourier::count();
+        $data = 'SC' . str_pad($last + 1, 8, '0', STR_PAD_LEFT);
+        return $data;
+    }
+}

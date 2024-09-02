@@ -44,12 +44,13 @@
                         <input type="hidden" name="outlet_id" id="outlet_id_hidden">
                         <div id="hidden-inputs-container"></div>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-6 hidden">
                                 <div class="form-group mb-2">
                                     <label for="shipping_no">Nomor Pengiriman</label>
-                                    <input type="text" name="shipping_no" id="shipping_no" class="form-control"
-                                        placeholder="Masukan nomor pengiriman">
+                                    <input type="text" name="shipping_no" id="shipping_no" class="form-control" placeholder="Masukan nomor pengiriman" value="{{ generateShippingNo() }}">
                                 </div>
+                            </div>
+                            <div class="">
                                 <div class="form-group mb-2">
                                     <label for="courier">Kurir</label>
                                     <select name="courier" id="courier" class="form-control">
@@ -61,8 +62,6 @@
                                         @endif
                                     </select>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="note">Catatan</label>
                                     <textarea name="note" rows="4" id="note" class="form-control" placeholder="masukan catatan">{{ old('address') }}</textarea>
