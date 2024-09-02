@@ -22,6 +22,7 @@
                                         <th>Manifest No</th>
                                         <th>Destinations</th>
                                         <th>Jumlah AWB</th>
+                                        <th>Catatan</th>
                                         <th>Status Manifest</th>
                                         <th>Options</th>
                                     </tr>
@@ -51,6 +52,7 @@
                 columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'manifestno',
@@ -62,7 +64,13 @@
                     },
                     {
                         data: 'jumlah',
-                        name: 'jumlah'
+                        name: 'jumlah',
+                        orderable: false,
+                        searchable: false
+                    },
+                    {
+                        data: 'notes',
+                        name: 'notes'
                     },
                     {
                         data: 'status',

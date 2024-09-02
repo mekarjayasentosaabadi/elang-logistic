@@ -66,7 +66,7 @@
                                     </select>
                                 </div>
 
-                                <div class="form-group mt-1 " id="form-no-bags">
+                                <div class="form-group mt-1 hidden" id="form-no-bags">
                                     <label for="nobags">No Bags</label>
                                     <input type="text" name="nobags" id="nobags" class="form-control"
                                         value="{{ $manifest->no_bags }}">
