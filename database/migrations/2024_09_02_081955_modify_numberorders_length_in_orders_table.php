@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('surattugas', function (Blueprint $table) {
-            $table->dropColumn('driver');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->string('numberorders', 255)->change();
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('surattugas', function (Blueprint $table) {
-            $table->string('driver')->nullable()->after('outlets_id');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->string('numberorders', 10)->change();
         });
     }
 };
