@@ -2,7 +2,7 @@
 @section('title')
     <span>Manifest</span>
     <small>/</small>
-    <small>Create</small>
+    <small>Edit</small>
 @endsection
 @section('content')
     <div class="row">
@@ -13,7 +13,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Form Update Manifest</h4>
-                        <a href="{{ route('manifest.index') }}" class="btn btn-warning">Kembali</a>
+                        <a href="{{ route('manifest.index') }}" class="btn btn-warning"><li class="fa fa-undo"></li> Kembali</a>
                     </div>
                     <div class="card-body">
 
@@ -113,7 +113,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Detail Manifest</h3>
-                        <button type="button" class="btn btn-primary" id="add-order"> Add
+                        <button type="button" class="btn btn-primary" id="add-order"><li class="fa fa-plus"></li> Add
                             Order</button>
                     </div>
                     <div class="card-body">
@@ -169,7 +169,7 @@
                                             <div class="row mt-2">
                                                 <div class="col-md-6">
                                                     <button class="btn btn-primary btn-md" onclick="saveManifest()">
-                                                        Simpan</button>
+                                                        <li class="fa fa-save"></li> Simpan</button>
                                                 </div>
                                             </div>
                                         </div>

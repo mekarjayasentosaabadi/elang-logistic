@@ -12,7 +12,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Outlet</h4>
-                        <a href="{{ url('/shipping-courier') }}" class="btn btn-warning">Kembali</a>
+                        <a href="{{ url('/shipping-courier') }}" class="btn btn-warning"><li class="fa fa-undo"></li> Kembali</a>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
@@ -36,7 +36,7 @@
                     <div class="card-header">
                         <h4 class="card-title">Tambah Pengiriman</h4>
                         @if (Auth::user()->role_id != '1')
-                            <a href="{{ url('/shipping-courier') }}" class="btn btn-warning">Kembali</a>
+                            <a href="{{ url('/shipping-courier') }}" class="btn btn-warning"><li class="fa fa-undo"></li>Kembali</a>
                         @endif
                     </div>
                     <div class="card-body mb-5">
@@ -73,7 +73,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Tambahkan paket</h3>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter"> Add Paket</button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter"><li class="fa fa-plus"></li> Add Paket</button>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -95,7 +95,7 @@
                                 </table>
 
                                 <div class="mt-3">
-                                    <button class="btn btn-primary btn-md float-end">Simpan</button>
+                                    <button class="btn btn-primary btn-md float-end"><li class="fa fa-save"></li> Simpan</button>
                                 </div>
                             </div>
                         </div>

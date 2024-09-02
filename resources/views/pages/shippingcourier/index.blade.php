@@ -13,7 +13,7 @@
                 <div class="card-header">
                     <h4 class="card-title">Shipping Courier</h4>
                     @if (Auth::user()->role_id == '1' || Auth::user()->role_id == '2')
-                        <a href="{{ url('/shipping-courier/create') }}" class="btn btn-primary">Tambah Pengiriman</a>
+                        <a href="{{ url('/shipping-courier/create') }}" class="btn btn-primary"><li class="fa fa-plus"></li> Tambah Pengiriman</a>
                     @endif
                 </div>
                 <div class="card-body">

@@ -64,7 +64,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary mt-2 float-end">Update</button>
+                        <button type="submit" class="btn btn-primary mt-2 float-end"><li class="fa fa-save"></li> Update</button>
                     </form>
                 </div>
             </div>
