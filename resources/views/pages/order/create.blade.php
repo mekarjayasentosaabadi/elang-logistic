@@ -165,24 +165,6 @@
                             </div>
                             <div class="row mt-2">
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="select_option_berat_volume">Berat / Volume</label>
-                                        <select name="select_option_berat_volume" id="select_option_berat_volume"
-                                            class="form-control">
-                                            <option value="berat">Berat</option>
-                                            <option value="volume">Volume</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="address">Alamat</label>
-                                        <textarea name="address" id="address" class="form-control" placeholder="masukan alamat lengkap">{{ old('address') }}</textarea>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-md-6 weight">
                                     <div class="form-group ">
                                         <label for="weight">Berat</label>
                                         <div class="input-group">
@@ -193,13 +175,35 @@
                                     </div>
                                     <span class="text-danger" id="error-minweight"></span>
                                 </div>
-                                <div class="col-md-6 volume">
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="volume">Volume</label>
-                                        <div class="input-group">
-                                            <input type="number" name="volume" id="volume" class="form-control"
-                                                value="{{ old('volume') }}">
-                                            <span class="input-group-text">M<sup>3</sup></span>
+                                        <label for="address">Alamat</label>
+                                        <textarea name="address" id="address" class="form-control" placeholder="masukan alamat lengkap">{{ old('address') }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <label for="volume">Volume</label>
+                                            <div class="d-flex gap-1">
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="basic-addon1">P</span>
+                                                    <input type="text" name="panjang" id="panjang" class="form-control"
+                                                    value="{{ old('panjang') }}" placeholder="panjang">
+                                                </div>
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="basic-addon1">L</span>
+                                                    <input type="text" name="lebar" id="lebar" class="form-control"
+                                                    value="{{ old('lebar') }}" placeholder="lebar">
+                                                </div>
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="basic-addon1">T</span>
+                                                    <input type="text" name="tinggi" id="tinggi" class="form-control"
+                                                    value="{{ old('tinggi') }}" placeholder="tinggi">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -357,17 +361,17 @@
 
 
 
-            $('.volume').hide();
-            $('#select_option_berat_volume').change(function() {
-                var weightOrVolume = $('#select_option_berat_volume').val();
-                if (weightOrVolume == "berat") {
-                    $('.weight').show()
-                    $('.volume').hide()
-                } else if (weightOrVolume == "volume") {
-                    $('.weight').hide()
-                    $('.volume').show()
-                }
-            })
+            // $('.volume').hide();
+            // $('#select_option_berat_volume').change(function() {
+            //     var weightOrVolume = $('#select_option_berat_volume').val();
+            //     if (weightOrVolume == "berat") {
+            //         $('.weight').show()
+            //         $('.volume').hide()
+            //     } else if (weightOrVolume == "volume") {
+            //         $('.weight').hide()
+            //         $('.volume').show()
+            //     }
+            // })
 
 
 
