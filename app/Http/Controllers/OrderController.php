@@ -191,6 +191,7 @@ class OrderController extends Controller
             $response = [
                 'status' => 'success',
                 'data' => [
+                    'price_id'   => $estimation->id,
                     'price'      => $estimation->price,
                     'estimation' => $estimation->estimation,
                     'minweights' => $estimation->minweights,
@@ -201,6 +202,7 @@ class OrderController extends Controller
             $response = [
                 'status' => 'error',
                 'data' => [
+                    'price_id'   => '0',
                     'price'      => '0',
                     'estimation' => '0',
                     'minweights' => '0',
@@ -358,6 +360,14 @@ class OrderController extends Controller
 
                     Alert::error('Gagal', $errorMessage);
                     return redirect()->back()->withInput();
+                }
+
+                if ($request->price_id) {
+                    $minimumPrice = Masterprice::find($request->price_id);
+                    if ($request->price <= $minimumPrice->minimumprice) {
+                        Alert::error('Gagal', 'Harga tidak boleh lebih kecil dari '.formatRupiah($minimumPrice->minimumprice));
+                        return redirect()->back()->withInput();
+                    }
                 }
 
                 // $order->awb = generateAwb();
@@ -555,6 +565,15 @@ class OrderController extends Controller
                 Alert::error('Gagal', $errorMessage);
                 return redirect()->back()->withInput();
             }
+
+            if ($request->price_id) {
+                $minimumPrice = Masterprice::find($request->price_id);
+                if ($request->price <= $minimumPrice->minimumprice) {
+                    Alert::error('Gagal', 'Harga tidak boleh lebih kecil dari '.formatRupiah($minimumPrice->minimumprice));
+                    return redirect()->back()->withInput();
+                }
+            }
+
 
             // cek awb
             $cekAwb = Order::where('numberorders', $request->awb)->where('id', '!=', $order->id)->first();

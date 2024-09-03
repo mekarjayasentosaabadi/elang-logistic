@@ -138,14 +138,14 @@
                                             <select name="destination_id" id="destination_id" class="form-control">
                                                 <option value="">Pilih Destinasi</option>
                                                 @foreach ($destinations as $destination)
-                                                    <option {{ Old('destination_id', $order->destination->name ) == $destination->name ? 'selected' : '' }} value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                                    <option {{ Old('destination_id', $order->destinations_id ) == $destination->id ? 'selected' : '' }} value="{{ $destination->id }}">{{ $destination->name }}</option>
                                                 @endforeach
                                             </select>
                                         @else
                                             <select name="destination_id" id="destination_id" class="form-control" disabled readonly>
                                                 <option value="">Pilih Destinasi</option>
                                                 @foreach ($destinations as $destination)
-                                                    <option {{ Old('destination_id', $order->destination->name ) == $destination->name ? 'selected' : '' }} value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                                    <option {{ Old('destination_id', $order->destinations_id ) == $destination->id ? 'selected' : '' }} value="{{ $destination->id }}">{{ $destination->name }}</option>
                                                 @endforeach
                                             </select>
                                             <input type="hidden" name="destination_id" value="{{ $order->destination->id }}">
@@ -169,6 +169,7 @@
                                         <label for="weight">Berat</label>
                                         <div class="input-group">
                                             <input type="number" name="weight" id="weight" class="form-control" value="{{ Old('weight', $order->weight) }}"  placeholder="masukan berat kg">
+                                            <input type="hidden" id="weight_val" value="{{$order->weight }}">
                                             <span class="input-group-text">Kg</span>
                                         </div>
                                     </div>
@@ -211,6 +212,8 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="price">Harga</label>
+                                        <input type="hidden" name="price_id" id="price_id" value="{{ Old('price_id') }}">
+                                        <input type="hidden" name="price_val" id="price_val" value="{{ $order->price }}">
                                         <input type="text" name="price" id="price" class="form-control" value="{{ Old('price', $order->price) }}"  placeholder="masukan harga">
                                     </div>
                                 </div>
@@ -329,28 +332,53 @@
                             destination_id  : destination_id,
                         },
                         success: function(response) {
-                            var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data.minweights)
-                            var minimumweight = response.data.minweights
-                            $('#price').val(response.data.price)
+                            var pricePerKg      = parseFloat(response.data.price) / parseFloat(response.data.minweights)
+                            var nextweightprice =response.data.nextweightprices
+                            var minimumweight   = response.data.minweights
+                            var price           = response.data.price
+                            var price_id        = response.data.price_id
+
+                            $('#price_id').val(response.data.price_id);
                             $('#estimation').val(response.data.estimation)
                             $('#weight').val(response.data.minweights)
+                            $('#price').val(response.data.price)
+
+                            if ($('#weight').val() <=  $('#weight_val').val()) {
+                                $('#weight').val($('#weight_val').val())
+                            }
+
+                            if ($('#price').val() <=  $('#price_val').val()) {
+                                $('#price').val($('#price_val').val())
+                            }
 
 
-                            $('#weight').off('keyup').on('keyup', function () {
+                            $('#weight').off('keyup').on('keyup', function() {
                                 var weight = parseFloat($('#weight').val()) || 0
-                                if ( weight > 0 && weight < minimumweight) {
-                                    $('#error-minweight').text('minimim berat '+minimumweight+' kg')
+
+                                if (weight < minimumweight) {
+                                    $('#error-minweight').text('minimal berat ' + minimumweight + ' kg')
                                     $('#weight').addClass('border border-danger')
+                                    $('#price').val(price);
                                     $('.btn-send-update').attr('type', 'button');
-                                    $('#price').val(response.data.price);
-                                }else{
+                                } else {
+                                    $('#error-minweight').empty();
                                     $('.btn-send-update').attr('type', 'submit');
-                                    if (pricePerKg) {
-                                        var newPrice = weight * pricePerKg;
-                                        $('#price').val(newPrice)
+                                    totalPrice = 0
+                                    if (weight > minimumweight) {
+                                        if (armada == '1') {
+                                            totalPrice = price + ((weight - minimumweight) * nextweightprice)
+                                        }else if(armada == '2' || armada == '3'){
+                                            if (pricePerKg) {
+                                               totalPrice = weight * pricePerKg;
+                                            }
+                                        }
+                                    } else {
+                                        totalPrice = price;
                                     }
+                                    $('#price').val(totalPrice.toFixed(0))
+
+
                                     $('#weight').removeClass('border border-danger')
-                                    $('#error-minweight').text('')
                                 }
                             })
                         },

@@ -22,8 +22,7 @@
                             <select name="outlet_id_select" id="outlet_id_select" class="form-control">
                                 <option value="">Pilih Outlet Asal</option>
                                 @foreach ($outlets as $outlet)
-                                    <option value="{{ $outlet->id }}"
-                                        {{ old('outlet_id') == $outlet->id ? 'selected' : '' }}>{{ $outlet->name }}</option>
+                                    <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -210,6 +209,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="price">Harga</label>
+                                        <input type="hidden" name="price_id" id="price_id">
                                         <input type="text" name="price" id="price" class="form-control"
                                             value="{{ old('price') }}" placeholder="masukan harga">
                                     </div>
@@ -288,31 +288,44 @@
                             destination_id: destination_id,
                         },
                         success: function(response) {
-                            var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data
-                                .minweights)
-                            var minimumweight = response.data.minweights
+                            var pricePerKg      = parseFloat(response.data.price) / parseFloat(response.data.minweights)
+                            var nextweightprice =response.data.nextweightprices
+                            var minimumweight   = response.data.minweights
+                            var price           = response.data.price
+                            var price_id        = response.data.price_id
+
+                            $('#price_id').val(response.data.price_id);
                             $('#price').val(response.data.price)
                             $('#estimation').val(response.data.estimation)
                             $('#weight').val(response.data.minweights)
 
-                            console.log(response.data.ou);
 
                             $('#weight').off('keyup').on('keyup', function() {
                                 var weight = parseFloat($('#weight').val()) || 0
-                                if (weight > 0 && weight < minimumweight) {
-                                    $('#error-minweight').text('minimim berat ' +
-                                        minimumweight + ' kg')
+                                if (weight < minimumweight) {
+                                    $('#error-minweight').text('minimal berat ' + minimumweight + ' kg')
                                     $('#weight').addClass('border border-danger')
-                                    $('#price').val(response.data.price);
+                                    $('#price').val(price);
                                     $('.btn-send-update').attr('type', 'button');
                                 } else {
+                                    $('#error-minweight').empty();
                                     $('.btn-send-update').attr('type', 'submit');
-                                    if (pricePerKg) {
-                                        var newPrice = weight * pricePerKg;
-                                        $('#price').val(newPrice)
+                                    totalPrice = 0
+                                    if (weight > minimumweight) {
+                                        if (armada == '1') {
+                                            totalPrice = price + ((weight - minimumweight) * nextweightprice)
+                                        }else if(armada == '2' || armada == '3'){
+                                            if (pricePerKg) {
+                                               totalPrice = weight * pricePerKg;
+                                            }
+                                        }
+                                    } else {
+                                        totalPrice = price;
                                     }
+                                    $('#price').val(totalPrice.toFixed(0))
+
+
                                     $('#weight').removeClass('border border-danger')
-                                    $('#error-minweight').text('')
                                 }
                             })
                         },
@@ -358,6 +371,7 @@
 
                 })
             })
+
 
 
 
