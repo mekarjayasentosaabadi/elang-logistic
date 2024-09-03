@@ -191,18 +191,22 @@ class OrderController extends Controller
             $response = [
                 'status' => 'success',
                 'data' => [
+                    'price_id'   => $estimation->id,
                     'price'      => $estimation->price,
                     'estimation' => $estimation->estimation,
                     'minweights' => $estimation->minweights,
+                    'nextweightprices' => $estimation->nextweightprices,
                 ]
             ];
         } else {
             $response = [
                 'status' => 'error',
                 'data' => [
+                    'price_id'   => '0',
                     'price'      => '0',
                     'estimation' => '0',
                     'minweights' => '0',
+                    'nextweightprices' => '0',
                 ]
             ];
         }
@@ -323,7 +327,7 @@ class OrderController extends Controller
                     'destination_id'    =>  'required',
                     'armada'            =>  'required',
                     'address'           =>  'required',
-                    // 'weight'            =>  'required',
+                    'weight'            =>  'required',
                     // 'volume'            =>  'required',
                     'estimation'        =>  'required',
                     'payment_method'    =>  'required',
@@ -338,7 +342,7 @@ class OrderController extends Controller
                     'armada.required'         => 'Pilih Salah Satu Armada',
                     'service.required'        => 'Pilih Salah Satu Jenis',
                     'address.required'        => 'Penerima Harus Diisi',
-                    // 'weight.required'         => 'Berat Harus Diisi',
+                    'weight.required'         => 'Berat Harus Diisi',
                     // 'volume.required'         => 'Volume Harus Diisi',
                     'estimation.required'     => 'Estimasi Harus Diisi',
                     'payment_method.required' => 'Pilih Salah Satu Metode Pembayaran',
@@ -358,6 +362,14 @@ class OrderController extends Controller
                     return redirect()->back()->withInput();
                 }
 
+                if ($request->price_id) {
+                    $minimumPrice = Masterprice::find($request->price_id);
+                    if ($request->price <= $minimumPrice->minimumprice) {
+                        Alert::error('Gagal', 'Harga tidak boleh lebih kecil dari '.formatRupiah($minimumPrice->minimumprice));
+                        return redirect()->back()->withInput();
+                    }
+                }
+
                 // $order->awb = generateAwb();
                 if ($request->outlet_id) {
                     $outlet = Outlet::find($request->outlet_id);
@@ -374,6 +386,15 @@ class OrderController extends Controller
                     return redirect()->back()->withInput();
                 }
 
+
+                // set volume
+                if ($request->panjang && $request->lebar && $request->tinggi) {
+                    $volume = $request->panjang * $request->lebar * $request->tinggi;
+                    $panjangVolume = $request->panjang;
+                    $lebarVolume = $request->lebar;
+                    $tinggiVolume = $request->tinggi;
+                }
+
                 $order = new Order();
                 $order->numberorders    =  $request->awb;
                 $order->customer_id     =  $request->customer_id;
@@ -384,7 +405,10 @@ class OrderController extends Controller
                 $order->destinations_id =  $request->destination_id;
                 $order->address         =  $request->address;
                 $order->weight          =  $request->weight;
-                $order->volume          =  $request->volume;
+                $order->volume          =  $volume ?? null;
+                $order->panjang_volume  =  $panjangVolume ?? null;
+                $order->lebar_volume    =  $lebarVolume ?? null;
+                $order->tinggi_volume   =  $tinggiVolume ?? null;
                 $order->payment_method  =  $request->payment_method;
                 $order->price           =  $request->price;
                 $order->estimation      =  $request->estimation;
@@ -410,7 +434,7 @@ class OrderController extends Controller
             }
         } catch (\Throwable $th) {
             DB::rollBack();
-            Alert::error('Gagal', 'Terjadi Kesalahan');
+            // Alert::error('Gagal', 'Terjadi Kesalahan');
             return redirect()->back();
         }
     }
@@ -507,7 +531,7 @@ class OrderController extends Controller
                 'destination_id'    =>  'required',
                 'armada'            =>  'required',
                 'address'           =>  'required',
-                // 'weight'            =>  'required',
+                'weight'            =>  'required',
                 // 'volume'            =>  'required',
                 'estimation'        =>  'required',
                 'payment_method'    =>  'required',
@@ -523,7 +547,7 @@ class OrderController extends Controller
                 'payment_method.required' => 'Pilih Salah Satu Metode Pembayaran',
                 'service.required'        => 'Pilih Salah Satu Jenis',
                 'address.required'        => 'Penerima Harus Diisi',
-                // 'weight.required'         => 'Berat Harus Diisi',
+                'weight.required'         => 'Berat Harus Diisi',
                 // 'volume.required'         => 'Volume Harus Diisi',
                 'estimation.required'     => 'Estimasi Harus Diisi',
                 'description.required'    => 'Deskripsi Harus Diisi',
@@ -542,6 +566,15 @@ class OrderController extends Controller
                 return redirect()->back()->withInput();
             }
 
+            if ($request->price_id) {
+                $minimumPrice = Masterprice::find($request->price_id);
+                if ($request->price <= $minimumPrice->minimumprice) {
+                    Alert::error('Gagal', 'Harga tidak boleh lebih kecil dari '.formatRupiah($minimumPrice->minimumprice));
+                    return redirect()->back()->withInput();
+                }
+            }
+
+
             // cek awb
             $cekAwb = Order::where('numberorders', $request->awb)->where('id', '!=', $order->id)->first();
             if ($cekAwb) {
@@ -559,6 +592,13 @@ class OrderController extends Controller
 
             $gudangLocation = Outlet::find($outlet->id);
 
+            if ($request->panjang && $request->lebar && $request->tinggi) {
+                $volume = $request->panjang * $request->lebar * $request->tinggi;
+                $panjangVolume = $request->panjang;
+                $lebarVolume = $request->lebar;
+                $tinggiVolume = $request->tinggi;
+            }
+
             $order->customer_id     = $request->customer_id;
             $order->status_orders   = 2;
             $order->outlet_id       = $outlet->id;
@@ -569,7 +609,10 @@ class OrderController extends Controller
             $order->destinations_id = $request->destination_id;
             $order->address         = $request->address;
             $order->weight          = $request->weight;
-            $order->volume          = $request->volume;
+            $order->volume          = $volume ?? null;
+            $order->panjang_volume  = $panjangVolume ?? null;
+            $order->lebar_volume    = $lebarVolume ?? null;
+            $order->tinggi_volume   = $tinggiVolume ?? null;
             $order->price           = $request->price;
             $order->payment_method  = $request->payment_method;
             $order->estimation      = $request->estimation;
@@ -597,6 +640,9 @@ class OrderController extends Controller
             $historyOrder->koli             = $order->koli;
             $historyOrder->weight           = $order->weight;
             $historyOrder->volume           = $order->volume;
+            $historyOrder->panjang_volume   = $order->panjang_volume;
+            $historyOrder->lebar_volume     = $order->lebar_volume;
+            $historyOrder->tinggi_volume    = $order->tinggi_volume;
             $historyOrder->price            = $order->price;
             $historyOrder->content          = $order->content;
             $historyOrder->penerima         = $order->penerima;

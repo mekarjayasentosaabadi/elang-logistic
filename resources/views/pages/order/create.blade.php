@@ -22,8 +22,7 @@
                             <select name="outlet_id_select" id="outlet_id_select" class="form-control">
                                 <option value="">Pilih Outlet Asal</option>
                                 @foreach ($outlets as $outlet)
-                                    <option value="{{ $outlet->id }}"
-                                        {{ old('outlet_id') == $outlet->id ? 'selected' : '' }}>{{ $outlet->name }}</option>
+                                    <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -165,24 +164,6 @@
                             </div>
                             <div class="row mt-2">
                                 <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="select_option_berat_volume">Berat / Volume</label>
-                                        <select name="select_option_berat_volume" id="select_option_berat_volume"
-                                            class="form-control">
-                                            <option value="berat">Berat</option>
-                                            <option value="volume">Volume</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="address">Alamat</label>
-                                        <textarea name="address" id="address" class="form-control" placeholder="masukan alamat lengkap">{{ old('address') }}</textarea>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-md-6 weight">
                                     <div class="form-group ">
                                         <label for="weight">Berat</label>
                                         <div class="input-group">
@@ -193,19 +174,42 @@
                                     </div>
                                     <span class="text-danger" id="error-minweight"></span>
                                 </div>
-                                <div class="col-md-6 volume">
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="volume">Volume</label>
-                                        <div class="input-group">
-                                            <input type="number" name="volume" id="volume" class="form-control"
-                                                value="{{ old('volume') }}">
-                                            <span class="input-group-text">M<sup>3</sup></span>
+                                        <label for="address">Alamat</label>
+                                        <textarea name="address" id="address" class="form-control" placeholder="masukan alamat lengkap">{{ old('address') }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <label for="volume">Volume</label>
+                                            <div class="d-flex gap-1">
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="basic-addon1">P</span>
+                                                    <input type="text" name="panjang" id="panjang" class="form-control"
+                                                    value="{{ old('panjang') }}" placeholder="panjang">
+                                                </div>
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="basic-addon1">L</span>
+                                                    <input type="text" name="lebar" id="lebar" class="form-control"
+                                                    value="{{ old('lebar') }}" placeholder="lebar">
+                                                </div>
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="basic-addon1">T</span>
+                                                    <input type="text" name="tinggi" id="tinggi" class="form-control"
+                                                    value="{{ old('tinggi') }}" placeholder="tinggi">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="price">Harga</label>
+                                        <input type="hidden" name="price_id" id="price_id">
                                         <input type="text" name="price" id="price" class="form-control"
                                             value="{{ old('price') }}" placeholder="masukan harga">
                                     </div>
@@ -284,31 +288,44 @@
                             destination_id: destination_id,
                         },
                         success: function(response) {
-                            var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data
-                                .minweights)
-                            var minimumweight = response.data.minweights
+                            var pricePerKg      = parseFloat(response.data.price) / parseFloat(response.data.minweights)
+                            var nextweightprice =response.data.nextweightprices
+                            var minimumweight   = response.data.minweights
+                            var price           = response.data.price
+                            var price_id        = response.data.price_id
+
+                            $('#price_id').val(response.data.price_id);
                             $('#price').val(response.data.price)
                             $('#estimation').val(response.data.estimation)
                             $('#weight').val(response.data.minweights)
 
-                            console.log(response.data.ou);
 
                             $('#weight').off('keyup').on('keyup', function() {
                                 var weight = parseFloat($('#weight').val()) || 0
-                                if (weight > 0 && weight < minimumweight) {
-                                    $('#error-minweight').text('minimim berat ' +
-                                        minimumweight + ' kg')
+                                if (weight < minimumweight) {
+                                    $('#error-minweight').text('minimal berat ' + minimumweight + ' kg')
                                     $('#weight').addClass('border border-danger')
-                                    $('#price').val(response.data.price);
+                                    $('#price').val(price);
                                     $('.btn-send-update').attr('type', 'button');
                                 } else {
+                                    $('#error-minweight').empty();
                                     $('.btn-send-update').attr('type', 'submit');
-                                    if (pricePerKg) {
-                                        var newPrice = weight * pricePerKg;
-                                        $('#price').val(newPrice)
+                                    totalPrice = 0
+                                    if (weight > minimumweight) {
+                                        if (armada == '1') {
+                                            totalPrice = price + ((weight - minimumweight) * nextweightprice)
+                                        }else if(armada == '2' || armada == '3'){
+                                            if (pricePerKg) {
+                                               totalPrice = weight * pricePerKg;
+                                            }
+                                        }
+                                    } else {
+                                        totalPrice = price;
                                     }
+                                    $('#price').val(totalPrice.toFixed(0))
+
+
                                     $('#weight').removeClass('border border-danger')
-                                    $('#error-minweight').text('')
                                 }
                             })
                         },
@@ -357,17 +374,18 @@
 
 
 
-            $('.volume').hide();
-            $('#select_option_berat_volume').change(function() {
-                var weightOrVolume = $('#select_option_berat_volume').val();
-                if (weightOrVolume == "berat") {
-                    $('.weight').show()
-                    $('.volume').hide()
-                } else if (weightOrVolume == "volume") {
-                    $('.weight').hide()
-                    $('.volume').show()
-                }
-            })
+
+            // $('.volume').hide();
+            // $('#select_option_berat_volume').change(function() {
+            //     var weightOrVolume = $('#select_option_berat_volume').val();
+            //     if (weightOrVolume == "berat") {
+            //         $('.weight').show()
+            //         $('.volume').hide()
+            //     } else if (weightOrVolume == "volume") {
+            //         $('.weight').hide()
+            //         $('.volume').show()
+            //     }
+            // })
 
 
 
