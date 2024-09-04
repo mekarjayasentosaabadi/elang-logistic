@@ -23,10 +23,16 @@
                 <td>{{ $order->finish_date ?? '-' }}</td>
                 <td>{{ $order->outlet->destination->name  ?? '-'}}</td>
                 <td>{{ $order->destination->name }}</td>
-                <td>{{ $order->weight ?? $order->weight ?? '-'}}</td>
-                <td>{{ $order->weight ?? $order->weight ?? '-'}}</td>
+                <td>{{ $order->weight ?? $order->volume ?? '-'}}</td>
+                <td>{{ $order->weight ?? $order->volume ?? '-'}}</td>
                 <td>{{ formatRupiah($order->price) ?? '-'}}</td>
             </tr>
         @endforeach
+        <tr>
+            <td colspan="7" style="text-align: right; font-weight: bold;">Total</td>
+            <td>{{ $totalWeightVolume }}</td>
+            <td>{{ $totalWeightVolume }}</td>
+            <td>{{ formatRupiah($totalPrice) }}</td>
+        </tr>
     </tbody>
 </table>

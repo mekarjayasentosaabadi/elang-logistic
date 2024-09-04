@@ -44,5 +44,10 @@
                 <td>{{ $dataReport->order_weight ??  $dataReport->order_volume ?? '-' }}</td>
             </tr>
         @endforeach
+        <tr>
+            <td colspan="9" style="text-align: right; font-weight: bold;">Total</td>
+            <td>{{ $totalWeightVolume }}</td>
+            <td>{{ $totalWeightVolume }}</td>
+        </tr>
     </tbody>
 </table>
