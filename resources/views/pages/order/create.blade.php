@@ -261,7 +261,7 @@
 @section('custom-js')
     <script>
         $(document).ready(function() {
-
+            sendEstimationRequest()
 
             // Saat elemen outlet_id_select berubah
             $('#outlet_id_select').change(function() {

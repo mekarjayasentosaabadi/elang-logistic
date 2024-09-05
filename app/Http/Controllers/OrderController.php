@@ -38,7 +38,7 @@ class OrderController extends Controller
         if (Auth::user()->role_id == '1') {
             $q = Order::with('customer', 'histories', 'destination');
         } else {
-            $q = Order::where('outlet_id', Auth::user()->outlets_id)->with('customer', 'histories', 'destination')->get();
+            $q = Order::where('outlet_id', Auth::user()->outlets_id)->with('customer', 'histories', 'destination');
         }
 
 
@@ -363,8 +363,23 @@ class OrderController extends Controller
                 }
 
                 if ($request->price_id) {
-                    $minimumPrice = Masterprice::find($request->price_id);
-                    if ($request->price <= $minimumPrice->minimumprice) {
+                    if ($request->outlet_id) {
+                        $minimumPrice = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', $request->outlet_id)->where('customer_id', $request->customer_id)->first();
+                        if ($minimumPrice == null) {
+                            $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', $request->outlet_id)->first();
+                        }
+                    } else {
+                        if ($request->customer_id) {
+                            $minimumPrice = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', Auth::user()->outlets_id)->where('customer_id', $request->customer_id)->first();
+                            if ($minimumPrice == null) {
+                                $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
+                            }
+                        } else {
+                            $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
+                        }
+                    }
+
+                    if ($request->price < $minimumPrice->minimumprice) {
                         Alert::error('Gagal', 'Harga tidak boleh lebih kecil dari '.formatRupiah($minimumPrice->minimumprice));
                         return redirect()->back()->withInput();
                     }
@@ -567,8 +582,23 @@ class OrderController extends Controller
             }
 
             if ($request->price_id) {
-                $minimumPrice = Masterprice::find($request->price_id);
-                if ($request->price <= $minimumPrice->minimumprice) {
+                if ($request->outlet_id) {
+                    $minimumPrice = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', $request->outlet_id)->where('customer_id', $request->customer_id)->first();
+                    if ($minimumPrice == null) {
+                        $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', $request->outlet_id)->first();
+                    }
+                } else {
+                    if ($request->customer_id) {
+                        $minimumPrice = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', Auth::user()->outlets_id)->where('customer_id', $request->customer_id)->first();
+                        if ($minimumPrice == null) {
+                            $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
+                        }
+                    } else {
+                        $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
+                    }
+                }
+
+                if ($request->price < $minimumPrice->minimumprice) {
                     Alert::error('Gagal', 'Harga tidak boleh lebih kecil dari '.formatRupiah($minimumPrice->minimumprice));
                     return redirect()->back()->withInput();
                 }

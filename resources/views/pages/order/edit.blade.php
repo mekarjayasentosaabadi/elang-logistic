@@ -262,7 +262,9 @@
 @section('custom-js')
     <script>
         $(document).ready(function() {
+            sendEstimationRequest()
 
+            
             $('#outlet_id_select').attr('data-outlet-id', '{{ $order->outlet_id }}');
             $('#customer_id').attr('data-customer-id', '{{ $order->customer_id }}');
 
