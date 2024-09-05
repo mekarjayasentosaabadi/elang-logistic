@@ -253,5 +253,7 @@ Route::middleware(['auth', 'check.role:6'])->group(function () {
     Route::prefix('logactifity')->group(function () {
         Route::get('/', [LogActivityController::class, 'index'])->name('logactivity.index');
         Route::get('/getData', [LogActivityController::class, 'getData'])->name('logactivity.getData');
+        Route::get('/{id}/detail', [LogActivityController::class, 'detail'])->name('logactivity.detail');
+        Route::get('{id}', [LogActivityController::class, 'getDetail'])->name('logactivity.getDetail');
     });
 });
