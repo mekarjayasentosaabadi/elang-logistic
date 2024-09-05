@@ -113,7 +113,8 @@ class MasterpriceController extends Controller
             $filter = Masterprice::where($search)->first();
 
             if($filter->id != $masterPrice->id){
-                return ResponseFormatter::success(['validate'=>false], 'Data Masterprice tersebut sudah ada.!, Mohon periksa kembali');
+                $pesan = ['Data Masterprice tersebut sudah ada.!, Mohon periksa kembali'];
+                return ResponseFormatter::success(['validate'=>false], $pesan);
             }
             $dataStored = [
                 'outlets_id'    => $request->outlet,
@@ -126,7 +127,8 @@ class MasterpriceController extends Controller
                 'estimation'        => $request->estimation
             ];
             Masterprice::where('id', Crypt::decrypt($id))->update($dataStored);
-            return ResponseFormatter::success(['validate'=>true], 'Master price berhasil diperbaharui.!');
+            $pesan = ['Master price berhasil diperbaharui.!'];
+            return ResponseFormatter::success(['validate'=>true], $pesan);
         } catch (\Throwable $th) {
             return ResponseFormatter::error([$th], 'Something went wrong');
         }
