@@ -22,8 +22,10 @@ class AuthController extends Controller
         if (auth()->attempt($credentials)) {
             if (Auth::user()->role_id == 1 || Auth::user()->role_id == 2 || Auth::user()->role_id == 4 || Auth::user()->role_id == 6) {
                 return redirect('/');
-            }else if(Auth::user()->role_id == 3){
+            } else if (Auth::user()->role_id == 3) {
                 return redirect('/shipping-courier');
+            } else if (Auth::user()->role_id == 5) {
+                return redirect('/update-vehicle');
             }
         }
         Alert::error('Error', 'Email atau Password Salah');

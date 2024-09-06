@@ -67,7 +67,7 @@
         <div class="col-md-6" id="grafik-bulanan">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Grafik Transaksi Tahun {{ date("Y") }}</h4>
+                    <h4 class="card-title">Grafik Transaksi Tahun {{ date('Y') }}</h4>
                 </div>
                 <div class="card-body">
                     <div id="monthly-chart"></div>
@@ -142,8 +142,8 @@
 
 @section('custom-js')
 
-<script src="{{ asset('assets') }}/app-assets/vendors/js/charts/apexcharts.min.js"></script>
-{{-- <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> --}}
+    <script src="{{ asset('assets') }}/app-assets/vendors/js/charts/apexcharts.min.js"></script>
+    {{-- <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script> --}}
 
     <script>
         let latitude = -7.351564695753717
@@ -155,15 +155,14 @@
         });
         var roleAccess = '{{ Auth::user()->role_id }}';
 
-        $(document).ready(function(){
+        $(document).ready(function() {
             getData();
         })
-        const getData=()=>{
+        const getData = () => {
             $.getJSON("{{ url('/getData') }}", function(e) {}).done(function(e) {
-                console.log(e)
                 $('#itemTrxToday').html(e.data.trxToday)
                 $('#itemTrxProcess').html(e.data.trxProcess)
-                if(roleAccess == "4"){
+                if (roleAccess == "4") {
                     $('#incomeThisMonth').html('Jumlah Transaksi')
                     $('#itemIncomeThisMonth').html(e.data.transaksiperbulan)
                     $('#grafik-mingguan').addClass('hidden')
@@ -175,130 +174,131 @@
                 transaksiMingguan(e)
                 topCustomer(e)
                 getMap(e)
-
             })
+
+
         }
         //transaksi bulanan
-        function transaksiBulanan(e){
+        function transaksiBulanan(e) {
             let dataTransaksi = [];
             var bulan
-            if(e.data.transaksiperbulan.length >= 0){
-                    e.data.transaksiperbulan.map((x)=>{
-                        if(x.bulan == 1){
+            if (e.data.transaksiperbulan.length >= 0) {
+                e.data.transaksiperbulan.map((x) => {
+                    if (x.bulan == 1) {
                         bulan = 'Januari'
-                        }else if(x.bulan == 2){
-                            bulan = 'Februari'
-                        }else if(x.bulan == 3){
-                            bulan = 'Maret'
-                        }else if(x.bulan == 4){
-                            bulan = 'April'
-                        }else if(x.bulan == 5){
-                            bulan = 'Mei'
-                        }else if(x.bulan == 6){
-                            bulan = 'Juni'
-                        }else if(x.bulan == 7){
-                            bulan = 'Juli'
-                        }else if(x.bulan == 8){
-                            bulan = 'Agustus'
-                        }else if(x.bulan == 9){
-                            bulan = 'September'
-                        }else if(x.bulan == 10){
-                            bulan = 'Oktober'
-                        }else if(x.bulan == 11){
-                            bulan = 'November'
-                        }else {
-                            bulan = 'November'
-                        }
-                        let arrDataTransaksi = {
-                            bulan: bulan,
-                            transaksi: x.total
-                        }
-                        dataTransaksi.push(arrDataTransaksi)
-                    })
-                }
-                let transaksiData = []
-                let bulanTransaksi = []
-                dataTransaksi.map((x,i)=>{
-                    transaksiData.push(x.transaksi)
-                    bulanTransaksi.push(x.bulan)
+                    } else if (x.bulan == 2) {
+                        bulan = 'Februari'
+                    } else if (x.bulan == 3) {
+                        bulan = 'Maret'
+                    } else if (x.bulan == 4) {
+                        bulan = 'April'
+                    } else if (x.bulan == 5) {
+                        bulan = 'Mei'
+                    } else if (x.bulan == 6) {
+                        bulan = 'Juni'
+                    } else if (x.bulan == 7) {
+                        bulan = 'Juli'
+                    } else if (x.bulan == 8) {
+                        bulan = 'Agustus'
+                    } else if (x.bulan == 9) {
+                        bulan = 'September'
+                    } else if (x.bulan == 10) {
+                        bulan = 'Oktober'
+                    } else if (x.bulan == 11) {
+                        bulan = 'November'
+                    } else {
+                        bulan = 'November'
+                    }
+                    let arrDataTransaksi = {
+                        bulan: bulan,
+                        transaksi: x.total
+                    }
+                    dataTransaksi.push(arrDataTransaksi)
                 })
-                var options = {
-                    series: [{
-                        name: 'Transaksi',
-                        data: transaksiData
-                    }, ],
-                    chart: {
-                        type: 'bar',
-                        height: 350
-                    },
-                    dataLabels: {
-                        enabled: false
-                    },
-                    stroke: {
-                        show: true,
-                        width: 2,
-                        colors: ['transparent']
-                    },
-                    xaxis: {
-                        categories: bulanTransaksi,
-                    },
-                    fill: {
-                        opacity: 1
-                    },
+            }
+            let transaksiData = []
+            let bulanTransaksi = []
+            dataTransaksi.map((x, i) => {
+                transaksiData.push(x.transaksi)
+                bulanTransaksi.push(x.bulan)
+            })
+            var options = {
+                series: [{
+                    name: 'Transaksi',
+                    data: transaksiData
+                }, ],
+                chart: {
+                    type: 'bar',
+                    height: 350
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
+                xaxis: {
+                    categories: bulanTransaksi,
+                },
+                fill: {
+                    opacity: 1
+                },
 
-                };
-                var chart = new ApexCharts(document.querySelector("#monthly-chart"), options);
-                chart.render();
+            };
+            var chart = new ApexCharts(document.querySelector("#monthly-chart"), options);
+            chart.render();
         }
         //transaksi weekly
-        function transaksiMingguan(e){
+        function transaksiMingguan(e) {
             let dataTransaksiMingguan = [];
-                let dataHariTransaksi = [];
-            if(e.data.transaksimingguan.length >= 0){
-                    e.data.transaksimingguan.map((x)=>{
-                        dataTransaksiMingguan.push(x.total)
-                        dataHariTransaksi.push(x.day_name)
-                    })
-                }
-                var optionsWeekly = {
-                    series: [{
-                        name: 'Transaksi',
-                        data: dataTransaksiMingguan
-                    }, ],
-                    chart: {
-                        type: 'bar',
-                        height: 350
-                    },
+            let dataHariTransaksi = [];
+            if (e.data.transaksimingguan.length >= 0) {
+                e.data.transaksimingguan.map((x) => {
+                    dataTransaksiMingguan.push(x.total)
+                    dataHariTransaksi.push(x.day_name)
+                })
+            }
+            var optionsWeekly = {
+                series: [{
+                    name: 'Transaksi',
+                    data: dataTransaksiMingguan
+                }, ],
+                chart: {
+                    type: 'bar',
+                    height: 350
+                },
 
-                    dataLabels: {
-                        enabled: false
-                    },
-                    stroke: {
-                        show: true,
-                        width: 2,
-                        colors: ['transparent']
-                    },
-                    colors: ['#FFA500'],
-                    xaxis: {
-                        categories: dataHariTransaksi,
-                    },
-                    fill: {
-                        opacity: 1
-                    },
+                dataLabels: {
+                    enabled: false
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
+                colors: ['#FFA500'],
+                xaxis: {
+                    categories: dataHariTransaksi,
+                },
+                fill: {
+                    opacity: 1
+                },
 
-                };
+            };
 
-                var chartWeekly = new ApexCharts(document.querySelector("#weekly-chart"), optionsWeekly);
-                chartWeekly.render();
+            var chartWeekly = new ApexCharts(document.querySelector("#weekly-chart"), optionsWeekly);
+            chartWeekly.render();
         }
         //top customer
-        function topCustomer(e){
-            if(roleAccess == "4"){
+        function topCustomer(e) {
+            if (roleAccess == "4") {
                 $('#tabel-top-customer').addClass('hidden')
                 $('#tabel-transaksi').removeClass('hidden')
-                if(e.data.topcustomer.length > 0){
-                let noUrut = 1;
-                e.data.topcustomer.map((x, i)=>{
+                if (e.data.topcustomer.length > 0) {
+                    let noUrut = 1;
+                    e.data.topcustomer.map((x, i) => {
                         var dataStatus = x.status_orders;
                         $('#tbody-transaksi').append(`
                             <tr>
@@ -318,9 +318,9 @@
                         `)
                 }
             } else {
-                if(e.data.topcustomer.length > 0){
+                if (e.data.topcustomer.length > 0) {
                     let noUrut = 1;
-                    e.data.topcustomer.map((x, i)=>{
+                    e.data.topcustomer.map((x, i) => {
                         $('#tbody-customer').append(`
                             <tr>
                                 <td>${noUrut++}</td>
@@ -345,20 +345,18 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
-        function getMap(e){
-            if(e.data.dataalloutlet.length > 0){
-                e.data.dataalloutlet.map((x, i)=>{
+
+        function getMap(e) {
+            if (e.data.dataalloutlet.length > 0) {
+                e.data.dataalloutlet.map((x, i) => {
                     // Menambahkan marker di koordinat yang ditentukan
                     var marker = L.marker([x.lat, x.long]).addTo(map)
-                        .bindPopup('Lokasi Kantor '+ x.name )
+                        .bindPopup('Lokasi Kantor ' + x.name)
                         .openPopup();
                 })
             }
 
         }
-
-
-
     </script>
 
 @endsection

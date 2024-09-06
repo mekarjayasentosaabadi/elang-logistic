@@ -15,6 +15,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SurattugasController;
 use App\Http\Controllers\UpdateResiController;
 use App\Http\Controllers\DestinationController;
+use App\Http\Controllers\HistoryVehicleController;
 use App\Http\Controllers\LogActivityController;
 use App\Http\Controllers\MasterpriceController;
 use App\Http\Controllers\ShippingcourirController;
@@ -237,7 +238,7 @@ Route::middleware(['auth', 'check.role:1,2,3'])->group(function () {
 
 
 //profile admin superadmin courier
-Route::middleware(['auth', 'check.role:1,2,3,4,6'])->group(function () {
+Route::middleware(['auth', 'check.role:1,2,3,4,5,6'])->group(function () {
     Route::prefix('profile')->group(function () {
         Route::get('/', [ProfileController::class, 'index'])->name('profile.index');
         Route::post('/', [ProfileController::class, 'update'])->name('profile.update');
@@ -258,3 +259,24 @@ Route::middleware(['auth', 'check.role:6'])->group(function () {
         Route::get('{id}', [LogActivityController::class, 'getDetail'])->name('logactivity.getDetail');
     });
 });
+
+Route::middleware(['auth', 'check.role:4'])->group(function () {
+    Route::prefix('order')->group(function () {
+        Route::get('/', [OrderController::class, 'index'])->name('order.index');
+        Route::get('/getAll', [OrderController::class, 'getAll'])->name('order.getAll');
+        Route::get('/getHistoryUpdateOrder', [OrderController::class, 'getHistoryUpdateOrder'])->name('order.getHistoryUpdateOrder');
+        Route::get('/{id}/detail', [OrderController::class, 'show']);
+        Route::get('/{id}/historyupdate', [OrderController::class, 'historyupdate']);
+        Route::get('/{id}/detailhistoryupdate', [OrderController::class, 'showHistoryupdateOrder']);
+    });
+
+
+
+    Route::prefix('cek-resi')->group(function () {
+        Route::get('/', [AwbController::class, 'index'])->name('cek-resi.index');
+        Route::get('/{awb}', [AwbController::class, 'getResi'])->name('cek-resi.find');
+    });
+});
+
+Route::get('/update-vehicle', [HistoryVehicleController::class, 'index'])->name('update-vehicle');
+Route::post('/update-vehicle', [HistoryVehicleController::class, 'store'])->name('update-vehicle.store');
