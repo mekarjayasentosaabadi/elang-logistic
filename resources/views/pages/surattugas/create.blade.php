@@ -208,6 +208,8 @@
             rules: {
                 'noSuratTugas': 'required',
                 'destination': 'required',
+                'vehicle': 'required',
+                'driver': 'required',
             },
             submitHandler: function() {
                 if (allId.length <= 0) {

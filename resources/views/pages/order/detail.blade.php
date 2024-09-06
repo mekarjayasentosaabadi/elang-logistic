@@ -39,17 +39,20 @@
                                     Nomor Order
                                     <span class="invoice-number">| {{ $order->numberorders }}</span>
                                 </h4>
-                                <div class="d-flex gap-1">
-                                    @if ($order->status_orders == '2' || $order->status_orders == '3')
-                                        <a class="btn btn-outline-secondary "
-                                            href="/order/{{ Crypt::encrypt($order->id) }}/print" target="_blank">Print
-                                            Format 1</a>
-                                        <a class="btn btn-outline-secondary "
-                                            href="/order/{{ Crypt::encrypt($order->id) }}/print-v2" target="_blank">Print
-                                            Format 2</a>
-                                    @endif
-                                    <a class="btn btn-warning " href="/order">Kembali</a>
-                                </div>
+                                @if (Auth::user()->role_id != '4')
+                                    <div class="d-flex gap-1">
+                                        @if ($order->status_orders == '2' || $order->status_orders == '3')
+                                            <a class="btn btn-outline-secondary "
+                                                href="/order/{{ Crypt::encrypt($order->id) }}/print" target="_blank">Print
+                                                Format 1</a>
+                                            <a class="btn btn-outline-secondary "
+                                                href="/order/{{ Crypt::encrypt($order->id) }}/print-v2"
+                                                target="_blank">Print
+                                                Format 2</a>
+                                        @endif
+                                        <a class="btn btn-warning " href="/order">Kembali</a>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <!-- Header ends -->

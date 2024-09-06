@@ -28,7 +28,7 @@ if (!function_exists('listMenu')) {
                             'icon' => 'circle'
                         ],
                         [
-                            'title' => 'Destination',
+                            'title' => 'Destinasi',
                             'url' => '/destination',
                             'icon' => 'circle'
                         ],
@@ -48,7 +48,7 @@ if (!function_exists('listMenu')) {
                             'icon' => 'circle'
                         ],
                         [
-                            'title' => 'Vehicle',
+                            'title' => 'Kendaraan',
                             'url' => '/vehicle',
                             'icon' => 'circle'
                         ]
@@ -133,10 +133,32 @@ if (!function_exists('listMenu')) {
         if ($role == 4) {
             $data = [
                 [
-                    'title' => 'Dashboard',
-                    'url' => '/',
+                    'title' => 'Order',
+                    'url' => '/order',
+                    'icon' => 'shopping-cart',
+                    'hasChild' => false
+                ],
+                [
+                    'title' => 'Cek Resi',
+                    'url' => '/cek-resi',
+                    'icon' => 'search',
+                    'hasChild' => false
+                ],
+                [
+                    'title' => 'Profile',
+                    'url' => '/profile',
                     'hasChild' => false,
-                    'icon' => 'home'
+                    'icon' => 'users'
+                ]
+            ];
+        }
+        if ($role == 5) {
+            $data = [
+                [
+                    'title' => 'Update Status Kendaraan',
+                    'url' => '/update-vehicle',
+                    'hasChild' => false,
+                    'icon' => 'truck'
                 ],
                 [
                     'title' => 'Profile',
@@ -326,7 +348,8 @@ if (!function_exists('generateAwb')) {
 }
 
 if (!function_exists('formatRupiah')) {
-    function formatRupiah($angka) {
+    function formatRupiah($angka)
+    {
         return 'Rp ' . number_format($angka, 0, ',', '.');
     }
 }

@@ -19,6 +19,7 @@ use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
 use Illuminate\Support\Facades\DB;
 use App\Models\Detailtraveldocument;
+use App\Models\HistoryVehicle;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 
@@ -72,7 +73,11 @@ class SurattugasController extends Controller
     {
         $destination    = Destination::all();
         $vehicle        = Vehicle::where('is_active', '1')->get();
-        $driver         = User::where('role_id', '5')->where('outlets_id', auth()->user()->outlets_id)->get();
+        $driver         = User::where('role_id', '5');
+        if (auth()->user()->role_id != 1) {
+            $driver->where('outlets_id', auth()->user()->outlets_id);
+        }
+        $driver = $driver->get();
         $outlets = Outlet::all();
         return view('pages.surattugas.create', compact('destination', 'vehicle', 'driver', 'outlets'));
     }
@@ -91,6 +96,13 @@ class SurattugasController extends Controller
     {
         DB::beginTransaction();
         try {
+
+            // check driver if already have surat tugas where status != 3
+            $checkDriver = Surattugas::where('driver_id', $request->driver_id)->where('statussurattugas', '!=', 3)->first();
+            if ($checkDriver) {
+                return ResponseFormatter::error([], 'Driver sudah memiliki surat tugas yang belum selesai', 500);
+            }
+
 
             // check if surat tugas already exist
             $checkSuratTugas = Surattugas::where('nosurattugas', $request->suratTugas)->first();
@@ -122,6 +134,19 @@ class SurattugasController extends Controller
                 }
             }
             Detailsurattugas::insert($dataDetail);
+
+            $outlet = Outlet::find($outletId);
+            $destination = $outlet->location_id;
+            HistoryVehicle::create([
+                'vehicle_id'    => $request->vehicle_id,
+                'user_id'       => $request->driver_id,
+                'status'        => 'Surat Tugas',
+                'outlet_id'     => $outletId,
+                'destination_id' => $destination,
+                'note'          => 'Surat Tugas ' . $request->suratTugas . ' telah di buat',
+                'noreference'   => $suratTugas->id
+            ]);
+
             DB::commit();
             return ResponseFormatter::success([
                 'detailSt'      => $dataDetail
@@ -215,14 +240,16 @@ class SurattugasController extends Controller
     }
 
     //detail surat tugas
-    function detailsurattugas($id){
+    function detailsurattugas($id)
+    {
         $datailSuratTugas = Surattugas::with(['outlet', 'driver', 'vehicle', 'destination'])->where('id', Crypt::decrypt($id))->first();
         $listSuratTugasManifest = Surattugas::with(['destination', 'detailsurattugas.manifest'])->where('id', Crypt::decrypt($id))->get();
-        return view('pages.surattugas.detail', compact('datailSuratTugas', 'listSuratTugasManifest' ));
+        return view('pages.surattugas.detail', compact('datailSuratTugas', 'listSuratTugasManifest'));
     }
 
 
-    function printsurattugas($id) {
+    function printsurattugas($id)
+    {
         try {
             $id = decrypt($id);
         } catch (DecryptException $e) {
