@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
+use App\Models\User;
 use App\Models\Order;
+use App\Models\Outlet;
+use App\Models\Vehicle;
 use App\Models\Manifest;
 use App\Models\HistoryAwb;
 use App\Models\Surattugas;
@@ -15,11 +19,8 @@ use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
 use Illuminate\Support\Facades\DB;
 use App\Models\Detailtraveldocument;
-use App\Models\Outlet;
-use App\Models\User;
-use App\Models\Vehicle;
-use Exception;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class SurattugasController extends Controller
 {
@@ -54,7 +55,7 @@ class SurattugasController extends Controller
             ->addColumn('option', function ($x) {
                 $option = '<div>';
 
-                $option .= '<a class="btn btn-primary btn-sm" title="Cetak Surat Tugas"><li class="fa fa-print"></li></a> ';
+                $option .= '<a href="surattugas/' . Crypt::encrypt($x->id) . '/printsurattugas" class="btn btn-primary btn-sm" title="Cetak Surat Tugas"><li class="fa fa-print"></li></a> ';
                 $option .= '<a title="Detail Surat Tugas" href="surattugas/' . Crypt::encrypt($x->id) . '/detail" class="btn btn-success btn-sm "><i class="fa fa-list"></i></a> ';
                 if ($x->statussurattugas == 1) {
                     $option .= '<button class="btn btn-success btn-sm" title="Berangkatkan" onclick="onGoing(' . $x->id . ')"><li class="fa fa-truck"></li></button> ';
@@ -218,5 +219,33 @@ class SurattugasController extends Controller
         $datailSuratTugas = Surattugas::with(['outlet', 'driver', 'vehicle', 'destination'])->where('id', Crypt::decrypt($id))->first();
         $listSuratTugasManifest = Surattugas::with(['destination', 'detailsurattugas.manifest'])->where('id', Crypt::decrypt($id))->get();
         return view('pages.surattugas.detail', compact('datailSuratTugas', 'listSuratTugasManifest' ));
+    }
+
+
+    function printsurattugas($id) {
+        try {
+            $id = decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
+
+
+        $surattugas = Surattugas::find($id);
+
+        $totalKoli = 0;
+        $totalBerat = 0;
+
+        foreach ($surattugas->detailsurattugas as $detailSurat) {
+            if ($detailSurat->manifest) {
+                foreach ($detailSurat->manifest->detailmanifests as $detailManifest) {
+                    $order = $detailManifest->order;
+                    if ($order) {
+                        $totalKoli += $order->koli;
+                        $totalBerat += $order->weight;
+                    }
+                }
+            }
+        }
+        return view('pages.surattugas.surattugas', compact('surattugas', 'totalKoli', 'totalBerat'));
     }
 }

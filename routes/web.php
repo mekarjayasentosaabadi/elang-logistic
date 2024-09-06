@@ -178,6 +178,7 @@ Route::middleware(['auth', 'check.role:1,2'])->group(function () {
         Route::get('/{id}/getListSuratJalan', [SurattugasController::class, 'getListSuratJalan'])->name('surattugas.getListSuratJalan');
         Route::post('/{id}/deleteList', [SurattugasController::class, 'deleteList'])->name('surattugas.deleteList');
         Route::post('/{id}/onGoing', [SurattugasController::class, 'onGoing'])->name('surattugas.onGoing');
+        Route::get('/{id}/printsurattugas', [SurattugasController::class, 'printsurattugas'])->name('surattugas.printsurattugas');
     });
 
 
