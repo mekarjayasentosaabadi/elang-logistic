@@ -190,23 +190,30 @@
                                             <input type="number" name="volume" id="volume" class="form-control" value="{{ Old('volume', $order->volume) }}">
                                             <span class="input-group-text">M<sup>3</sup></span>
                                         </div> --}}
-                                        <div class="d-flex gap-1">
-                                            <div class="input-group">
-                                                <span class="input-group-text" id="basic-addon1">P</span>
-                                                <input type="text" name="panjang" id="panjang" class="form-control"
-                                                value="{{ old('panjang', $order->panjang_volume) }}" placeholder="panjang">
+                                        <div class="d-flex gap-1 " class="volume">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="basic-addon1">P</span>
+                                                    <input type="number" name="panjang" id="panjang" class="form-control"
+                                                    value="{{ old('panjang', $order->panjang_volume) }}" placeholder="panjang">
+                                                </div>
                                             </div>
-                                            <div class="input-group">
-                                                <span class="input-group-text" id="basic-addon1">L</span>
-                                                <input type="text" name="lebar" id="lebar" class="form-control"
-                                                value="{{ old('lebar', $order->lebar_volume) }}" placeholder="lebar">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="basic-addon1">L</span>
+                                                    <input type="number" name="lebar" id="lebar" class="form-control"
+                                                    value="{{ old('lebar', $order->lebar_volume) }}" placeholder="lebar">
+                                                </div>
                                             </div>
-                                            <div class="input-group">
-                                                <span class="input-group-text" id="basic-addon1">T</span>
-                                                <input type="text" name="tinggi" id="tinggi" class="form-control"
-                                                value="{{ old('tinggi', $order->tinggi_volume) }}" placeholder="tinggi">
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="basic-addon1">T</span>
+                                                    <input type="number" name="tinggi" id="tinggi" class="form-control"
+                                                    value="{{ old('tinggi', $order->tinggi_volume) }}" placeholder="tinggi">
+                                                </div>
                                             </div>
                                         </div>
+                                        <label>Total Volume: <span id="total-volume">0</span></label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -264,7 +271,7 @@
         $(document).ready(function() {
             sendEstimationRequest()
 
-            
+
             $('#outlet_id_select').attr('data-outlet-id', '{{ $order->outlet_id }}');
             $('#customer_id').attr('data-customer-id', '{{ $order->customer_id }}');
 
@@ -395,6 +402,27 @@
             $('#armada, #destination_id, #customer_id, #outlet_id_select').change(sendEstimationRequest);
 
 
+
+             // calculatetotals volume
+             function calculatetotalsvolume() {
+                var panjang = parseFloat($('#panjang').val())
+                var lebar   = parseFloat($('#lebar').val())
+                var tinggi  = parseFloat($('#tinggi').val())
+
+                if (!isNaN(panjang) && !isNaN(lebar) && !isNaN(tinggi)) {
+                    var totalVolume = panjang * lebar * tinggi
+                    $('#total-volume').text(totalVolume)
+                }else{
+                    $('#total-volume').text(0)
+                }
+            }
+
+            if ($('#panjang').val() != '' && $('#lebar').val() != '' && $('#tinggi').val() != '') {
+                calculatetotalsvolume();
+            }
+
+            $('#panjang, #lebar, #tinggi').on('keyup',calculatetotalsvolume)
+
             // $('.volume').hide();
             // $('#select_option_berat_volume').change(function () {
             //     var weightOrVolume = $('#select_option_berat_volume').val();
@@ -502,7 +530,11 @@
                         error.insertAfter(element.closest('.input-group'))
                     }else if (element.hasClass('select2-hidden-accessible')){
                         error.insertAfter(element.next('span.select2'))
-                    }else{
+                    }
+                    else if (element.attr("name") == "panjang" || element.attr("name") == "lebar" || element.attr("name") == "tinggi") {
+                        error.insertAfter(element.closest('.input-group'));
+                    }
+                    else{
                         error.insertAfter(element);
                     }
                 }
