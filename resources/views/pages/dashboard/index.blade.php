@@ -148,7 +148,7 @@
     <script>
         let latitude = -7.351564695753717
         let longitude = 108.63515798523339
-        var zoomLevel = 13;
+        var zoomLevel = 8;
         const formatter = new Intl.NumberFormat('id-ID', {
             style: 'currency',
             currency: 'IDR'
@@ -347,11 +347,28 @@
         }).addTo(map);
 
         function getMap(e) {
-            if (e.data.dataalloutlet.length > 0) {
-                e.data.dataalloutlet.map((x, i) => {
+            if (e.data.historyVehicle.length > 0) {
+                e.data.historyVehicle.map((x, i) => {
                     // Menambahkan marker di koordinat yang ditentukan
-                    var marker = L.marker([x.lat, x.long]).addTo(map)
-                        .bindPopup('Lokasi Kantor ' + x.name)
+                    const truckIcon = L.icon({
+                        iconUrl: "{{ asset('assets') }}/img/truck.png",
+                        iconSize: [50, 50],
+                        iconAnchor: [25, 25],
+                        popupAnchor: [0, -25]
+                    });
+
+                    const popupContent = `
+                        <div>
+                            No. Polisi: ${x.vehicle.police_no}</br>
+                            No. Surat Tugas : ${x.surattugas.nosurattugas}<br/>
+                            Total Manifest: ${x.surattugas.detailsurattugas.length}<br/>
+                        </div>
+                    `;
+
+                    var marker = L.marker([x.surattugas.outlet.lat, x.surattugas.outlet.long], {
+                            icon: truckIcon
+                        }).addTo(map)
+                        .bindPopup(popupContent)
                         .openPopup();
                 })
             }
