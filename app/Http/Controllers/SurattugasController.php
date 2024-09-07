@@ -258,21 +258,8 @@ class SurattugasController extends Controller
 
 
         $surattugas = Surattugas::find($id);
+        $detailSurattugas = Detailsurattugas::where('surattugas_id', $id)->get();
 
-        $totalKoli = 0;
-        $totalBerat = 0;
-
-        foreach ($surattugas->detailsurattugas as $detailSurat) {
-            if ($detailSurat->manifest) {
-                foreach ($detailSurat->manifest->detailmanifests as $detailManifest) {
-                    $order = $detailManifest->order;
-                    if ($order) {
-                        $totalKoli += $order->koli;
-                        $totalBerat += $order->weight;
-                    }
-                }
-            }
-        }
-        return view('pages.surattugas.surattugas', compact('surattugas', 'totalKoli', 'totalBerat'));
+        return view('pages.surattugas.surattugas', compact('surattugas', 'detailSurattugas'));
     }
 }

@@ -260,7 +260,7 @@ Route::middleware(['auth', 'check.role:6'])->group(function () {
     });
 });
 
-Route::middleware(['auth', 'check.role:4'])->group(function () {
+Route::middleware(['auth', 'check.role:1,2,4'])->group(function () {
     Route::prefix('order')->group(function () {
         Route::get('/', [OrderController::class, 'index'])->name('order.index');
         Route::get('/getAll', [OrderController::class, 'getAll'])->name('order.getAll');

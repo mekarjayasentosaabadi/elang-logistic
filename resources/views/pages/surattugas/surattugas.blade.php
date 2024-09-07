@@ -43,57 +43,37 @@
         <div class="w-100">
             <h5 class="">No : {{ $surattugas->nosurattugas ?? '-'}} </h5>
             <h3 class="text-center mb-2">SURAT TUGAS</h3>
-            <div class="">
-                <div class="row">
-                    <div class="col-12">
-                        Bersama ini kami menerangkan bahwa Mobil No. Pol <b> {{ $surattugas->vehicle->police_no ?? '-' }} </b> yang dikemudikan oleh Sdr. <b> {{ $surattugas->driver->name ?? '-' }} </b>, mengangkut barang dari :
-                    </div>
-                </div>
-            </div>
-            <div class="d-flex justify-content-center">
-                <div class="container">
-                    <div class="row w-full">
-                        <div class="col-4 border">
-                            Kota Asal : <b> {{ $surattugas->outlet->destination->name ?? '-'}} </b>
-                        </div>
-                        <div class="col-4 border">Tujuan : <b> {{ $surattugas->destination->name ?? '-' }} </b></div>
-                        <div class="col-4 border">Tanggal : <b>{{ $surattugas->created_at }}</b> </div>
-                    </div>
-                </div>
-            </div>
-            <div class="d-flex ">
-                Sejumlah :
-            </div>
-            <div class="d-flex justify-content-center">
-                <div class="container">
-                    <div class="row w-full">
-                        <div class="col-4 border">
-                            {{-- Koli : <b> {{ $surattugas->detailsurattugas->count() }} </b> --}}
-                            Koli : <b> {{ $totalKoli }} </b>
-                        </div>
-                        <div class="col-4 border">Berat : <b> {{$totalBerat}} </b> kg</div>
-                        <div class="col-4 border">Keterangan : </div>
-                    </div>
-                </div>
-            </div>
-            <br>
-            <div class="d-flex ">
-                Demikian Surat Muatan Darat Ini di buat :
-            </div>
-            <br>
-            <div class="row w-full">
-                <div class="d-flex col-4 justify-content-center">
-                    Tanda Tangan <br>
-                    Ops. Kota Asal
-                </div>
-                <div class="d-flex col-4 justify-content-center">
-                    Tanda Tangan <br>
-                    Pengemudi
-                </div>
-                <div class="d-flex col-4 justify-content-center">
-                    Tanda Tangan <br>
-                    Ops. Kota Tujuan
-                </div>
+            <div>
+                <table class="w-100 table table table-striped-columns">
+                    <tr>
+                        <th>No</th>
+                        <th>No Manifest</th>
+                        <th>Destination</th>
+                        <th>Jumlah AWB</th>
+                        <th>Catatan</th>
+                        <th>Status Manifest</th>
+                    </tr>
+                    @foreach ($detailSurattugas as $index => $data)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td>{{ $data->manifest->manifestno ?? '-' }}</td>
+                            <td>{{ $data->manifest->destination->name ?? '-' }}</td>
+                            <td>{{ $data->manifest->detailmanifests->count() ?? '-' }}</td>
+                            <td>{{ $data->manifest->notes ?? '-' }}</td>
+                            <td>
+                                @if ($data->manifest->status_manifest == '0')
+                                    <div class="text-danger">Cancel</div>
+                                @elseif ($data->manifest->status_manifest == '1')
+                                    <div class="text-primary"><li class="fa fa-gears"></li> Process</div>
+                                @elseif ($data->manifest->status_manifest == '2')
+                                    <div class="text-primary"><li class="fa fa-truck"></li> On The Way</div>
+                                @elseif ($data->manifest->status_manifest == '3')
+                                    <div class="text-success"><li class="fa fa-check"></li> Success</div>
+                                @endif
+                            </td>
+                        </tr>
+                    @endforeach
+                </table>
             </div>
         </div>
         <button id="print-button" type="button" class="btn btn-primary btn-sm mt-3 no-print">Cetak Sekarang <i class="bi bi-printer" style="color: white"></i></button>

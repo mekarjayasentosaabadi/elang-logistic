@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Outlet;
 use App\Models\Manifest;
+use App\Models\Surattugas;
 use Illuminate\Http\Request;
 use App\Models\Detailmanifest;
+use App\Models\Detailsurattugas;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
-use App\Models\Outlet;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 
@@ -72,7 +74,10 @@ class ManifestController extends Controller
                 }
                 $option .= '<a title="Detail Manifest" href="manifest/' . Crypt::encrypt($x->id) . '/detail" class="btn btn-success btn-sm "><i class="fa fa-list"></i></a> ';
                 $option .= '<a href="manifest/' . Crypt::encrypt($x->id) . '/print" target="_blank" class="btn btn-success btn-sm" title="Cetak Resi Manifest"><i class="fa fa-print"></i></a></div>';
-                // $option .= '<a href="manifest/' . Crypt::encrypt($x->id) . '/printSmd" target="_blank" class="btn btn-success btn-sm" title="Cetak SMD"><i class="fa fa-print"></i></a></div>';
+
+                if ($x->detailSuratTugas != null) {
+                    $option .= '<a href="manifest/' . Crypt::encrypt($x->id) . '/printSmd" target="_blank" class="btn btn-success btn-sm" title="Cetak SMD"><i class="fa fa-print"></i></a></div>';
+                }
                 return $option;
             })
             ->rawColumns(['status', 'option'])
@@ -302,5 +307,27 @@ class ManifestController extends Controller
         $manifest = Manifest::where('id', Crypt::decrypt($id))->firstOrFail();
         $manifest->listArrayId = json_encode($manifest->detailmanifests->pluck('orders_id')->toArray());
         return view('pages.manifest.detail', compact('outlets', 'manifest'));
+    }
+
+    function printSmd($id) {
+        try {
+            $id = decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
+
+
+        $manifest = Manifest::find($id);
+
+        $totalKoli = 0;
+        $totalBerat = 0;
+        foreach ($manifest->detailmanifests as $detailManifest) {
+            $order = $detailManifest->order;
+            if ($order) {
+                $totalKoli += $order->koli;
+                $totalBerat += $order->weight;
+            }
+        }
+        return view('pages.manifest.smd', compact('manifest', 'totalKoli', 'totalBerat'));
     }
 }

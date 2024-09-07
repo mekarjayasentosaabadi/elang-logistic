@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\CustomerPrice;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -267,9 +268,19 @@ class CustomerController extends Controller
     }
 
     function changeprice(Request $request, $id){
-        CustomerPrice::where('id', $id)->update([
-            'price'     => $request->price
-        ]);
+        $dataUpdate = [
+            'price'     => $request->price,
+        ];
+        if(Auth::user()->role_id == '1'){
+            $dataUpdate = [
+                'price'     => $request->price,
+                'minweights'=> $request->minweight,
+                'nextweightprices'=> $request->pricenext,
+                'minimumprice'  => $request->minimumprice,
+            ];
+        }
+
+        CustomerPrice::where('id', $id)->update($dataUpdate);
         return ResponseFormatter::success([], 'Berhasil memperbaharui Data Harga');
     }
 

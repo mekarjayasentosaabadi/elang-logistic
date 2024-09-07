@@ -105,6 +105,31 @@
                                     <label for="price">Price</label>
                                     <input type="text" name="price" id="price" class="form-control">
                                 </div>
+                                @if (Auth::user()->role_id == "1")
+                                <div class="form-group">
+                                    <label for="minweight">Berat Minimal</label>
+                                    <div class="input-group">
+                                        <input type="text" name="minweight" id="minweight"
+                                            class="form form-control">
+                                        <span class="input-group-text">Kg</span>
+                                    </div>
+                                </div>
+                                <div class="form-group mt-1">
+                                    <label for="minimumprice">Minimum Price</label>
+                                    <input type="text" name="minimumprice" id="minimumprice" class="form-control"
+                                        placeholder="20000">
+                                </div>
+                                <div class="form-group mt-1">
+                                    <label for="estimation">Estimation</label>
+                                    <input type="text" name="estimation" id="estimation" class="form-control"
+                                        placeholder="1">
+                                </div>
+                                <div class="form-group mt-1">
+                                    <label for="pricenext">Next Weight Price</label>
+                                    <input type="text" name="pricenext" id="pricenext" class="form-control"
+                                        placeholder="2000">
+                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
@@ -250,7 +275,10 @@
                             armada: x.armada,
                             destination: x.destination.name,
                             price: x.price,
-                            estimation: x.estimation
+                            estimation: x.estimation,
+                            minimumprice: x.minimumprice,
+                            nextweightprices: x.nextweightprices,
+                            minweight: x.minweights
                         }
                         listPriceCustomer.push(dataPriceCustomer)
                     })
@@ -313,22 +341,29 @@
                         <td>${x.destination}</td>
                         <td>${ formatter.format(x.price)}</td>
                         <td>${x.estimation}</td>
-                        <td><button data-bs-toggle="modal" data-bs-target="#exampleModalCenter" class="btn btn-primary btn-sm" onclick="changePrice(${x.icustomerprice},${x.price}, '${armada}', '${x.destination}')"><i class="fa fa-edit"></i></button></td>
+                        <td><button data-bs-toggle="modal" data-bs-target="#exampleModalCenter" class="btn btn-primary btn-sm" onclick="changePrice(${x.icustomerprice},${x.price}, '${armada}', ${x.minimumprice}, ${x.nextweightprices}, '${x.destination}', '${armada}', ${x.minweight} )"><i class="fa fa-edit"></i></button></td>
                     </tr>
                     `
                 )
             })
         }
 
-        function changePrice(x, p, a, d) {
+        function changePrice(x, p, a, m, n, d, ar, mw) {
+            console.log(x, p, a, m, n)
             $('#form-change-pricecustomer')[0].reset();
             icustomerprice = '';
             $('#price').val('')
+            $('#minweight').val('')
+            $('#minimumprice').val('')
+            $('#minimumprice').val(m)
+            $('#minweight').val(mw)
+            $('#price').val(p)
+            $('#pricenext').val('')
+            $('#pricenext').val(n)
             $('#service').val('')
+            $('#service').val(ar)
             $('#destination').val('')
             $('#destination').val(d)
-            $('#service').val(a)
-            $('#price').val(p)
             icustomerprice = x;
         }
 

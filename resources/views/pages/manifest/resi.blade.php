@@ -54,7 +54,6 @@
                         </div>
                         <div class="mt-md-0 mt-2">
                             <h4 class="text-end mb-1 fw-bold">MNF : {{ $manifest->manifestno }}</h4>
-                            <h4 class="text-end mb-1 fw-bold">SMD : {{ $manifest->no_smd }}</h4>
                         </div>
                     </div>
                     <hr class="my-1" />

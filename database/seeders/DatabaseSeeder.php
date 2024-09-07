@@ -16,56 +16,56 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
 
-        \App\Models\User::factory()->create([
-            'name' => 'John',
-            'email' => 'superadmin@elang.com',
-            'is_active' => 1,
-            'role_id' => '1',
-        ]);
+        // \App\Models\User::factory()->create([
+        //     'name' => 'John',
+        //     'email' => 'superadmin@elang.com',
+        //     'is_active' => 1,
+        //     'role_id' => '1',
+        // ]);
 
         // destination
-        // $data = [
-        //     'Ambon',
-        //     'Balikpapan',
-        //     'Bandung',
-        //     'Banjarmasin',
-        //     'Batam',
-        //     'Bekasi',
-        //     'Bengkulu',
-        //     'Bogor',
-        //     'Cirebon',
-        //     'Denpasar',
-        //     'Depok',
-        //     'Jakarta',
-        //     'Jambi',
-        //     'Jayapura',
-        //     'Kendari',
-        //     'Kupang',
-        //     'Makassar',
-        //     'Malang',
-        //     'Manado',
-        //     'Mataram',
-        //     'Medan',
-        //     'Padang',
-        //     'Palembang',
-        //     'Palu',
-        //     'Pekanbaru',
-        //     'Pontianak',
-        //     'Samarinda',
-        //     'Semarang',
-        //     'Serang',
-        //     'Sorong',
-        //     'Surabaya',
-        //     'Tangerang',
-        //     'Tanjungpinang',
-        //     'Yogyakarta',
-        // ];
+        $data = [
+            'Ambon',
+            'Balikpapan',
+            'Bandung',
+            'Banjarmasin',
+            'Batam',
+            'Bekasi',
+            'Bengkulu',
+            'Bogor',
+            'Cirebon',
+            'Denpasar',
+            'Depok',
+            'Jakarta',
+            'Jambi',
+            'Jayapura',
+            'Kendari',
+            'Kupang',
+            'Makassar',
+            'Malang',
+            'Manado',
+            'Mataram',
+            'Medan',
+            'Padang',
+            'Palembang',
+            'Palu',
+            'Pekanbaru',
+            'Pontianak',
+            'Samarinda',
+            'Semarang',
+            'Serang',
+            'Sorong',
+            'Surabaya',
+            'Tangerang',
+            'Tanjungpinang',
+            'Yogyakarta',
+        ];
 
-        // foreach ($data as $key => $value) {
-        //     DB::table('destinations')->insert([
-        //         'name' => $value,
-        //     ]);
-        // }
+        foreach ($data as $key => $value) {
+            DB::table('destinations')->insert([
+                'name' => $value,
+            ]);
+        }
 
         // // customer
         // $data = [
