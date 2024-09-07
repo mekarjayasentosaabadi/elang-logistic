@@ -296,7 +296,7 @@ class ManifestController extends Controller
     function printresi($id)
     {
         $dataManifest   = Detailmanifest::with('order.destination')->where('manifests_id', Crypt::decrypt($id))->get();
-        $manifest       = Manifest::where('id', Crypt::decrypt($id))->first();
+        $manifest       = Manifest::with(['destination', 'outlet'])->where('id', Crypt::decrypt($id))->first();
         return view('pages.manifest.resi', compact('dataManifest', 'manifest'));
     }
 

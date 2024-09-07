@@ -40,6 +40,7 @@
                                 <th class="py-1">Nomor AWB</th>
                                 <th class="py-1">Customer</th>
                                 <th class="py-1">Destinations</th>
+                                <th class="py-1">Jenis</th>
                                 <th class="py-1">Berat</th>
                                 <th class="py-1">Koli</th>
                             </tr>
@@ -123,6 +124,7 @@
             $.getJSON(baseUrl, function() {
 
             }).done(function(e) {
+                console.log(e)
                 if (destination == '') {
                     destination = e.data[0].destination.name;
                     $('#destination_id').val(e.data[0].destination.id);
@@ -144,6 +146,7 @@
                     weight: e.data[0].weight,
                     koli: e.data[0].koli,
                     content: e.data[0].content,
+                    tipe: e.data[0].service
                 }
                 arrOrders.push(dataArrCheck);
                 idOrders.push(e.data[0].id);
@@ -166,7 +169,8 @@
                         <td>${x.numberorder}<input type="hidden" name="ordersid[]" value="${x.ordersid}"></td>
                         <td>${x.customername}</td>
                         <td>${x.destination}</td>
-                        <td>${x.weight ?? x.volume}</td>
+                        <td>${x.tipe == 1 ? "Document" : "Paket"}</td>
+                        <td>${x.weight ?? x.volume} Kg</td>
                         <td>${x.koli}</td>
                     </tr>
                     `

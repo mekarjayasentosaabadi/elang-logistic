@@ -398,7 +398,7 @@
                         <td>${x.numberorder}<input type="hidden" name="ordersid[]" value="${x.ordersid}"></td>
                         <td>${x.customername}</td>
                         <td>${x.destination}</td>
-                        <td>${x.weight ?? x.volume}</td>
+                        <td>${x.weight ?? x.volume} Kg</td>
                         <td>${x.koli}</td>
                         <td><button type="button" class="btn btn-danger btn-sm" onclick="removeDetail(${x.ordersid})"><i class="fa fa-trash"></i></button></td>
                     </tr>
