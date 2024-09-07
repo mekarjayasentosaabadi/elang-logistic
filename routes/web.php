@@ -144,8 +144,9 @@ Route::middleware(['auth', 'check.role:1,2'])->group(function () {
     Route::prefix('masterprice')->group(function () {
         Route::get('/', [MasterpriceController::class, 'index'])->name('masterprice.index');
         Route::get('/getAll', [MasterpriceController::class, 'getAll'])->name('masterprice.getAll');
+        Route::post('/getGetListPrice', [MasterpriceController::class, 'getGetListPrice'])->name('masterprice.getGetListPrice');
         Route::get('/create', [MasterpriceController::class, 'create'])->name('masterprice.create');
-        Route::post('/', [MasterpriceController::class, 'store'])->name('masterprice.store');
+        Route::post('/store', [MasterpriceController::class, 'store'])->name('masterprice.store');
         Route::get('/{id}/edit', [MasterpriceController::class, 'edit'])->name('masterprice.edit');
         Route::post('/{id}', [MasterpriceController::class, 'update'])->name('masterprice.update');
     });

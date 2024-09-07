@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
 use Illuminate\Support\Facades\Crypt;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class MasterpriceController extends Controller
 {
@@ -59,6 +60,16 @@ class MasterpriceController extends Controller
             ->addIndexColumn()
             ->make(true);
     }
+
+    public function getGetListPrice(Request $request){
+        $destination    = Destination::all()->except($request->origin_id);
+        return response()->json([
+            'destination' => $destination
+        ]);
+    }
+
+
+
     public function create(){
         $outlet         = Outlet::where('is_active', '1')->get();
         $destination    = Destination::all();
@@ -76,18 +87,42 @@ class MasterpriceController extends Controller
             if($filter){
                 return ResponseFormatter::success(['validate'=>false], 'Data Masterprice tersebut sudah ada.!, Mohon periksa kembali');
             }
-            $dataStored = [
-                'outlets_id'    => $request->outlet,
-                'armada'        => $request->armada,
-                'destinations_id'   => $request->destination,
-                'price'             => $request->price,
-                'minweight'         => $request->minweight,
-                'nextweightprices'  => $request->pricenext,
-                'minimumprice'      => $request->minimumprice,
-                'estimation'        => $request->estimation
-            ];
-            Masterprice::create($dataStored);
-            return ResponseFormatter::success(['validate'=>true], 'Master price berhasil di simpan.!');
+            
+            $destination = Destination::all();
+            $destination = $request->destination_id;
+            for($i = 0; $i < count($destination); $i++){
+                $masterPrice = new Masterprice();
+                $dataStored = [
+                    'outlets_id'       => $request->outlet_id,
+                    'armada'           => $request->armada,
+                    'origin_id'        => $request->origin_id,
+                    'destinations_id'  => $request->destination_id[$i],
+                    'price'            => $request->price_weight[$i] ?? 0,
+                    'minweight'        => $request->minweight ?? 0,
+                    'nextweightprices' => $request->next_weight_price[$i] ?? 0,
+                    'minimumprice'     => 0,
+                    'estimation'       => $request->estimation[$i] ?? 0
+                ];
+                $masterPrice->create($dataStored);
+            }
+
+
+            Alert::success('Berhasil', 'Berhasil Memasukan Data');
+            return redirect('/masterprice');
+
+            
+            // $dataStored = [
+            //     'outlets_id'    => $request->outlet,
+            //     'armada'        => $request->armada,
+            //     'destinations_id'   => $request->destination,
+            //     'price'             => $request->price,
+            //     'minweight'         => $request->minweight,
+            //     'nextweightprices'  => $request->pricenext,
+            //     'minimumprice'      => $request->minimumprice,
+            //     'estimation'        => $request->estimation
+            // ];
+            // Masterprice::create($dataStored);
+            // return ResponseFormatter::success(['validate'=>true], 'Master price berhasil di simpan.!');
         } catch (\Throwable $th) {
             return ResponseFormatter::error([$th], 'Something went wrong');
         }
