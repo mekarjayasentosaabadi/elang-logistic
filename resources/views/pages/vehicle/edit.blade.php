@@ -11,7 +11,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Edit Vehicle</h4>
-                    <a href="{{ url('/vehicle') }}" class="btn btn-warning">Kembali</a>
+                    <a href="{{ url('/vehicle') }}" class="btn btn-warning"><li class="fa fa-undo"></li> Kembali</a>
                 </div>
                 <div class="card-body">
                     <form id="form-select-driver" action="{{ url('/vehicle/' . Crypt::encrypt($vehicle->id)) }}" method="post" autocomplete="off">
@@ -24,8 +24,8 @@
                                     <select name="type" id="type" class="form-control">
                                         <option value="" hidden>Pilih tipe</option>
                                         <option {{ $vehicle->type == '1' ? 'selected' : '' }} value="1">Truck Container</option>
-                                        <option {{ $vehicle->type == '2' ? 'selected' : '' }} value="2">Truck BOX</option>
-                                        <option {{ $vehicle->type == '3' ? 'selected' : '' }} value="3">Truck Pickup</option>
+                                        <option {{ $vehicle->type == '2' ? 'selected' : '' }} value="2">BOX</option>
+                                        <option {{ $vehicle->type == '3' ? 'selected' : '' }} value="3">Pickup</option>
                                     </select>
                                 </div>
                                 <div class="form-group mb-2">
@@ -48,7 +48,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary float-end">Simpan</button>
+                        <button type="submit" class="btn btn-primary float-end"><li class="fa fa-save"></li> Simpan</button>
                     </form>
                 </div>
             </div>

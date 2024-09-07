@@ -23,12 +23,12 @@
                                     <select name="type" id="type" class="form-control">
                                         <option value="" hidden>Pilih tipe</option>
                                         <option {{ old('type') == '1' ? 'selected' : ''  }} value="1">Truck Container</option>
-                                        <option {{ old('type') == '2' ? 'selected' : ''  }} value="2">Truck BOX</option>
-                                        <option {{ old('type') == '3' ? 'selected' : ''  }} value="3">Truck Pickup</option>
+                                        <option {{ old('type') == '2' ? 'selected' : ''  }} value="2">BOX</option>
+                                        <option {{ old('type') == '3' ? 'selected' : ''  }} value="3">Pickup</option>
                                     </select>
                                 </div>
                                 <div class="form-group mb-2">
-                                    <label for="no_police">No Police</label>
+                                    <label for="no_police">No Polisi</label>
                                     <input type="text" name="no_police" id="no_police" class="form-control" value="{{ old('no_police') }}">
                                 </div>
                             </div>
