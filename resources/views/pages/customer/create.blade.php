@@ -98,8 +98,9 @@
                         }, 1500)
                     },
                     error: function(e){
+                        console.log(e)
                         if(e.status== 422){
-                            notifSweetAlertErrors(e.responseJSON.errors);
+                            notifSweetAlertErrors(e.responseJSON.message);
                         }
                     }
                 })

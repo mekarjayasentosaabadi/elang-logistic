@@ -88,6 +88,9 @@ class CustomerController extends Controller
                 'phone'         => 'required|unique:users,phone',
                 'address'       => 'required',
                 'email'         => 'required|unique:users,email',
+            ],[
+                'email.unique'  => 'Email ini sudah terdaftar, silahkan gunakan email lain.',
+                'phone.unique'  => 'Nomor ini sudah terdaftar, silahkan gunakan nomor lain.',
             ]);
             $dataStored = [
                 'name'          => $request->name,
@@ -125,7 +128,7 @@ class CustomerController extends Controller
             $dataCustomer = User::where('id', $customer->id)->firstOrFail();
             return ResponseFormatter::success([$dataCustomer], 'Data customer berhasil di simpan.');
         } catch (Exception $error) {
-            return ResponseFormatter::error([], 'Something went wrong');
+            return ResponseFormatter::error([$error], 'Something went wrong');
         }
     }
 
@@ -175,6 +178,9 @@ class CustomerController extends Controller
                 'address'       => 'required',
                 'email'         => 'required|unique:users,email,'.Crypt::decrypt($id).',id'
                 // 'photos'        => 'required|mimes:jpg,png',
+            ],[
+                'email.unique'  => 'Email ini sudah terdaftar, silahkan gunakan email lain.',
+                'phone.unique'  => 'Nomor ini sudah terdaftar, silahkan gunakan nomor lain.',
             ]);
             $dataStored = [
                 'name'          => $request->name,
