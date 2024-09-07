@@ -14,7 +14,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Outlet Asal</h4>
-                        <a href="{{ url('/order') }}" class="btn btn-warning">Kembali</a>
+                        <a href="{{ url('/order') }}" class="btn btn-warning"><li class="fa fa-undo"></li> Kembali</a>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
@@ -37,7 +37,7 @@
                 <div class="card-header">
                     <h4 class="card-title">Tambah Transaksi</h4>
                     @if (Auth::user()->role_id != '1')
-                        <a href="{{ url('/order') }}" class="btn btn-warning">Kembali</a>
+                        <a href="{{ url('/order') }}" class="btn btn-warning"><li class="fa fa-undo"></li>Kembali</a>
                     @endif
                 </div>
                 <div class="card-body">
@@ -257,7 +257,7 @@
                             </div>
 
                         </div>
-                        <button type="submit" class="btn btn-primary mt-2 float-end btn-send-update">Simpan</button>
+                        <button type="submit" class="btn btn-primary mt-2 float-end btn-send-update"><li class="fa fa-save"></li> Simpan</button>
                     </form>
                 </div>
             </div>
