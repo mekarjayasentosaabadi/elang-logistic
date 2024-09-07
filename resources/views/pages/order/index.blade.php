@@ -13,7 +13,7 @@
                 <div class="card-header">
                     <h4 class="card-title">Daftar Transaksi</h4>
                     @if (Auth::user()->role_id != '4')
-                        <a href="{{ url('/order/create') }}" class="btn btn-primary">Tambah Tansaksi</a>
+                        <a href="{{ url('/order/create') }}" class="btn btn-primary"><li class="fa fa-plus"></li> Tambah Tansaksi</a>
                     @endif
                 </div>
                 <div class="card-body">

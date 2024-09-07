@@ -50,7 +50,7 @@
                                                 target="_blank">Print
                                                 Format 2</a>
                                         @endif
-                                        <a class="btn btn-warning " href="/order">Kembali</a>
+                                        <a class="btn btn-warning " href="/order"><li class="fa fa-undo"></li> Kembali</a>
                                     </div>
                                 @endif
                             </div>
@@ -116,13 +116,13 @@
                                     <p>Status Awb: {{ $order->status_awb ?? '-' }}</p>
                                     <p>Status:
                                         @if ($order->status_orders == '1')
-                                            <small class="text-sm badge bg-warning">Panding</small>
+                                            <small class="text-sm badge bg-warning">Pending</small>
                                         @elseif ($order->status_orders == '2')
-                                            <small class="text-sm badge bg-primary">Diprocess</small>
+                                            <small class="text-sm badge bg-primary">Di Process</small>
                                         @elseif ($order->status_orders == '3')
                                             <small class="text-sm badge bg-success">Done</small>
                                         @elseif ($order->status_orders == '4')
-                                            <small class="text-sm badge bg-danger">Dibatalkan</small>
+                                            <small class="text-sm badge bg-danger">Di Batalkan</small>
                                         @endif
                                     </p>
                                 </div>
