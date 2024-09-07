@@ -168,7 +168,7 @@ class DashboardController extends Controller
                 ->groupBy('vehicle_id');
         })
             ->orderBy('created_at', 'desc')
-            ->with('vehicle', 'surattugas', 'surattugas.outlet', 'surattugas.detailsurattugas', 'surattugas.detailsurattugas.manifest')
+            ->with('vehicle', 'surattugas', 'surattugas.outlet', 'surattugas.detailsurattugas', 'surattugas.detailsurattugas.manifest', 'outlet')
             ->get();
 
 
