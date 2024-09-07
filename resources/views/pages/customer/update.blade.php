@@ -100,6 +100,9 @@
                     contentType: false,
                     success: function(e){
                         notifSweetAlertSuccess(e.meta.message);
+                        setTimeout(function(){
+                            location.replace(window.location.origin + '/customer' );
+                        }, 1500)
                     },
                     error: function(e){
                         if(e.status== 422){

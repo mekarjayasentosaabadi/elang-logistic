@@ -69,18 +69,18 @@
                                                 <div class="col-4 fs-8px">
                                                     <div class="row">COURIER MANIFEST</div>
                                                     <div class="row">
-                                                        ORIGIN
+                                                        ORIGIN : <b>{{ $manifest->outlet->name }}</b>
                                                     </div>
                                                 </div>
                                                 <div class="col-8 fs-8px">
                                                     <div class="row">
-                                                        <div class="col-3">DESTINATION</div>
+                                                        <div class="col-3">DESTINATION : <b>{{ $manifest->destination->name }} </b></div>
                                                         <div class="col-3"></div>
                                                         <div class="col-3"></div>
                                                         <div class="col-3">FLIGHT No</div>
                                                     </div>
                                                     <div class="row">
-                                                        <div class="col-3">DATE</div>
+                                                        <div class="col-3">DATE : <b> {{ $manifest->created_at }}</b></div>
                                                         <div class="col-3"></div>
                                                         <div class="col-3"></div>
                                                         <div class="col-3">No. BAGS</div>
@@ -147,13 +147,13 @@
     </div>
 
     <script type="text/javascript">
-    //    function printPage() {
-    //         window.print();
-    //     }
+       function printPage() {
+            window.print();
+        }
 
-    //     window.onload = printPage;
+        // window.onload = printPage;
 
-    //     document.getElementById('print-button').addEventListener('click', printPage);
+        document.getElementById('print-button').addEventListener('click', printPage);
     </script>
 </body>
 <!-- END: Body-->
