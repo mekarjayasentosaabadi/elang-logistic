@@ -365,7 +365,7 @@
                         </div>
                     `;
 
-                    var marker = L.marker([x.surattugas.outlet.lat, x.surattugas.outlet.long], {
+                    var marker = L.marker([x.outlet.lat, x.outlet.long], {
                             icon: truckIcon
                         }).addTo(map)
                         .bindPopup(popupContent)

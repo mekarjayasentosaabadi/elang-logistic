@@ -20,4 +20,14 @@ class HistoryVehicle extends Model
     {
         return $this->belongsTo(Vehicle::class, 'vehicle_id', 'id');
     }
+
+    function destination()
+    {
+        return $this->belongsTo(Destination::class, 'destination_id', 'id');
+    }
+
+    function outlet()
+    {
+        return $this->belongsTo(Outlet::class, 'outlet_id', 'id');
+    }
 }
