@@ -11,6 +11,7 @@ class Masterprice extends Model
     protected $fillable = [
         'outlets_id',
         'armada',
+        'origin_id',
         'destinations_id',
         'price',
         'minweights',

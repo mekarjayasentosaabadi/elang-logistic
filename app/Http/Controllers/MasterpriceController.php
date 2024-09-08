@@ -64,7 +64,8 @@ class MasterpriceController extends Controller
     public function getGetListPrice(Request $request){
         $destination    = Destination::all()->except($request->origin_id);
         return response()->json([
-            'destination' => $destination
+            'destination' => $destination,
+            'armada'      => $request->armada
         ]);
     }
 
@@ -75,7 +76,7 @@ class MasterpriceController extends Controller
         $destination    = Destination::all();
         return view('pages.masterprice.create', compact('outlet', 'destination'));
     }
-
+    
     function store(Request $request){
         try {
             $search = [
@@ -90,20 +91,38 @@ class MasterpriceController extends Controller
             
             $destination = Destination::all();
             $destination = $request->destination_id;
-            for($i = 0; $i < count($destination); $i++){
-                $masterPrice = new Masterprice();
-                $dataStored = [
-                    'outlets_id'       => $request->outlet_id,
-                    'armada'           => $request->armada,
-                    'origin_id'        => $request->origin_id,
-                    'destinations_id'  => $request->destination_id[$i],
-                    'price'            => $request->price_weight[$i] ?? 0,
-                    'minweight'        => $request->minweight ?? 0,
-                    'nextweightprices' => $request->next_weight_price[$i] ?? 0,
-                    'minimumprice'     => 0,
-                    'estimation'       => $request->estimation[$i] ?? 0
-                ];
-                $masterPrice->create($dataStored);
+            if ($request->armada == '1') {
+                for($i = 0; $i < count($destination); $i++){
+                    $masterPrice = new Masterprice();
+                    $dataStored = [
+                        'outlets_id'       => $request->outlet_id,
+                        'armada'           => $request->armada,
+                        'origin_id'        => $request->origin_id,
+                        'destinations_id'  => $request->destination_id[$i],
+                        'price'            => $request->price_weight[$i] ?? 0,
+                        'minweight'        => $request->minweight ?? 0,
+                        'nextweightprices' => $request->next_weight_price[$i] ?? 0,
+                        'minimumprice'     => 0,
+                        'estimation'       => $request->estimation[$i] ?? 0
+                    ];
+                    $masterPrice->create($dataStored);
+                }
+            }else if($request->armada == '2'){
+                for($i = 0; $i < count($destination); $i++){
+                    $masterPrice = new Masterprice();
+                    $dataStored = [
+                        'outlets_id'       => $request->outlet_id,
+                        'armada'           => $request->armada,
+                        'origin_id'        => $request->origin_id,
+                        'destinations_id'  => $request->destination_id[$i],
+                        'price'            => $request->price[$i] ?? 0,
+                        'minweight'        => $request->weight[$i] ?? 0,
+                        'nextweightprices' => 0,
+                        'minimumprice'     => 0,
+                        'estimation'       => 0
+                    ];
+                    $masterPrice->create($dataStored);
+                }
             }
 
 
