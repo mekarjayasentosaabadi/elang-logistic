@@ -107,7 +107,8 @@ class MasterpriceController extends Controller
                     ];
                     $masterPrice->create($dataStored);
                 }
-            }else if($request->armada == '2'){
+            }
+            else if($request->armada == '2'){
                 for($i = 0; $i < count($destination); $i++){
                     $masterPrice = new Masterprice();
                     $dataStored = [
@@ -117,6 +118,23 @@ class MasterpriceController extends Controller
                         'destinations_id'  => $request->destination_id[$i],
                         'price'            => $request->price[$i] ?? 0,
                         'minweight'        => $request->weight[$i] ?? 0,
+                        'nextweightprices' => 0,
+                        'minimumprice'     => 0,
+                        'estimation'       => 0
+                    ];
+                    $masterPrice->create($dataStored);
+                }
+            }
+            else if($request->armada == '3'){
+                for($i = 0; $i < count($destination); $i++){
+                    $masterPrice = new Masterprice();
+                    $dataStored = [
+                        'outlets_id'       => $request->outlet_id,
+                        'armada'           => $request->armada,
+                        'origin_id'        => $request->origin_id,
+                        'destinations_id'  => $request->destination_id[$i],
+                        'price'            => $request->price[$i] ?? 0,
+                        'minweight'        => 0,
                         'nextweightprices' => 0,
                         'minimumprice'     => 0,
                         'estimation'       => 0
