@@ -97,28 +97,49 @@
                                 <button type="submit" class="btn btn-primary mt-3 ">Simpan</button>
                         </div>
                     </form>
-                    <div class="p-1">
-                        <form action="/masterprice/store" method="post" id="form-price-laut" class="hidden">  
-                            @csrf
-                            <input type="hidden" name="outlet_id" class="hidden_outlet_id">
-                            <input type="hidden" name="armada" class="hidden_armada">
-                            <input type="hidden" name="origin_id" class="hidden_origin_id">                       
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>No</th>
-                                            <th>Destinasi</th>
-                                            <th>Minimal Kilo</th>
-                                            <th>Harga</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbl-isi-list-harga-laut">
-                                        
-                                    </tbody>
-                                </table>
-                                <button type="submit" class="btn btn-primary mt-3 ">Simpan</button>
-                            </div>
-                        </form>
+                        <div class="p-1">
+                            <form action="/masterprice/store" method="post" id="form-price-laut" class="hidden">  
+                                @csrf
+                                <input type="hidden" name="outlet_id" class="hidden_outlet_id">
+                                <input type="hidden" name="armada" class="hidden_armada">
+                                <input type="hidden" name="origin_id" class="hidden_origin_id">                       
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Destinasi</th>
+                                                <th>Minimal Kilo</th>
+                                                <th>Harga</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbl-isi-list-harga-laut">
+                                            
+                                        </tbody>
+                                    </table>
+                                    <button type="submit" class="btn btn-primary mt-3 ">Simpan</button>
+                                </form>
+                        </div>
+                        <div class="p-1">
+                            <form action="/masterprice/store" method="post" id="form-price-udara" class="hidden">  
+                                @csrf
+                                <input type="hidden" name="outlet_id" class="hidden_outlet_id">
+                                <input type="hidden" name="armada" class="hidden_armada">
+                                <input type="hidden" name="origin_id" class="hidden_origin_id">                       
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Destinasi</th>
+                                                <th>Harga</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tbl-isi-list-harga-udara">
+                                            
+                                        </tbody>
+                                    </table>
+                                    <button type="submit" class="btn btn-primary mt-3 ">Simpan</button>
+                                </form>
+                        </div>
                     </div>
             </div>
         </div>
@@ -205,6 +226,22 @@
                                 $('#tbl-isi-list-harga-laut').append(rows);
                                 $('.card-list-isiharga').removeClass('hidden');
                                 $('#form-price-laut').removeClass('hidden');
+                        }
+                        else if(data.armada == "3") {
+                            $.each(data.destination, function(index, item) {
+                                rows += `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${item.name}</td>
+                                        <td>
+                                            <input type="hidden" name="destination_id[]" id="destination_id" value="${item.id}" class="form-control">
+                                            <input type="text" class="form-control" name="price[]" id="price" placeholder="masukan harga">
+                                        </td>
+                                    </tr>`;
+                                });
+                                $('#tbl-isi-list-harga-udara').append(rows);
+                                $('.card-list-isiharga').removeClass('hidden');
+                                $('#form-price-udara').removeClass('hidden');
                         }
                         
                     } else {
