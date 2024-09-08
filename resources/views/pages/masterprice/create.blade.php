@@ -16,7 +16,7 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label for="outlet">Asal Outlet</label>
-                            <select name="outlet" id="outlet" class="form-control">
+                            <select name="outlet" id="outlet" class="form-control outlet">
                                 <option value="">-- Pilih Outlet --</option>
                                 @foreach ($outlet as $item)
                                     <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -43,7 +43,7 @@
                             <div class="col-md-6 col-lg-6 col-sm-12">
                                 <div class="form-group mt-1">
                                     <label for="armada">Service</label>
-                                    <select name="armada" id="armada" class="form-control">
+                                    <select name="armada" id="armada" class="form-control armada">
                                         <option value="">-- Pilih Armada --</option>
                                         <option value="1">Darat</option>
                                         <option value="2">Laut</option>
@@ -54,7 +54,7 @@
                             <div class="col-md-6 col-lg-6 col-sm-12">
                                 <div class="form-group mt-1">
                                     <label for="origin_id">Origin</label>
-                                    <select name="origin_id" id="origin_id" class="form-control select2">
+                                    <select name="origin_id" id="origin_id" class="form-control select2 origin_id">
                                         <option value="">-- Pilih Origin --</option>
                                         @foreach ($destination as $item)
                                             <option value="{{ $item->id }}">{{ $item->name }}</option>
@@ -73,30 +73,54 @@
                 <div class="card-header">
                     <h4 class="card-title">Isi Detail List Harga</h4>
                 </div>
-                <form action="/masterprice/store" method="post" id="form-price">  
-                    @csrf
-                    <input type="hidden" name="outlet_id" id="hidden_outlet_id">
-                    <input type="hidden" name="armada" id="hidden_armada">
-                    <input type="hidden" name="origin_id" id="hidden_origin_id">
-                        <div class="card-body">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Destinasi</th>
-                                        <th>10KG Pertama</th>
-                                        <th>Harga Kilo Selanjutnya</th>
-                                        <th>Estimasi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbl-isi-list-harga">
-                                    
-                                </tbody>
-                            </table>
-                            <button type="submit" class="btn btn-primary mt-3 ">Simpan</button>
+                <div class="card-body">
+                    <form action="/masterprice/store" method="post" id="form-price-darat" class="hidden">  
+                        @csrf
+                        <input type="hidden" name="outlet_id" class="hidden_outlet_id">
+                        <input type="hidden" name="armada" class="hidden_armada">
+                        <input type="hidden" name="origin_id" class="hidden_origin_id">
+                        
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Destinasi</th>
+                                            <th>10KG Pertama</th>
+                                            <th>Harga Kilo Selanjutnya</th>
+                                            <th>Estimasi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbl-isi-list-harga">
+                                        
+                                    </tbody>
+                                </table>
+                                <button type="submit" class="btn btn-primary mt-3 ">Simpan</button>
                         </div>
+                    </form>
+                    <div class="p-1">
+                        <form action="/masterprice/store" method="post" id="form-price-laut" class="hidden">  
+                            @csrf
+                            <input type="hidden" name="outlet_id" class="hidden_outlet_id">
+                            <input type="hidden" name="armada" class="hidden_armada">
+                            <input type="hidden" name="origin_id" class="hidden_origin_id">                       
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Destinasi</th>
+                                            <th>Minimal Kilo</th>
+                                            <th>Harga</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbl-isi-list-harga-laut">
+                                        
+                                    </tbody>
+                                </table>
+                                <button type="submit" class="btn btn-primary mt-3 ">Simpan</button>
+                            </div>
+                        </form>
                     </div>
-                </form>
+            </div>
         </div>
     </div>
 @endsection
@@ -107,41 +131,6 @@
 
     <script>
         $('.select2').select2()
-        
-
-
-        // function sendStoreRequest() {
-            // var outlet_id = $('#outlet').val()
-            // var armada    = $('#armada').val()
-            // var origin_id = $('#origin_id').val()
-            // var destination_id = $('#destination_id').val()
-            // var price_weight = $('#price_weight').val()
-            // var next_weight_price = $('#next_weight_price').val()
-            
-
-
-
-        //     $.ajax({
-        //         'url': '/masterprice/store',
-        //         'type': 'POST',
-        //         'data': new FormData($('#form-price')[0]),
-                
-        //         'success': function(data) {
-        //             console.log('success');
-                    
-        //             notifSweetAlertSuccess(data.meta.message);
-        //         },
-
-        //         'error ': function(data) {
-        //             console.log(data)
-        //         }
-        //     })
-        // }
-        // $('#form-price').on('submit', function(e) {
-        //     e.preventDefault(); 
-        //     sendStoreRequest();
-        // });
-
 
         function listPrice() {
             var outlet_id = $('#outlet').val()
@@ -162,18 +151,23 @@
                     if ($('#tbl-isi-list-harga tr').length > 0) {
                         $('#tbl-isi-list-harga').empty();
                     }
-                    var outlet_id = $('#outlet').val();
-                    var armada    = $('#armada').val();
-                    var origin_id = $('#origin_id').val();
 
-                    $('#hidden_outlet_id').val(outlet_id);
-                    $('#hidden_armada').val(armada);
-                    $('#hidden_origin_id').val(origin_id);
+
+                    var outlet_id = $('.outlet').val();
+                    var armada    = $('.armada').val();
+                    var origin_id = $('.origin_id').val();
+
+
+                    $('.hidden_outlet_id').val(outlet_id);
+                    $('.hidden_armada').val(armada);
+                    $('.hidden_origin_id').val(origin_id);
+
 
                     if (data.destination.length > 0) {
                         var rows = '';
-                        $.each(data.destination, function(index, item) {
-                            rows += `
+                        if (data.armada == "1") {
+                            $.each(data.destination, function(index, item) {
+                                rows += `
                                     <tr>
                                         <td>${index + 1}</td>
                                         <td>${item.name}</td>
@@ -188,11 +182,31 @@
                                             <input type="text" class="form-control" name="estimation[]" id="estimation" placeholder="masukan estimasi">
                                         </td>
                                     </tr>`;
-                        });
-
-                        $('#tbl-isi-list-harga').append(rows);
-
-                        $('.card-list-isiharga').removeClass('hidden');
+                                });
+                                $('#tbl-isi-list-harga').append(rows);
+                                $('.card-list-isiharga').removeClass('hidden');
+                                $('#form-price-darat').removeClass('hidden');
+                        }
+                        else if(data.armada == "2") {
+                            $.each(data.destination, function(index, item) {
+                                rows += `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${item.name}</td>
+                                        <td>
+                                            <input type="hidden" name="destination_id[]" id="destination_id" value="${item.id}" class="form-control">
+                                            <input type="text" class="form-control" name="weight[]" id="weight" placeholder="masukan minimal kilo">
+                                        </td>
+                                        <td>
+                                            <input type="text" class="form-control" name="price[]" id="price" placeholder="masukan harga">
+                                        </td>
+                                    </tr>`;
+                                });
+                                $('#tbl-isi-list-harga-laut').append(rows);
+                                $('.card-list-isiharga').removeClass('hidden');
+                                $('#form-price-laut').removeClass('hidden');
+                        }
+                        
                     } else {
                         $('#tbl-isi-list-harga').append('<tr><td colspan="4">Data tidak ditemukan</td></tr>');
                     }
