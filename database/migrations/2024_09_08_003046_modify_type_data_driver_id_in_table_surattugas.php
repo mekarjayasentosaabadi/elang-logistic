@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('surattugas', function (Blueprint $table) {
-            // $table->unsignedBigInteger('driver_id')->nullable()->after('outlets_id');
+            $table->unsignedBigInteger('driver_id')->change();
         });
     }
 
@@ -22,8 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('surattugas', function (Blueprint $table) {
-            // $table->dropColumn('driver_id');
+            //
         });
     }
-
 };

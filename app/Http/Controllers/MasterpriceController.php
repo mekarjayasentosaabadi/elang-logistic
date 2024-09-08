@@ -8,6 +8,7 @@ use App\Models\Masterprice;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -18,13 +19,12 @@ class MasterpriceController extends Controller
     }
 
     public function getAll(){
-
-        $tbl = Masterprice::with(['outlet', 'destination'])->get();
+       $tbl = Masterprice::selectRaw('origin_id, outlets_id, armada')
+                  ->with(['outlet' => function($q){
+                      $q->select('id', 'name');
+                  }, 'destination', 'origin'])
+                  ->groupBy('origin_id', 'outlets_id', 'armada');
         return DataTables::of($tbl)
-            ->addColumn('outlet',function($x){
-                $outlets = $x->outlet->name;
-                return $outlets;
-            })
             ->addColumn('namaarmada', function($x){
                 $armada = $x->armada;
                 if($armada == 1){
@@ -35,28 +35,13 @@ class MasterpriceController extends Controller
                     return 'Udara';
                 }
             })
-            ->addColumn('destination', function($x){
-                $destination = $x->destination->name;
-                return $destination;
+            ->addColumn('aksi', function($x){
+                $aksi = '<div>';
+                $aksi .= '<button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModalCenter" onclick="showDetail('.$x->origin_id.','.$x->outlets_id.','.$x->armada.')"><li class="fa fa-list"></li></button>';
+                $aksi .= '</div>';
+                return $aksi;
             })
-            ->addColumn('option', function($x){
-                $role = auth()->user()->role_id;
-                if($role == '1'){
-                    $html = '<div>';
-                    $html .= '<a href="'.url('/masterprice/'.Crypt::encrypt($x->id).'/edit').'" class="btn btn-primary btn-sm" title="Edit"><i class="fa fa-edit"></i></a>';
-                    $html .= '</div>';
-                    return $html;
-                }
-                return '-';
-            })
-            ->editColumn('estimation', function($x){
-                $estimation = $x->estimation .' Hari';
-                return $estimation;
-            })
-            ->editColumn('price', function($x){
-                return 'Rp. '.number_format($x->price, 0,',', '.');
-            })
-            ->rawColumns(['outlet', 'namaarmada', 'destination', 'option', 'estimation', 'price'])
+            ->rawColumns(['namaarmada', 'aksi'])
             ->addIndexColumn()
             ->make(true);
     }
@@ -64,8 +49,7 @@ class MasterpriceController extends Controller
     public function getGetListPrice(Request $request){
         $destination    = Destination::all()->except($request->origin_id);
         return response()->json([
-            'destination' => $destination,
-            'armada'      => $request->armada
+            'destination' => $destination
         ]);
     }
 
@@ -76,7 +60,7 @@ class MasterpriceController extends Controller
         $destination    = Destination::all();
         return view('pages.masterprice.create', compact('outlet', 'destination'));
     }
-    
+
     function store(Request $request){
         try {
             $search = [
@@ -88,66 +72,31 @@ class MasterpriceController extends Controller
             if($filter){
                 return ResponseFormatter::success(['validate'=>false], 'Data Masterprice tersebut sudah ada.!, Mohon periksa kembali');
             }
-            
+
             $destination = Destination::all();
             $destination = $request->destination_id;
-            if ($request->armada == '1') {
-                for($i = 0; $i < count($destination); $i++){
-                    $masterPrice = new Masterprice();
-                    $dataStored = [
-                        'outlets_id'       => $request->outlet_id,
-                        'armada'           => $request->armada,
-                        'origin_id'        => $request->origin_id,
-                        'destinations_id'  => $request->destination_id[$i],
-                        'price'            => $request->price_weight[$i] ?? 0,
-                        'minweight'        => $request->minweight ?? 0,
-                        'nextweightprices' => $request->next_weight_price[$i] ?? 0,
-                        'minimumprice'     => 0,
-                        'estimation'       => $request->estimation[$i] ?? 0
-                    ];
-                    $masterPrice->create($dataStored);
-                }
-            }
-            else if($request->armada == '2'){
-                for($i = 0; $i < count($destination); $i++){
-                    $masterPrice = new Masterprice();
-                    $dataStored = [
-                        'outlets_id'       => $request->outlet_id,
-                        'armada'           => $request->armada,
-                        'origin_id'        => $request->origin_id,
-                        'destinations_id'  => $request->destination_id[$i],
-                        'price'            => $request->price[$i] ?? 0,
-                        'minweight'        => $request->weight[$i] ?? 0,
-                        'nextweightprices' => 0,
-                        'minimumprice'     => 0,
-                        'estimation'       => 0
-                    ];
-                    $masterPrice->create($dataStored);
-                }
-            }
-            else if($request->armada == '3'){
-                for($i = 0; $i < count($destination); $i++){
-                    $masterPrice = new Masterprice();
-                    $dataStored = [
-                        'outlets_id'       => $request->outlet_id,
-                        'armada'           => $request->armada,
-                        'origin_id'        => $request->origin_id,
-                        'destinations_id'  => $request->destination_id[$i],
-                        'price'            => $request->price[$i] ?? 0,
-                        'minweight'        => 0,
-                        'nextweightprices' => 0,
-                        'minimumprice'     => 0,
-                        'estimation'       => 0
-                    ];
-                    $masterPrice->create($dataStored);
-                }
+            $outletId = auth()->user()->role_id == 1 ? $request->outlet_id : auth()->user()->outlet->id;
+            for($i = 0; $i < count($destination); $i++){
+                $masterPrice = new Masterprice();
+                $dataStored = [
+                    'outlets_id'       => $outletId,
+                    'armada'           => $request->armada,
+                    'origin_id'        => $request->origin_id,
+                    'destinations_id'  => $request->destination_id[$i],
+                    'price'            => $request->price_weight[$i] ?? 0,
+                    'minweight'        => $request->minweight ?? 0,
+                    'nextweightprices' => $request->next_weight_price[$i] ?? 0,
+                    'minimumprice'     => 0,
+                    'estimation'       => $request->estimation[$i] ?? 0
+                ];
+                $masterPrice->create($dataStored);
             }
 
 
             Alert::success('Berhasil', 'Berhasil Memasukan Data');
             return redirect('/masterprice');
 
-            
+
             // $dataStored = [
             //     'outlets_id'    => $request->outlet,
             //     'armada'        => $request->armada,
@@ -204,5 +153,32 @@ class MasterpriceController extends Controller
         } catch (\Throwable $th) {
             return ResponseFormatter::error([$th], 'Something went wrong');
         }
+    }
+
+    function listhargapublic($id, $id2, $id3){
+        // $dataList = Masterprice::with(['outlets', 'destinations', 'armada'])->where('outlets_id', $id)->where('destinations_id', $id2)->where('armada', $id3)->get();
+        // return ResponseFormatter::success([$dataList], 'Berhasil mengambil data harga Customer');
+        // var_dump($id, $id2, $id3);
+        $tbl = Masterprice::with(['outlet', 'origin', 'destination'])->where('outlets_id', $id2)->where('armada', $id3)->where('origin_id', $id);
+        return DataTables::of($tbl)
+            ->addColumn('namaarmada', function($x){
+                $armada = $x->armada;
+                if($armada == 1){
+                    return 'Darat';
+                }else if($armada == 2){
+                    return 'Laut';
+                } else {
+                    return 'Udara';
+                }
+            })
+            ->addColumn('aksi', function($x){
+                $aksi = '<div>';
+                $aksi .= '<button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModalCenter" onclick="showDetail('.$x->origin_id.','.$x->outlets_id.','.$x->armada.')"><li class="fa fa-list"></li></button>';
+                $aksi .= '</div>';
+                return $aksi;
+            })
+            ->rawColumns(['namaarmada', 'aksi'])
+            ->addIndexColumn()
+            ->make(true);
     }
 }

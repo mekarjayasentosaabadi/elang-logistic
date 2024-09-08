@@ -149,6 +149,7 @@ Route::middleware(['auth', 'check.role:1,2'])->group(function () {
         Route::post('/store', [MasterpriceController::class, 'store'])->name('masterprice.store');
         Route::get('/{id}/edit', [MasterpriceController::class, 'edit'])->name('masterprice.edit');
         Route::post('/{id}', [MasterpriceController::class, 'update'])->name('masterprice.update');
+        Route::get('/{id}/list/{id2}/{id3}', [MasterpriceController::class, 'listhargapublic'])->name('masterprice.listhargapublic');
     });
 
     //Delivery

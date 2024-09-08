@@ -9,6 +9,7 @@ use App\Models\Destination;
 use App\Models\Masterprice;
 use Illuminate\Http\Request;
 use App\Models\CustomerPrice;
+use Illuminate\Support\Carbon;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
 use Illuminate\Support\Facades\Auth;
@@ -244,7 +245,7 @@ class CustomerController extends Controller
     }
 
     function getcustomerprice($id){
-        $customerprice = CustomerPrice::with('destination')->where('customer_id', Crypt::decrypt($id))->get();
+        $customerprice = CustomerPrice::with(['destination', 'origin'])->where('customer_id', Crypt::decrypt($id))->get();
         return ResponseFormatter::success([
             'customerprice'     => $customerprice
         ], 'get customer price successfuly');
@@ -259,13 +260,15 @@ class CustomerController extends Controller
                 'customer_id'       => $customer->id,
                 'outlet_id'         => $value->outlets_id,
                 'armada'            => $value->armada,
+                'origin_id'         => $value->origin_id,
                 'destination_id'    => $value->destinations_id,
                 'price'             => $value->price,
                 'minweights'        => $value->minweights,
                 'nextweightprices'  => $value->nextweightprices,
                 'minimumprice'     => $value->minimumprice,
                 'masterprices_id'   => $value->id,
-                'estimation'        => $value->estimation
+                'estimation'        => $value->estimation,
+                'created_at'        => Carbon::now()
             ];
             $customerprice[]=$dataCustomer;
         }

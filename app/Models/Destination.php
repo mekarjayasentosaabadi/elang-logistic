@@ -34,4 +34,13 @@ class Destination extends Model
     function surattugas(){
         return $this->hasMany(Surattugas::class, 'destination_id', 'id');
     }
+    //relation to origin
+    function masterprices(){
+        return $this->hasMany(Masterprice::class, 'origin_id', 'id');
+    }
+
+    //relation to customer price
+    function customerprice(){
+        return $this->hasMany(Customerprice::class, 'origin_id', 'id');
+    }
 }

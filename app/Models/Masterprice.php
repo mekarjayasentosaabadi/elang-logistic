@@ -32,4 +32,8 @@ class Masterprice extends Model
     function outlet(){
         return $this->belongsTo(Outlet::class, 'outlets_id', 'id');
     }
+    //return this
+    function origin(){
+        return $this->belongsTo(Destination::class, 'origin_id', 'id');
+    }
 }

@@ -63,6 +63,7 @@
                                         <tr>
                                             <th>#</th>
                                             <th>Service</th>
+                                            <th>Origin</th>
                                             <th>Tujuan / Destination</th>
                                             <th>Price</th>
                                             <th>Estimation</th>
@@ -273,6 +274,7 @@
                         let dataPriceCustomer = {
                             icustomerprice: x.id,
                             armada: x.armada,
+                            origin: x.origin.name,
                             destination: x.destination.name,
                             price: x.price,
                             estimation: x.estimation,
@@ -338,6 +340,7 @@
                     <tr>
                         <td>${no++}</td>
                         <td>${armada}</td>
+                        <td>${x.origin}</td>
                         <td>${x.destination}</td>
                         <td>${ formatter.format(x.price)}</td>
                         <td>${x.estimation}</td>

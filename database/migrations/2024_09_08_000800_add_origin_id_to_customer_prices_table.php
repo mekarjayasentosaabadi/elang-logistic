@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('surattugas', function (Blueprint $table) {
-            // $table->unsignedBigInteger('driver_id')->nullable()->after('outlets_id');
+        Schema::table('customer_prices', function (Blueprint $table) {
+            $table->unsignedBigInteger('origin_id')->nullable()->after('destination_id');
         });
     }
 
@@ -21,9 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('surattugas', function (Blueprint $table) {
-            // $table->dropColumn('driver_id');
+        Schema::table('customer_prices', function (Blueprint $table) {
+            $table->dropColumn('origin_id');
         });
     }
-
 };
