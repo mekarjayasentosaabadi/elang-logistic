@@ -456,7 +456,7 @@ class OrderController extends Controller
             }
         } catch (\Throwable $th) {
             DB::rollBack();
-            // Alert::error('Gagal', 'Terjadi Kesalahan');
+            Alert::error('Gagal', 'Terjadi Kesalahan');
             return redirect()->back();
         }
     }

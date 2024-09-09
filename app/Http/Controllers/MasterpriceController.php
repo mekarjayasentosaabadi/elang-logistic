@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use App\Helper\ResponseFormatter;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -47,10 +48,32 @@ class MasterpriceController extends Controller
     }
 
     public function getGetListPrice(Request $request){
-        $destination    = Destination::all()->except($request->origin_id);
-        return response()->json([
-            'destination' => $destination
-        ]);
+        try {
+            $destination    = Destination::all()->except($request->origin_id);
+
+            if (Auth::user()->role_id == 1) {
+                $existingPrices = DB::table('masterprices')
+                                  ->where('outlets_id', $request->outlet_id)
+                                  ->where('armada',  $request->armada)
+                                  ->where('origin_id', $request->origin_id)
+                                  ->get();
+            }else{
+                $existingPrices = DB::table('masterprices')
+                                  ->where('outlets_id', Auth::user()->outlets_id)
+                                  ->where('armada',  $request->armada)
+                                  ->where('origin_id', $request->origin_id)
+                                  ->get();
+            }
+            
+            return response()->json([
+                'destination'       => $destination,
+                'armada'            => $request->armada,
+                'existingPrices'    => $existingPrices
+            ]);
+        } catch (\Throwable $th) {
+            Alert::error('Gagal', 'Terjadi Kesalahan');
+            return redirect()->back();
+        }
     }
 
 
@@ -63,33 +86,55 @@ class MasterpriceController extends Controller
 
     function store(Request $request){
         try {
-            $search = [
-                'outlets_id'    => $request->outlet,
-                'armada'        => $request->armada,
-                'destinations_id'=> $request->destination
-            ];
-            $filter = Masterprice::where($search)->first();
-            if($filter){
-                return ResponseFormatter::success(['validate'=>false], 'Data Masterprice tersebut sudah ada.!, Mohon periksa kembali');
-            }
-
+            // $search = [
+            //     'outlets_id'    => $request->outlet,
+            //     'armada'        => $request->armada,
+            //     'destinations_id'=> $request->destination
+            // ];
+            // $filter = Masterprice::where($search)->first();
+            
+            // if($filter){
+            //     return ResponseFormatter::success(['validate'=>false], 'Data Masterprice tersebut sudah ada.!, Mohon periksa kembali');
+            // }
             $destination = Destination::all();
             $destination = $request->destination_id;
             $outletId = auth()->user()->role_id == 1 ? $request->outlet_id : auth()->user()->outlet->id;
             for($i = 0; $i < count($destination); $i++){
-                $masterPrice = new Masterprice();
-                $dataStored = [
-                    'outlets_id'       => $outletId,
-                    'armada'           => $request->armada,
-                    'origin_id'        => $request->origin_id,
-                    'destinations_id'  => $request->destination_id[$i],
-                    'price'            => $request->price_weight[$i] ?? 0,
-                    'minweight'        => $request->minweight ?? 0,
-                    'nextweightprices' => $request->next_weight_price[$i] ?? 0,
-                    'minimumprice'     => 0,
-                    'estimation'       => $request->estimation[$i] ?? 0
-                ];
-                $masterPrice->create($dataStored);
+                    $minWeight = $request->weight[$i] ?? 0; 
+                    $minWeight = is_numeric($minWeight) ? (int) $minWeight : 0;
+                    $masterPrice = new Masterprice();
+                    $dataStored = [
+                        'outlets_id'       => $outletId,
+                        'armada'           => $request->armada,
+                        'origin_id'        => $request->origin_id,
+                        'destinations_id'  => $request->destination_id[$i],
+                        'price'            => $request->price_weight[$i] ?? 0,
+                        'minweights'        => $request->weight[$i] ?? 0,
+                        'nextweightprices' => $request->next_weight_price[$i] ?? 0,
+                        'minimumprice'     => 0,
+                        'estimation'       => $request->estimation[$i] ?? 0
+                    ];
+
+                    $dataMasterPrice = Masterprice::where('origin_id', $request->origin_id)
+                                                    ->where('outlets_id', $outletId)
+                                                    ->where('armada', $request->armada)
+                                                    ->where('destinations_id', $request->destination_id[$i])
+                                                    ->where('price', 0)
+                                                    ->first();
+
+
+                    $dataPriceOld = Masterprice::where($dataStored)->first();
+
+                    if($dataMasterPrice){
+                        $dataMasterPrice->update($dataStored);
+                    }else{
+                        if($dataPriceOld){
+                            $dataPriceOld->update($dataStored);
+                        }
+                        else{
+                            $masterPrice->create($dataStored);
+                        }
+                    }
             }
 
 
@@ -110,6 +155,7 @@ class MasterpriceController extends Controller
             // Masterprice::create($dataStored);
             // return ResponseFormatter::success(['validate'=>true], 'Master price berhasil di simpan.!');
         } catch (\Throwable $th) {
+            dd($th);
             return ResponseFormatter::error([$th], 'Something went wrong');
         }
     }

@@ -52,7 +52,7 @@
                                 </div>
                             </div>
                             <div class="col-md-6 col-lg-6 col-sm-12">
-                                <div class="form-group mt-1">
+                                <div class="form-group mt-1 input-origin">
                                     <label for="origin_id">Origin</label>
                                     <select name="origin_id" id="origin_id" class="form-control select2 origin_id">
                                         <option value="">-- Pilih Origin --</option>
@@ -158,6 +158,9 @@
             var armada    = $('#armada').val()
             var origin_id = $('#origin_id').val()
             
+            if (outlet_id == "") {
+                notifSweetAlertErrors('Gagal Pilih Salah Satu Outlet Terlebih Dahulu.!')
+            }
             
             $.ajax({
                 'url': "{{ url('/masterprice/getGetListPrice') }}",
@@ -188,56 +191,118 @@
                         var rows = '';
                         if (data.armada == "1") {
                             $.each(data.destination, function(index, item) {
-                                rows += `
-                                    <tr>
-                                        <td>${index + 1}</td>
-                                        <td>${item.name}</td>
-                                        <td>
-                                           <input type="hidden" name="destination_id[]" id="destination_id" value="${item.id}" class="form-control">
-                                            <input type="text" class="form-control" name="price_weight[]" id="price_weight" placeholder="masukan harga kilo 10kg pertama">
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control" name="next_weight_price[]" id="next_weight_price" placeholder="masukan harga kilo selanjutnya">
-                                        </td>
-                                        <td>
-                                            <input type="text" class="form-control" name="estimation[]" id="estimation" placeholder="masukan estimasi">
-                                        </td>
-                                    </tr>`;
+                                var destination_id = item.id;
+                                var existingPrice = data.existingPrices.find(price => price.destinations_id == destination_id);
+                                if (existingPrice &&  existingPrice.price != 0 && existingPrice.nextweightprices != 0 && existingPrice.estimation != 0) {
+                                    rows += `
+                                          <tr>
+                                            <td>${index + 1}</td>
+                                            <td>${item.name}</td>
+                                            <td>
+                                                <input type="hidden" name="destination_id[]" id="destination_id" value="${item.id}" class="form-control">
+                                                <input type="text" class="form-control" name="price_weight[]" id="price_weight" value="${existingPrice.price}"  placeholder="masukan harga kilo 10kg pertama" readonly>
+                                                <small class="text-danger">Harga untuk data ini sudah tersedia</small>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" name="next_weight_price[]" id="next_weight_price" placeholder="masukan harga kilo selanjutnya" value="${existingPrice.nextweightprices}" readonly>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" name="estimation[]" id="estimation" placeholder="masukan estimasi" value="${existingPrice.estimation}" readonly>
+                                            </td>
+                                        </tr>
+                                    `
+                                } else{
+                                        rows += `
+                                            <tr>
+                                                <td>${index + 1}</td>
+                                                <td>${item.name}</td>
+                                                <td>
+                                                    <input type="hidden" name="destination_id[]" id="destination_id" value="${item.id}" class="form-control">
+                                                    <input type="text" class="form-control" name="price_weight[]" id="price_weight" placeholder="masukan harga kilo 10kg pertama">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" name="next_weight_price[]" id="next_weight_price" placeholder="masukan harga kilo selanjutnya">
+                                                </td>
+                                                <td>
+                                                    <input type="text" class="form-control" name="estimation[]" id="estimation" placeholder="masukan estimasi">
+                                                </td>
+                                            </tr>`;
+                                    }
                                 });
+
+
                                 $('#tbl-isi-list-harga').append(rows);
                                 $('.card-list-isiharga').removeClass('hidden');
                                 $('#form-price-darat').removeClass('hidden');
                         }
                         else if(data.armada == "2") {
                             $.each(data.destination, function(index, item) {
-                                rows += `
+                                var destination_id = item.id;
+                                var existingPrice = data.existingPrices.find(price => price.destinations_id == destination_id);
+                                if (existingPrice &&  existingPrice.price != 0 && existingPrice.minimumweight != 0) {
+                                    rows += `
                                     <tr>
                                         <td>${index + 1}</td>
                                         <td>${item.name}</td>
                                         <td>
-                                            <input type="hidden" name="destination_id[]" id="destination_id" value="${item.id}" class="form-control">
-                                            <input type="text" class="form-control" name="weight[]" id="weight" placeholder="masukan minimal kilo">
+                                            <input type="hidden" name="destination_id[]" id="destination_id" value="${item.id}" class="form-control" readonly>
+                                            <input type="text" class="form-control" name="weight[]" id="weight" value="${existingPrice.minweights}" placeholder="masukan minimal kilo" readonly>
+                                            <small class="text-danger">Harga untuk data ini sudah tersedia</small>
                                         </td>
                                         <td>
-                                            <input type="text" class="form-control" name="price[]" id="price" placeholder="masukan harga">
+                                            <input type="text" class="form-control" name="price_weight[]" id="price_weight" value="${existingPrice.price}" placeholder="masukan harga" readonly>
                                         </td>
                                     </tr>`;
-                                });
+                                }
+                               else{
+                                    rows += `
+                                        <tr>
+                                            <td>${index + 1}</td>
+                                            <td>${item.name}</td>
+                                            <td>
+                                                <input type="hidden" name="destination_id[]" id="destination_id" value="${item.id}" class="form-control">
+                                                <input type="text" class="form-control" name="weight[]" id="weight" placeholder="masukan minimal kilo">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" name="price_weight[]" id="price_weight" placeholder="masukan harga">
+                                            </td>
+                                        </tr>`;
+                               }
+                            });
                                 $('#tbl-isi-list-harga-laut').append(rows);
                                 $('.card-list-isiharga').removeClass('hidden');
                                 $('#form-price-laut').removeClass('hidden');
                         }
                         else if(data.armada == "3") {
                             $.each(data.destination, function(index, item) {
-                                rows += `
-                                    <tr>
-                                        <td>${index + 1}</td>
-                                        <td>${item.name}</td>
-                                        <td>
-                                            <input type="hidden" name="destination_id[]" id="destination_id" value="${item.id}" class="form-control">
-                                            <input type="text" class="form-control" name="price[]" id="price" placeholder="masukan harga">
-                                        </td>
-                                    </tr>`;
+                                var destination_id = item.id;
+                                var existingPrice = data.existingPrices.find(price => price.destinations_id == destination_id);
+
+                                if (existingPrice &&  existingPrice.price != 0) {
+                                    rows += `
+                                        <tr>
+                                            <td>${index + 1}</td>
+                                            <td>${item.name}</td>
+                                            <td>
+                                                <input type="hidden" name="destination_id[]" id="destination_id" value="${item.id}" class="form-control">
+                                                <input type="text" class="form-control" name="price_weight[]" value="${existingPrice.price}"  id="price" placeholder="masukan harga" readonly>
+                                                <small class="text-danger">Harga untuk data ini sudah tersedia</small>
+                                            </td>
+                                        </tr>`;
+                                }else{
+                                    rows += `
+                                        <tr>
+                                            <td>${index + 1}</td>
+                                            <td>${item.name}</td>
+                                            <td>
+                                                <input type="hidden" name="destination_id[]" id="destination_id" value="${item.id}" class="form-control">
+                                                <input type="text" class="form-control" name="price_weight[]"  id="price" placeholder="masukan harga">
+                                            </td>
+                                        </tr>`;
+                               }
+
+
+
                                 });
                                 $('#tbl-isi-list-harga-udara').append(rows);
                                 $('.card-list-isiharga').removeClass('hidden');
@@ -261,6 +326,25 @@
         });
 
 
+        $('#form-add-price').validate({
+            rules:{
+                'armada'    : 'required',
+                'origin_id' : 'required'
+            },
 
+            messages:{
+                'armada'    : 'Pilih armada terlebih dahulu',
+                'origin_id' : 'Pilih origin terlebih dahulu'
+            },
+            errorPlacement: function(error, element) {
+                if (element.attr("name") == "origin_id") {
+                    error.insertAfter(".input-origin");
+                } else {
+                    error.insertAfter(element); 
+                }
+            }
+
+
+        })
     </script>
 @endsection
