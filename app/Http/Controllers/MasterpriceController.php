@@ -114,6 +114,9 @@ class MasterpriceController extends Controller
                         'minimumprice'     => 0,
                         'estimation'       => $request->estimation[$i] ?? 0
                     ];
+                    if ($request->armada == 1) {
+                        $dataStored['minweights'] = 10;
+                    }
 
                     $dataMasterPrice = Masterprice::where('origin_id', $request->origin_id)
                                                     ->where('outlets_id', $outletId)

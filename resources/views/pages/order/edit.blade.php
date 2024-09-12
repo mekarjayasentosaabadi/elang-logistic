@@ -7,40 +7,43 @@
 @endsection
 
 @section('content')
-    @if (Auth::user()->role_id == '1')
-        <div class="row">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h4 class="card-title">Outlet Asal</h4>
-                        <a href="{{ url('/order') }}" class="btn btn-warning"><li class="fa fa-undo"></li>Kembali</a>
-                    </div>
-                    <div class="card-body">
-                        <div class="form-group">
-                            <label for="outlet_id_select">Outlet Asal</label>
-                            @if ($order->status_orders == 1)
-                                <select name="outlet_id_select" id="outlet_id_select" class="form-control">
-                                    <option value="">Pilih Outlet Asal</option>
-                                    @foreach ($outlets as $outlet)
-                                        <option value="{{ $outlet->id }}" {{ $outlet->id  == $order->outlet_id ? 'selected' : '' }} >{{ $outlet->name }}</option>
-                                    @endforeach
-                                </select>
-                            @else
-                                <select name="outlet_id_select" id="outlet_id_select" class="form-control" disabled>
-                                    <option value="">Pilih Outlet Asal</option>
-                                    @foreach ($outlets as $outlet)
-                                        <option value="{{ $outlet->id }}" {{ $outlet->id  == $order->outlet_id ? 'selected' : '' }} >{{ $outlet->name }}</option>
-                                    @endforeach
-                                </select>
-                                <input type="hidden" name="outlet_id_select" id="outlet_id_select"  value="{{ $order->outlet_id }}">
-                            @endif
+@if (Auth::user()->role_id == '1')
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Outlet Asal</h4>
+                    <a href="{{ url('/order') }}" class="btn btn-warning"><li class="fa fa-undo"></li>Kembali</a>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="outlet_id_select">Outlet Asal</label>
+                        @if ($order->status_orders == 1)
+                            <select name="outlet_id_select" id="outlet_id_select" class="form-control">
+                                <option value="">Pilih Outlet Asal</option>
+                                @foreach ($outlets as $outlet)
+                                    <option value="{{ $outlet->id }}" {{ $outlet->id  == $order->outlet_id ? 'selected' : '' }} >{{ $outlet->name }}</option>
+                                @endforeach
+                            </select>
+                        @else
+                            <select name="outlet_id_select" id="outlet_id_select" class="form-control" disabled>
+                                <option value="">Pilih Outlet Asal</option>
+                                @foreach ($outlets as $outlet)
+                                    <option value="{{ $outlet->id }}" {{ $outlet->id  == $order->outlet_id ? 'selected' : '' }} >{{ $outlet->name }}</option>
+                                @endforeach
+                            </select>
+                            <input type="hidden" name="outlet_id_select" id="outlet_id_select"  value="{{ $order->outlet_id }}">
+                        @endif
 
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    @endif
+    </div>
+@endif
+<form id="form-edit-transaksi" action="{{ url('/order/' . Crypt::encrypt($order->id)) }}" method="post">
+    <input type="hidden" id="status_orders" name="status_orders" value="{{ $order->status_orders }}">
+    @csrf
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -51,8 +54,6 @@
                     @endif
                 </div>
                 <div class="card-body">
-                    <form id="form-edit-transaksi" action="{{ url('/order/' . Crypt::encrypt($order->id)) }}" method="post">
-                        @csrf
                         @method('PATCH')
                         <input type="hidden" name="outlet_id" id="outlet_id_hidden" value="{{ $order->outlet_id }}">
                         <div class="row">
@@ -164,7 +165,7 @@
                                 </div>
                             </div>
                             <div class="row mt-2">
-                                <div class="col-md-6">
+                                {{-- <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="weight">Berat</label>
                                         <div class="input-group">
@@ -174,63 +175,11 @@
                                         </div>
                                     </div>
                                     <span class="text-danger" id="error-minweight"></span>
-                                </div>
+                                </div> --}}
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="address">Alamat</label>
                                         <textarea name="address" id="address" class="form-control" placeholder="masukan alamat lengkap">{{ Old('address', $order->address) }}</textarea>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="volume">Volume</label>
-                                        {{-- <div class="input-group">
-                                            <input type="number" name="volume" id="volume" class="form-control" value="{{ Old('volume', $order->volume) }}">
-                                            <span class="input-group-text">M<sup>3</sup></span>
-                                        </div> --}}
-                                        <div class="d-flex gap-1 " class="volume">
-                                            <div class="form-group">
-                                                <div class="input-group">
-                                                    <span class="input-group-text" id="basic-addon1">P</span>
-                                                    <input type="number" name="panjang" id="panjang" class="form-control"
-                                                    value="{{ old('panjang', $order->panjang_volume) }}" placeholder="panjang">
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="input-group">
-                                                    <span class="input-group-text" id="basic-addon1">L</span>
-                                                    <input type="number" name="lebar" id="lebar" class="form-control"
-                                                    value="{{ old('lebar', $order->lebar_volume) }}" placeholder="lebar">
-                                                </div>
-                                            </div>
-                                            <div class="form-group">
-                                                <div class="input-group">
-                                                    <span class="input-group-text" id="basic-addon1">T</span>
-                                                    <input type="number" name="tinggi" id="tinggi" class="form-control"
-                                                    value="{{ old('tinggi', $order->tinggi_volume) }}" placeholder="tinggi">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <label>Total Volume: <span id="total-volume">0</span></label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="price">Harga</label>
-                                        <input type="hidden" name="price_id" id="price_id" value="{{ Old('price_id') }}">
-                                        <input type="hidden" name="price_val" id="price_val" value="{{ $order->price }}">
-                                        <input type="text" name="price" id="price" class="form-control" value="{{ Old('price', $order->price) }}"  placeholder="masukan harga">
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="row mt-2">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="koli">Koli</label>
-                                        <input type="number" name="koli" id="koli" class="form-control" value="{{ Old('koli', $order->koli) }}" placeholder="masukan koli">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -258,18 +207,168 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary mt-2 float-end btn-send-update"><li class="fa fa-save"></li> Update</button>
-                    </form>
+                        {{-- <button type="submit" class="btn btn-primary mt-2 float-end btn-send-update"><li class="fa fa-save"></li> Update</button> --}}
                 </div>
             </div>
         </div>
     </div>
+    <div class="row pesanan_normal">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Koli</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table" id="koli-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Berat</th>
+                                    <th scope="col">P</th>
+                                    <th scope="col">L</th>
+                                    <th scope="col">T</th>
+                                    <th scope="col">Total Volume</th>
+                                    <th scope="col">Berat Volume</th>
+                                    <th scope="col">Harga</th>
+                                    <th scope="col">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                               @if ($detailorders->count() > 0)
+                                    @foreach ($detailorders as $index => $detailorder)
+                                            <tr>
+                                                <th>{{ $index + 1 }}</th>
+                                                <td style="min-width: 150px">
+                                                    <div class="input-group">
+                                                        <input type="hidden" name="detail_order_id[]" value="{{ $detailorder->id }}">
+                                                        <input value="{{ $detailorder->weight }}" type="number" name="weight[]" id="weight"
+                                                            class="form-control weight"
+                                                            placeholder="masukan berat kg"><span
+                                                            class="input-group-text">Kg</span>
+                                                        <span class="text-danger error-minweight"></span>
+                                                    </div>
+                                                </td>
+                                                <td style="min-width: 150px">
+                                                    <div class="input-group">
+                                                        <input value="{{ $detailorder->panjang }}" name="panjang_volume[]" type="number" id="panjang_volume"
+                                                            class="form-control panjang_volume" placeholder="Panjang">
+                                                    </div>
+                                                </td>
+                                                <td style="min-width: 150px">
+                                                    <div class="input-group">
+                                                        <input value="{{ $detailorder->lebar }}" name="lebar_volume[]" type="number" id="lebar_volume"
+                                                            class="form-control lebar_volume" placeholder="Lebar">
+                                                    </div>
+                                                </td>
+                                                <td style="min-width: 150px">
+                                                    <div class="input-group">
+                                                        <input value="{{ $detailorder->tinggi }}" name="tinggi_volume[]" type="number" id="tinggi_volume"
+                                                            class="form-control tinggi_volume" placeholder="Tinggi">
+                                                    </div>
+                                                </td>
+                                                <td><input value="{{ $detailorder->total_volume }}" name="total_volume[]" style="min-width: 150px" type="text"
+                                                        id="total_volume" class="form-control total_volume bg-transparent"
+                                                        readonly></td>
+                                                <td><input value="{{ $detailorder->berat_volume }}" name="kg_volume[]" style="min-width: 150px" type="text"
+                                                        id="kg_volume" class="form-control kg_volume bg-transparent" readonly>
+                                                </td>
+                                                <td><input value="{{ $detailorder->harga }}" name="price[]" style="min-width: 150px" type="text" id="price"
+                                                        class="form-control price bg-transparent" readonly></td>
+                                                <td>
+                                                    @if ($index > 0)
+                                                        <button type="button" class="btn btn-danger remove-data-koli" data-id="{{ encrypt($detailorder->id) }}">
+                                                            <li class="fa fa-trash"></li>
+                                                        </button>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                    @endforeach
+                               @else
+                                <tr>
+                                        <th>1</th>
+                                        <td style="min-width: 150px">
+                                            <div class="input-group">
+                                                <input type="hidden" name="detail_order_id[]">
+                                                <input  type="number" name="weight[]" id="weight"
+                                                    class="form-control weight"
+                                                    placeholder="masukan berat kg"><span
+                                                    class="input-group-text">Kg</span>
+                                                <span class="text-danger error-minweight"></span>
+                                            </div>
+                                        </td>
+                                        <td style="min-width: 150px">
+                                            <div class="input-group">
+                                                <input  name="panjang_volume[]" type="number" id="panjang_volume"
+                                                    class="form-control panjang_volume" placeholder="Panjang">
+                                            </div>
+                                        </td>
+                                        <td style="min-width: 150px">
+                                            <div class="input-group">
+                                                <input  name="lebar_volume[]" type="number" id="lebar_volume"
+                                                    class="form-control lebar_volume" placeholder="Lebar">
+                                            </div>
+                                        </td>
+                                        <td style="min-width: 150px">
+                                            <div class="input-group">
+                                                <input  name="tinggi_volume[]" type="number" id="tinggi_volume"
+                                                    class="form-control tinggi_volume" placeholder="Tinggi">
+                                            </div>
+                                        </td>
+                                        <td><input  name="total_volume[]" style="min-width: 150px" type="text"
+                                                id="total_volume" class="form-control total_volume bg-transparent"
+                                                readonly></td>
+                                        <td><input  name="kg_volume[]" style="min-width: 150px" type="text"
+                                                id="kg_volume" class="form-control kg_volume bg-transparent" readonly>
+                                        </td>
+                                        <td><input  name="price[]" style="min-width: 150px" type="text" id="price"
+                                                class="form-control price"></td>
+                                        <td>
+                                                <button type="button" class="btn btn-danger remove-data-koli">
+                                                    <li class="fa fa-trash"></li>
+                                                </button>
+                                        </td>
+                                    </tr>
+                               @endif
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="btn btn-success mt-2" id="add-row-btn">
+                        <li class="fa fa-plus"></li> Tambah Koli
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row pesanan_normal">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Total</h4>
+                </div>
+                <div class="card-body">
+                    <div class="">
+                        <p>Total Berat: <span id="total-weight"></span></p>
+                        <p>Total Harga: <span id="total-price"></span></p>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2 float-end btn-send-update">
+                        <li class="fa fa-save"></li> Update
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 @endsection
 
 @section('custom-js')
     <script>
         $(document).ready(function() {
-            sendEstimationRequest()
+            if ($('#status_orders').val() == 1) {
+                console.log($('#status_orders').val());
+                
+                sendEstimationRequest();
+            }
 
 
             $('#outlet_id_select').attr('data-outlet-id', '{{ $order->outlet_id }}');
@@ -312,9 +411,9 @@
                         };
 
 
-                        if ($('#outlet_id_hidden').val() != '' && $('#armada').val() != '' && $('#destination_id').val() != '' && $('#customer_id').val() != '') {
-                            sendEstimationRequest();
-                        }
+                        // if ($('#outlet_id_hidden').val() != '' && $('#armada').val() != '' && $('#destination_id').val() != '' && $('#customer_id').val() != '') {
+                        //     sendEstimationRequest();
+                        // }
                     },
                     error: function(xhr, status, error) {
                         console.error('AJAX Error: ', xhr.responseText);
@@ -364,31 +463,34 @@
                             $('#weight').off('keyup').on('keyup', function() {
                                 var weight = parseFloat($('#weight').val()) || 0
 
-                                if (weight < minimumweight) {
-                                    $('#error-minweight').text('minimal berat ' + minimumweight + ' kg')
-                                    $('#weight').addClass('border border-danger')
-                                    $('#price').val(price);
-                                    $('.btn-send-update').attr('type', 'button');
-                                } else {
-                                    $('#error-minweight').empty();
-                                    $('.btn-send-update').attr('type', 'submit');
-                                    totalPrice = 0
-                                    if (weight > minimumweight) {
-                                        if (armada == '1') {
-                                            totalPrice = price + ((weight - minimumweight) * nextweightprice)
-                                        }else if(armada == '2' || armada == '3'){
-                                            if (pricePerKg) {
-                                               totalPrice = weight * pricePerKg;
-                                            }
-                                        }
+                                if ($('.weight').val() >  $('#kg_volume').val()) {
+                                    if (weight < minimumweight) {
+                                        $('#error-minweight').text('minimal berat ' + minimumweight + ' kg')
+                                        $('#weight').addClass('border border-danger')
+                                        $('#price').val(price);
+                                        $('.btn-send-update').attr('type', 'button');
                                     } else {
-                                        totalPrice = price;
+                                        $('#error-minweight').empty();
+                                        $('.btn-send-update').attr('type', 'submit');
+                                        totalPrice = 0
+                                        if (weight > minimumweight) {
+                                            if (armada == '1') {
+                                                totalPrice = price + ((weight - minimumweight) * nextweightprice)
+                                            }else if(armada == '2' || armada == '3'){
+                                                if (pricePerKg) {
+                                                   totalPrice = weight * pricePerKg;
+                                                }
+                                            }
+                                        } else {
+                                            totalPrice = price;
+                                        }
+                                        $('#price').val(totalPrice.toFixed(0))
+    
+    
+                                        $('#weight').removeClass('border border-danger')
                                     }
-                                    $('#price').val(totalPrice.toFixed(0))
-
-
-                                    $('#weight').removeClass('border border-danger')
                                 }
+
                             })
                         },
                         error: function(xhr, status, error) {
@@ -422,6 +524,330 @@
             }
 
             $('#panjang, #lebar, #tinggi').on('keyup',calculatetotalsvolume)
+
+            function sendEstimationRequestTableRow(rowIndex) {
+                var outletasal = $('#outlet_id_hidden').val();
+                var customer_id = $('#customer_id').val();
+                var armada = $('#armada').val();
+                var destination_id = $('#destination_id').val();
+
+                // console.log(rowIndex);
+
+                var weightField = rowIndex ? $(`#weight-${rowIndex}`) : null;
+
+                if (armada || destination_id || customer_id || outletasal) {
+                    $.ajax({
+                        url: '{{ url('/order/get-estimation') }}',
+                        type: 'GET',
+                        data: {
+                            outletasal: outletasal,
+                            customer_id: customer_id,
+                            armada: armada,
+                            destination_id: destination_id,
+                        },
+                        success: function(response) {
+                            var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data
+                                .minweights);
+                            var nextweightprice = response.data.nextweightprices;
+                            var minimumweight = response.data.minweights;
+                            var price = response.data.price;
+
+                            if (rowIndex) {
+                                $(`#price-${rowIndex}`).val(price);
+                                weightField.val(minimumweight);
+
+                                weightField.off('keyup').on('keyup', function() {
+                                    var weight = parseFloat($(this).val()) || 0;
+                                    var totalPrice = 0;
+
+                                    if (weight > $(`#kg_volume-${rowIndex}`).val()) {
+                                        if (weight < minimumweight) {
+                                            $(`#error-minweight-${rowIndex}`).text(
+                                                'Minimal berat ' + minimumweight + ' kg');
+                                            $(this).addClass('border border-danger');
+                                            $(`#price-${rowIndex}`).val(price);
+                                        } else {
+                                            $(`#error-minweight-${rowIndex}`).empty();
+                                            $(this).removeClass('border border-danger');
+
+                                            if (weight > minimumweight) {
+                                                if (armada == '1') {
+                                                    totalPrice = price + ((weight - minimumweight) *
+                                                        nextweightprice);
+                                                } else if (armada == '2' || armada == '3') {
+                                                    totalPrice = weight * pricePerKg;
+                                                }
+                                            } else {
+                                                totalPrice = price;
+                                            }
+                                            $(`#price-${rowIndex}`).val(totalPrice.toFixed(0));
+                                        }
+                                    }
+
+                                    
+                                    calculateTotals();
+                                });
+                            } else {
+                                $('#price_id').val(response.data.price_id);
+                                $('.price').val(response.data.price);
+                                $('#total-harga').text(response.data.price);
+                                $('#estimation').val(response.data.estimation);
+                                $('.weight').val(response.data.minweights);
+
+                                $('.weight').off('keyup').on('keyup', function() {
+                                    var weight = parseFloat($('.weight').val()) || 0;
+                                    var totalPrice = 0;
+
+                                    if (weight < minimumweight) {
+                                        $('.error-minweight').text('Minimal berat ' +
+                                            minimumweight + ' kg');
+                                        $('.weight').addClass('border border-danger');
+                                        $('.price').val(price);
+                                        $('.btn-send-update').attr('type', 'button');
+                                    } else {
+                                        $('.error-minweight').empty();
+                                        $('.btn-send-update').attr('type', 'submit');
+                                        if (weight > minimumweight) {
+                                            if (armada == '1') {
+                                                totalPrice = price + ((weight - minimumweight) *
+                                                    nextweightprice);
+                                            } else if (armada == '2' || armada == '3') {
+                                                totalPrice = weight * pricePerKg;
+                                            }
+                                        } else {
+                                            totalPrice = price;
+                                        }
+                                        $('.price').val(totalPrice.toFixed(0));
+                                        $('#total-harga').text(totalPrice.toFixed(0));
+                                        $('.weight').removeClass('border border-danger');
+                                    }
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.log('Error: ', xhr.responseText);
+                        }
+                    });
+                }
+            }
+
+            function sendEstimationRequestCalculateVolumeTableRow(kgVolume, rowIndex) {
+                var outletasal = $('#outlet_id_hidden').val()
+                var customer_id = $('#customer_id').val()
+                var armada = $('#armada').val()
+                var destination_id = $('#destination_id').val()
+
+
+                if (armada || destination_id || customer_id || outletasal) {
+                    $.ajax({
+                        url: '{{ url('/order/get-estimation') }}',
+                        type: 'GET',
+                        data: {
+                            outletasal: outletasal,
+                            customer_id: customer_id,
+                            armada: armada,
+                            destination_id: destination_id,
+                        },
+                        success: function(response) {
+                            var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data.minweights)
+                            var totalPriceKg = pricePerKg * kgVolume;
+                            // console.log(totalPriceKg);
+
+                            var nextweightprice = response.data.nextweightprices
+                            var minimumweight = response.data.minweights
+                            var price = response.data.price
+                            var price_id = response.data.price_id
+
+
+                            $(`#price_id-${rowIndex}`).val(price_id);
+
+                            if ($('#armada').val() == 1) {
+                                totalPrice = price + ((kgVolume - minimumweight) * nextweightprice)
+                            } else if ($('#armada').val() == 2) {
+                                totalPrice = totalPriceKg;
+                            } else if ($('#armada').val() == 3) {
+                                totalPrice = totalPriceKg;
+                            }
+
+                            
+                            $(`#price-${rowIndex}`).val(totalPrice.toFixed(0))
+                            
+                            $(`#total-harga-${rowIndex}`).text(totalPrice.toFixed(0));
+                            calculateTotals();
+                        },
+                        error: function(xhr, status, error) {
+                            console.log('Error: ', xhr.responseText)
+                        }
+                    });
+                }
+            }
+
+            function calculatetotalsvolumeTableRow(rowIndex) {
+                    var panjang_volume = parseFloat($(`#panjang_volume-${rowIndex}`).val()) || 0;
+                    var lebar_volume = parseFloat($(`#lebar_volume-${rowIndex}`).val()) || 0;
+                    var tinggi_volume = parseFloat($(`#tinggi_volume-${rowIndex}`).val()) || 0;
+                    var weight = parseFloat($(`#weight-${rowIndex}`).val()) || 0;
+
+                    if (panjang_volume > 0 && lebar_volume > 0 && tinggi_volume > 0) {
+                        var totalVolume = panjang_volume * lebar_volume * tinggi_volume;
+                        $(`#total_volume-${rowIndex}`).val(totalVolume);
+                    
+
+                        if ($('#armada').val() == "1") {
+                            var kgVolume = Math.ceil(totalVolume / 4000);
+                            $(`#kg_volume-${rowIndex}`).val(kgVolume);  
+
+                            if (kgVolume > weight) {
+                                sendEstimationRequestCalculateVolumeTableRow(kgVolume, rowIndex);
+                            }else{
+                                sendEstimationRequestCalculateVolumeTableRow(weight, rowIndex);
+                            }
+
+                        }
+
+                        if ($('#armada').val() == "2") {
+                            var kgVolume = Math.ceil(totalVolume / 4000);
+                            $(`#kg_volume-${rowIndex}`).val(kgVolume);  
+
+                            if (kgVolume > weight) {
+                                sendEstimationRequestCalculateVolumeTableRow(kgVolume, rowIndex);
+                            }else{
+                                sendEstimationRequestCalculateVolumeTableRow(weight, rowIndex);
+                            }
+
+                        }
+
+
+                        if ($('#armada').val() == "3") {
+                            var kgVolume = Math.ceil(totalVolume / 5000);
+                            $(`#kg_volume-${rowIndex}`).val(kgVolume);  
+
+                            if (kgVolume > weight) {
+                                sendEstimationRequestCalculateVolumeTableRow(kgVolume, rowIndex);
+                            }else{
+                                sendEstimationRequestCalculateVolumeTableRow(weight, rowIndex);
+                            }
+
+                        }
+                    }
+                }
+
+            function handleVolumeChangeRowTable(rowIndex) {
+                $(`#panjang_volume-${rowIndex}, #lebar_volume-${rowIndex}, #tinggi_volume-${rowIndex}`).on('keyup',
+                    function() {
+                        calculatetotalsvolumeTableRow(rowIndex);
+                        calculateTotals();
+                    });
+            }
+
+
+
+            let rowIndex = 0;
+            function addRowTableKoli() {
+                rowIndex++;
+                let rowCount = $('#koli-table tbody tr').length + 1;
+                let newRow =
+                    `
+                <tr>
+                    <td>${rowCount}</td>
+                    <td  style="min-width: 150px">
+                        <div class="input-group">
+                            <input  type="number" name="weight[]" id="weight-${rowIndex}"  class="form-control weight" placeholder="masukan berat kg"><span class="input-group-text">Kg</span>
+                            <span class="text-danger error-minweight"></span>
+                        </div>
+                    </td>
+                    <td  style="min-width: 150px">
+                        <div class="input-group">
+                            <input  name="panjang_volume[]" type="number" id="panjang_volume-${rowIndex}" class="form-control panjang_volume" placeholder="Panjang">
+                        </div>
+                    </td>
+                    <td  style="min-width: 150px">
+                        <div class="input-group">
+                            <input  name="lebar_volume[]" type="number" id="lebar_volume-${rowIndex}" class="form-control lebar_volume" placeholder="Lebar">
+                        </div>
+                    </td>
+                    <td  style="min-width: 150px">
+                        <div class="input-group">
+                            <input  name="tinggi_volume[]" type="number" id="tinggi_volume-${rowIndex}" class="form-control tinggi_volume" placeholder="Tinggi">
+                        </div>
+                    </td>
+                    <td><input name="total_volume[]" style="min-width: 150px" type="text" id="total_volume-${rowIndex}" class="form-control total_volume bg-transparent" readonly></td>
+                    <td><input name="kg_volume[]" style="min-width: 150px" type="text" id="kg_volume-${rowIndex}" class="form-control kg_volume bg-transparent" readonly></td>
+                    <td><input name="price[]" style="min-width: 150px" type="text" id="price-${rowIndex}" class="form-control price bg-transparent"></td>
+                    <td><button type="button"  class="btn btn-danger remove-row"><li class="fa fa-trash"></li></button></td>
+                </tr>
+                
+                `;
+                $('#koli-table tbody').append(newRow);
+
+                sendEstimationRequestTableRow(rowIndex);
+                handleVolumeChangeRowTable(rowIndex);
+            }
+
+            $(document).on('click', '#add-row-btn', function() {
+                addRowTableKoli();
+            });
+
+
+            $(document).on('click', '.remove-row', function() {
+                if ($('#koli-table tbody tr').length > 1) {
+                    $(this).closest('tr').remove();
+                } else {
+                    alert("Tidak bisa menghapus semua row.");
+                }
+            });
+
+
+
+            $(document).on('click', '.remove-data-koli', function () {
+                var id = $(this).data('id');  
+                var row = $(this).closest('tr'); 
+
+                if (confirm("Apakah Anda yakin ingin menghapus data ini?")) {
+                    $.ajax({
+                        url: '/order/delete-koli-order',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            id: id
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                row.remove();
+                            } else {
+                                alert('Gagal menghapus data.');
+                            }
+                        },
+                        error: function (xhr) {
+                            alert('Terjadi kesalahan.');
+                        }
+                    });
+                }
+            });
+
+
+            // calculate totals weight and price order
+            function calculateTotals() {
+                    let totalWeight = 0;
+                    let totalPrice = 0;
+
+                    $('#koli-table tbody tr').each(function() {
+                        let weight = parseFloat($(this).find('.weight').val()) || 0;
+                        let price = parseFloat($(this).find('.price').val()) || 0;
+
+                        totalWeight += weight;
+                        totalPrice += price;
+                    });
+
+                    $('#total-weight').text(totalWeight.toFixed(2) + ' Kg');
+                    $('#total-price').text(totalPrice.toLocaleString('id-ID', { 
+                        style: 'currency', 
+                        currency: 'IDR', 
+                        minimumFractionDigits: 0, 
+                        maximumFractionDigits: 0 
+                    }));
+            }
+            calculateTotals();
 
             // $('.volume').hide();
             // $('#select_option_berat_volume').change(function () {

@@ -111,6 +111,7 @@ Route::middleware(['auth', 'check.role:1,2'])->group(function () {
         Route::get('/{id}/print-v2', [OrderController::class, 'printformat2']);
         Route::get('/get-estimation', [OrderController::class, 'getEstimation']);
         Route::get('/get-customer', [OrderController::class, 'getCunstomer']);
+        Route::post('/delete-koli-order', [OrderController::class, 'destroyKoli']);
     });
 
     Route::prefix('vehicle')->group(function () {
