@@ -50,7 +50,9 @@
                                                 target="_blank">Print
                                                 Format 2</a>
                                         @endif
-                                        <a class="btn btn-warning " href="/order"><li class="fa fa-undo"></li> Kembali</a>
+                                        <a class="btn btn-warning " href="/order">
+                                            <li class="fa fa-undo"></li> Kembali
+                                        </a>
                                     </div>
                                 @endif
                             </div>
@@ -73,7 +75,7 @@
                                     <p>Koli: {{ $order->koli ?? '-' }}</p>
                                     <p>Berat: {{ $order->weight ?? '-' }}</p>
                                     <p>Volume: {{ $order->volume ?? '-' }}</p>
-                                    <p>Harga: {{ $order->price ?? '-' }}</p>
+                                    <p>Harga: {{ formatRupiah($order->price) ?? '-' }}</p>
                                     <p>Metode Pembayaran:
                                         @if ($order->payment_method == '1')
                                             Tagih Tujuan
@@ -151,6 +153,48 @@
                     </div>
                 </div>
             </div> --}}
+            <div class="cocard-body  invoice-padding pt-0">
+                <div class="card">
+                    <h4 class="card-header">Detail Koli</h4>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table" id="koli-table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Berat</th>
+                                        <th scope="col">Panjang volume</th>
+                                        <th scope="col">Lebar Volume</th>
+                                        <th scope="col">Tinggi Volume</th>
+                                        <th scope="col">Total Volume</th>
+                                        <th scope="col">Berat Volume</th>
+                                        <th scope="col">Harga</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($detailorders as $index => $detailorder)
+                                        <tr>
+                                            <th>{{ $index + 1 }}</th>
+                                            <td>{{ $detailorder->weight }}</td>
+                                            <td>{{ $detailorder->panjang }}</td>
+                                            <td>{{ $detailorder->lebar }}</td>
+                                            <td>{{ $detailorder->tinggi }}</td>
+                                            <td>{{ $detailorder->total_volume }}</td>
+                                            <td>{{ $detailorder->berat_volume }}</td>
+                                            <td>{{ formatRupiah($detailorder->harga) }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <hr>
+                        <div class="d-flex flex-wrap gap-2">
+                            <p>Total Berat: <b>{{ $detailorders->sum('weight') }}</b></p> |
+                            <p>Total Harga: <b>{{ formatRupiah($detailorders->sum('harga')) }}</b></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="cocard-body  invoice-padding pt-0">
                 <div class="card">
                     <h4 class="card-header">History Resi</h4>

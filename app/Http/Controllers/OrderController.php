@@ -7,14 +7,15 @@ use App\Models\User;
 use App\Models\Order;
 use App\Models\Outlet;
 use App\Models\Customer;
-use App\Models\CustomerPrice;
 use App\Models\HistoryAwb;
 use App\Models\Destination;
-use App\Models\HistoryUpdateOrder;
+use App\Models\DetailOrder;
 use App\Models\Masterprice;
 use Illuminate\Http\Request;
+use App\Models\CustomerPrice;
 use Elibyy\TCPDF\Facades\TCPDF;
 use Yajra\DataTables\DataTables;
+use App\Models\HistoryUpdateOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -178,6 +179,7 @@ class OrderController extends Controller
     function getEstimation(Request $request)
     {
 
+        
         if ($request->outletasal) {
             $estimation = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', $request->outletasal)->where('customer_id', $request->customer_id)->first();
             if ($estimation == null) {
@@ -193,7 +195,6 @@ class OrderController extends Controller
                 $estimation = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
             }
         }
-
         if ($estimation) {
             $response = [
                 'status' => 'success',
@@ -314,6 +315,7 @@ class OrderController extends Controller
                 Alert::success('Berhasil', 'Pesanan Berhasil Dibuat');
                 return redirect()->to('/order');
             } else {
+
                 if (Auth::user()->role_id == "1") {
                     $validator = Validator::make($request->all(), [
                         'outlet_id' => 'required',
@@ -335,12 +337,14 @@ class OrderController extends Controller
                     'armada'            =>  'required',
                     'address'           =>  'required',
                     'weight'            =>  'required',
-                    // 'volume'            =>  'required',
+                    'panjang_volume'    =>  'required',
+                    'lebar_volume'      =>  'required',
+                    'tinggi_volume'     =>  'required',
                     'estimation'        =>  'required',
                     'payment_method'    =>  'required',
                     'description'       =>  'required',
                     'note'              =>  'required',
-                    'koli'              =>  'required',
+                    // 'koli'              =>  'required',
                     'receiver'          =>  'required',
                     'awb'               => 'required|unique:orders,numberorders',
                 ], [
@@ -350,12 +354,14 @@ class OrderController extends Controller
                     'service.required'        => 'Pilih Salah Satu Jenis',
                     'address.required'        => 'Penerima Harus Diisi',
                     'weight.required'         => 'Berat Harus Diisi',
-                    // 'volume.required'         => 'Volume Harus Diisi',
+                    'panjang_volume.required' => 'Volume Harus Diisi',
+                    'lebar_volume.required'   => 'Volume Harus Diisi',
+                    'tinggi_volume.required'  => 'Volume Harus Diisi',
                     'estimation.required'     => 'Estimasi Harus Diisi',
                     'payment_method.required' => 'Pilih Salah Satu Metode Pembayaran',
                     'description.required'    => 'Deskripsi Harus Diisi',
                     'note.required'           => 'Catatan Harus Diisi',
-                    'koli.required'           => 'Koli Harus Diisi',
+                    // 'koli.required'           => 'Koli Harus Diisi',
                     'receiver.required'       => 'Penerima Harus Diisi',
                     'awb.required'            => 'AWB Harus Diisi',
                     'awb.unique'              => 'AWB Sudah Digunakan Harap Gunkan AWB Lain',
@@ -410,12 +416,12 @@ class OrderController extends Controller
 
 
                 // set volume
-                if ($request->panjang && $request->lebar && $request->tinggi) {
-                    $volume = $request->panjang * $request->lebar * $request->tinggi;
-                    $panjangVolume = $request->panjang;
-                    $lebarVolume = $request->lebar;
-                    $tinggiVolume = $request->tinggi;
-                }
+                // if ($request->panjang_volume && $request->lebar_volume && $request->tinggi_volume) {
+                //     $volume = $request->panjang_volume * $request->lebar_volume * $request->tinggi_volume;
+                //     $panjangVolume = $request->panjang_volume;
+                //     $lebarVolume = $request->lebar_volume;
+                //     $tinggiVolume = $request->tinggi_volume;
+                // }
 
                 $order = new Order();
                 $order->numberorders    =  $request->awb;
@@ -426,16 +432,16 @@ class OrderController extends Controller
                 $order->service         =  $request->service;
                 $order->destinations_id =  $request->destination_id;
                 $order->address         =  $request->address;
-                $order->weight          =  $request->weight;
-                $order->volume          =  $volume ?? null;
-                $order->panjang_volume  =  $panjangVolume ?? null;
-                $order->lebar_volume    =  $lebarVolume ?? null;
-                $order->tinggi_volume   =  $tinggiVolume ?? null;
+                $order->weight          =  array_sum($request->input('weight'));
+                $order->volume          =  array_sum($request->input('total_volume'));
+                // $order->panjang_volume  =  $panjangVolume ?? null;
+                // $order->lebar_volume    =  $lebarVolume ?? null;
+                // $order->tinggi_volume   =  $tinggiVolume ?? null;
                 $order->payment_method  =  $request->payment_method;
-                $order->price           =  $request->price;
+                $order->price           =  array_sum($request->input('price'));
                 $order->estimation      =  $request->estimation;
                 $order->description     =  $request->description;
-                $order->koli            =  $request->koli;
+                $order->koli            =  count($request->input('price'));
                 $order->note            =  $request->note;
                 $order->outlet_id       =  $outlet->id;
                 $order->penerima        =  $request->receiver;
@@ -443,25 +449,48 @@ class OrderController extends Controller
                 $order->created_by      = Auth::user()->id;
                 $order->save();
 
+                // create detail order 
+                $weights        = $request->input('weight');
+                $panjangs       = $request->input('panjang_volume');
+                $lebars         = $request->input('lebar_volume');
+                $tinggis        = $request->input('tinggi_volume');
+                $total_volumes  = $request->input('total_volume');
+                $kg_volumes     = $request->input('kg_volume');
+                $prices         = $request->input('price');
+            
+                foreach ($weights as $index => $weight) {
+                    DetailOrder::create([
+                        'order_id'      => $order->id,
+                        'weight'        => $weight,
+                        'panjang'       => $panjangs[$index],
+                        'lebar'         => $lebars[$index],
+                        'tinggi'        => $tinggis[$index],
+                        'total_volume'  => $total_volumes[$index],
+                        'berat_volume'  => $kg_volumes[$index],
+                        'harga'         => $prices[$index],
+                    ]);
+                }
+
                 // create history awb -> "Pesanan sedang di proses di gudang ..."
                 $order->histories()->create([
-                    'order_id'  => $order->id,
-                    'awb'       => $order->numberorders,
-                    'status'    => 'Pesanan sedang di proses di ' . $gudangLocation->name . ' oleh ' . Auth::user()->name,
-                    'created_by' => Auth::user()->id,
+                    'order_id'      => $order->id,
+                    'awb'           => $order->numberorders,
+                    'status'        => 'Pesanan sedang di proses di ' . $gudangLocation->name . ' oleh ' . Auth::user()->name,
+                    'created_by'    => Auth::user()->id,
                 ]);
+
+
                 DB::commit();
                 Alert::success('Berhasil', 'Pesanan Berhasil Dibuat');
                 return redirect()->to('/order');
             }
         } catch (\Throwable $th) {
             DB::rollBack();
+            // dd($th);
             Alert::error('Gagal', 'Terjadi Kesalahan');
             return redirect()->back();
         }
     }
-
-
 
 
     function show($id)
@@ -473,8 +502,9 @@ class OrderController extends Controller
         }
         $order      = Order::find($id);
         $historyAwbs = HistoryAwb::where('order_id', $order->id)->get();
+        $detailorders = DetailOrder::where('order_id', $order->id)->get();
 
-        return view('pages.order.detail', compact('order', 'historyAwbs'));
+        return view('pages.order.detail', compact('order', 'historyAwbs', 'detailorders'));
     }
 
 
@@ -522,13 +552,17 @@ class OrderController extends Controller
         } else {
             $customers = User::where('role_id', 4)->where('outlets_id', Auth::user()->outlets_id)->get();
         }
+
+        $detailorders = DetailOrder::where('order_id', $id)->get();
+
         $destinations   = Destination::all();
         $outlets        = Outlet::all();
-        return view('pages.order.edit', compact('order', 'customers', 'destinations', 'outlets'));
+        return view('pages.order.edit', compact('order', 'customers', 'destinations', 'outlets', 'detailorders'));
     }
 
     function update(Request $request, $id)
     {
+
         try {
             if (Auth::user()->role_id == "1") {
                 $validator = Validator::make($request->all(), [
@@ -553,13 +587,13 @@ class OrderController extends Controller
                 'destination_id'    =>  'required',
                 'armada'            =>  'required',
                 'address'           =>  'required',
-                'weight'            =>  'required',
+                // 'weight'            =>  'required',
                 // 'volume'            =>  'required',
                 'estimation'        =>  'required',
                 'payment_method'    =>  'required',
                 'description'       =>  'required',
                 'note'              =>  'required',
-                'koli'              =>  'required',
+                // 'koli'              =>  'required',
                 'receiver'          =>  'required',
                 'awb'               => 'required|unique:orders,numberorders,' . $order->id,
             ], [
@@ -569,12 +603,12 @@ class OrderController extends Controller
                 'payment_method.required' => 'Pilih Salah Satu Metode Pembayaran',
                 'service.required'        => 'Pilih Salah Satu Jenis',
                 'address.required'        => 'Penerima Harus Diisi',
-                'weight.required'         => 'Berat Harus Diisi',
+                // 'weight.required'         => 'Berat Harus Diisi',
                 // 'volume.required'         => 'Volume Harus Diisi',
                 'estimation.required'     => 'Estimasi Harus Diisi',
                 'description.required'    => 'Deskripsi Harus Diisi',
                 'note.required'           => 'Catatan Harus Diisi',
-                'koli.required'           => 'Koli Harus Diisi',
+                // 'koli.required'           => 'Koli Harus Diisi',
                 'receiver.required'       => 'Penerima Harus Diisi',
                 'awb.required'            => 'AWB Harus Diisi',
                 'awb.unique'              => 'AWB Sudah Digunakan Harap Gunkan AWB Lain',
@@ -605,6 +639,8 @@ class OrderController extends Controller
                     }
                 }
 
+                
+
                 if ($request->price < $minimumPrice->minimumprice) {
                     Alert::error('Gagal', 'Harga tidak boleh lebih kecil dari ' . formatRupiah($minimumPrice->minimumprice));
                     return redirect()->back()->withInput();
@@ -629,12 +665,12 @@ class OrderController extends Controller
 
             $gudangLocation = Outlet::find($outlet->id);
 
-            if ($request->panjang && $request->lebar && $request->tinggi) {
-                $volume = $request->panjang * $request->lebar * $request->tinggi;
-                $panjangVolume = $request->panjang;
-                $lebarVolume = $request->lebar;
-                $tinggiVolume = $request->tinggi;
-            }
+            // if ($request->panjang && $request->lebar && $request->tinggi) {
+            //     $volume = $request->panjang * $request->lebar * $request->tinggi;
+            //     $panjangVolume = $request->panjang;
+            //     $lebarVolume = $request->lebar;
+            //     $tinggiVolume = $request->tinggi;
+            // }
 
             $order->customer_id     = $request->customer_id;
             $order->status_orders   = 2;
@@ -645,17 +681,17 @@ class OrderController extends Controller
             $order->service         = $request->service;
             $order->destinations_id = $request->destination_id;
             $order->address         = $request->address;
-            $order->weight          = $request->weight;
-            $order->volume          = $volume ?? null;
-            $order->panjang_volume  = $panjangVolume ?? null;
-            $order->lebar_volume    = $lebarVolume ?? null;
-            $order->tinggi_volume   = $tinggiVolume ?? null;
-            $order->price           = $request->price;
+            $order->weight          = array_sum($request->input('weight'));
+            $order->volume          = array_sum($request->input('total_volume'));
+            // $order->panjang_volume  = $panjangVolume ?? null;
+            // $order->lebar_volume    = $lebarVolume ?? null;
+            // $order->tinggi_volume   = $tinggiVolume ?? null;
+            $order->price           = array_sum($request->input('price'));
             $order->payment_method  = $request->payment_method;
             $order->estimation      = $request->estimation;
             $order->description     = $request->description;
             $order->note            = $request->note;
-            $order->koli            = $request->koli;
+            $order->koli            = count($request->input('price'));
             $order->status_awb      = 'Pesanan sedang di proses di gudang ' . $gudangLocation->name . ' oleh ' . Auth::user()->name;
             $order->save();
 
@@ -667,6 +703,7 @@ class OrderController extends Controller
                 'created_by' => Auth::user()->id,
             ]);
 
+
             //create history order
             $historyOrder = new HistoryUpdateOrder();
             $historyOrder->order_id         = $order->id;
@@ -677,9 +714,9 @@ class OrderController extends Controller
             $historyOrder->koli             = $order->koli;
             $historyOrder->weight           = $order->weight;
             $historyOrder->volume           = $order->volume;
-            $historyOrder->panjang_volume   = $order->panjang_volume;
-            $historyOrder->lebar_volume     = $order->lebar_volume;
-            $historyOrder->tinggi_volume    = $order->tinggi_volume;
+            // $historyOrder->panjang_volume   = $order->panjang_volume;
+            // $historyOrder->lebar_volume     = $order->lebar_volume;
+            // $historyOrder->tinggi_volume    = $order->tinggi_volume;
             $historyOrder->price            = $order->price;
             $historyOrder->content          = $order->content;
             $historyOrder->penerima         = $order->penerima;
@@ -697,12 +734,52 @@ class OrderController extends Controller
             $historyOrder->save();
 
 
+            // create detail order 
+            $weights        = $request->input('weight');
+            $panjangs       = $request->input('panjang_volume');
+            $lebars         = $request->input('lebar_volume');
+            $tinggis        = $request->input('tinggi_volume');
+            $total_volumes  = $request->input('total_volume');
+            $kg_volumes     = $request->input('kg_volume');
+            $prices         = $request->input('price');
+            
+
+            foreach ($weights as $index => $weight) {
+
+                $detailOrderId = $request->input('detail_order_id')[$index] ?? null;
+                if ($detailOrderId) {
+                    $detailOrder = DetailOrder::where('id', $detailOrderId)->where('order_id', $order->id)->first();
+            
+                    if ($detailOrder) {
+                        $detailOrder->update([
+                            'weight'        => $weight,
+                            'panjang'       => $panjangs[$index],
+                            'lebar'         => $lebars[$index],
+                            'tinggi'        => $tinggis[$index],
+                            'total_volume'  => $total_volumes[$index],
+                            'berat_volume'  => $kg_volumes[$index],
+                            'harga'         => $prices[$index],
+                        ]);
+                    }
+                } else {
+                    DetailOrder::create([
+                        'order_id'      => $order->id,
+                        'weight'        => $weight,
+                        'panjang'       => $panjangs[$index],
+                        'lebar'         => $lebars[$index],
+                        'tinggi'        => $tinggis[$index],
+                        'total_volume'  => $total_volumes[$index],
+                        'berat_volume'  => $kg_volumes[$index],
+                        'harga'         => $prices[$index],
+                    ]);
+                }
+            }
 
             DB::commit();
             Alert::success('Berhasil', 'Pesanan Berhasil Diupdate');
             return redirect()->to('/order');
         } catch (\Throwable $th) {
-            dd($th);
+            // dd($th);
             DB::rollBack();
             Alert::error('Gagal', 'Terjadi Kesalahan');
             return redirect()->back();
@@ -798,5 +875,19 @@ class OrderController extends Controller
         $originLocationOrder = Destination::find($order->outlet->location_id);
 
         return view('pages.order.print2', compact('order', 'originLocationOrder'));
+    }
+
+
+    public function destroyKoli(Request $request)
+    {
+        try {
+            $id = Crypt::decrypt($request->id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
+
+        $detailOrder = DetailOrder::find($id);
+        $detailOrder->delete();
+        return response()->json(['success' => true]);
     }
 }
