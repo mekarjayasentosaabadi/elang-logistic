@@ -150,6 +150,9 @@ Route::middleware(['auth', 'check.role:1,2'])->group(function () {
         Route::get('/{id}/edit', [MasterpriceController::class, 'edit'])->name('masterprice.edit');
         Route::post('/{id}', [MasterpriceController::class, 'update'])->name('masterprice.update');
         Route::get('/{id}/list/{id2}/{id3}', [MasterpriceController::class, 'listhargapublic'])->name('masterprice.listhargapublic');
+        Route::get('/{id}/detail', [MasterpriceController::class, 'detail'])->name('masterprice.detail');
+        Route::post('/{id}/ubah', [MasterpriceController::class, 'ubahmasterprice'])->name('masterprice.ubah');
+
     });
 
     //Delivery

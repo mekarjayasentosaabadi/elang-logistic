@@ -24,7 +24,7 @@ class MasterpriceController extends Controller
                   ->with(['outlet' => function($q){
                       $q->select('id', 'name');
                   }, 'destination', 'origin'])
-                  ->groupBy('origin_id', 'outlets_id', 'armada');
+                  ->groupBy('origin_id', 'outlets_id', 'armada')->get();
         return DataTables::of($tbl)
             ->addColumn('namaarmada', function($x){
                 $armada = $x->armada;
@@ -64,7 +64,7 @@ class MasterpriceController extends Controller
                                   ->where('origin_id', $request->origin_id)
                                   ->get();
             }
-            
+
             return response()->json([
                 'destination'       => $destination,
                 'armada'            => $request->armada,
@@ -92,7 +92,7 @@ class MasterpriceController extends Controller
             //     'destinations_id'=> $request->destination
             // ];
             // $filter = Masterprice::where($search)->first();
-            
+
             // if($filter){
             //     return ResponseFormatter::success(['validate'=>false], 'Data Masterprice tersebut sudah ada.!, Mohon periksa kembali');
             // }
@@ -100,7 +100,7 @@ class MasterpriceController extends Controller
             $destination = $request->destination_id;
             $outletId = auth()->user()->role_id == 1 ? $request->outlet_id : auth()->user()->outlet->id;
             for($i = 0; $i < count($destination); $i++){
-                    $minWeight = $request->weight[$i] ?? 0; 
+                    $minWeight = $request->weight[$i] ?? 0;
                     $minWeight = is_numeric($minWeight) ? (int) $minWeight : 0;
                     $masterPrice = new Masterprice();
                     $dataStored = [
@@ -205,7 +205,7 @@ class MasterpriceController extends Controller
         // $dataList = Masterprice::with(['outlets', 'destinations', 'armada'])->where('outlets_id', $id)->where('destinations_id', $id2)->where('armada', $id3)->get();
         // return ResponseFormatter::success([$dataList], 'Berhasil mengambil data harga Customer');
         // var_dump($id, $id2, $id3);
-        $tbl = Masterprice::with(['outlet', 'origin', 'destination'])->where('outlets_id', $id2)->where('armada', $id3)->where('origin_id', $id);
+        $tbl = Masterprice::with(['outlet', 'origin', 'destination'])->where('outlets_id', $id2)->where('armada', $id3)->where('origin_id', $id)->get();
         return DataTables::of($tbl)
             ->addColumn('namaarmada', function($x){
                 $armada = $x->armada;
@@ -219,12 +219,36 @@ class MasterpriceController extends Controller
             })
             ->addColumn('aksi', function($x){
                 $aksi = '<div>';
-                $aksi .= '<button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModalCenter" onclick="showDetail('.$x->origin_id.','.$x->outlets_id.','.$x->armada.')"><li class="fa fa-list"></li></button>';
+                $aksi .= '<button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEditPrice" onClick="editPrice(this, '.$x->id.')" ><li class="fa fa-edit"></li></button>';
                 $aksi .= '</div>';
                 return $aksi;
             })
             ->rawColumns(['namaarmada', 'aksi'])
             ->addIndexColumn()
             ->make(true);
+    }
+
+    function detail($id){
+        $dataMasterPrice = Masterprice::with(['outlet', 'origin', 'destination'])->where('id', $id)->firstOrFail();
+        return ResponseFormatter::success([$dataMasterPrice], 'Berhasil mengambil data');
+    }
+
+    function ubahmasterprice(Request $request, $id){
+        try {
+            $request->validate([
+                'price' => 'required',
+            ]);
+            $dataStored = [
+                'price'             => $request->price,
+                'minweights'        => $request->minweightprice,
+                'nextweightprices'  => $request->nextweightprices,
+                'minimumprice'      => $request->minimumprice,
+                'estimation'        => $request->estimation
+            ];
+            Masterprice::where('id', $id)->update($dataStored);
+            return ResponseFormatter::success([], 'Data berhasil di perbaharui.');
+        } catch (Exception $error) {
+            return ResponseFormatter::error([$error], 'something went wrong');
+        }
     }
 }
