@@ -29,6 +29,7 @@
                                     <th>Tanggal</th>
                                     <th>Catatan</th>
                                     <th>Status</th>
+                                    <th>Status Keterlambatan</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -96,6 +97,12 @@
                         name: 'status_orders',
                         orderable: true,
                         searchable: true
+                    },
+                    {
+                        data: 'status_kenerlambatan',
+                        name: 'status_kenerlambatan',
+                        orderable: false,
+                        searchable: false
                     },
                     {
                         data: 'aksi',
