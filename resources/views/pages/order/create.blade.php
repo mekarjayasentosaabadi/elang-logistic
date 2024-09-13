@@ -329,9 +329,10 @@
                                 armada: armada,
                                 destination_id: destination_id,
                             },
+
                             success: function(response) {
-                                var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data
-                                    .minweights)
+                                var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data.minweights)
+                                
                                 var nextweightprice = response.data.nextweightprices
                                 minimumweight = response.data.minweights;
 
@@ -339,10 +340,10 @@
                                 var price_id = response.data.price_id
 
                                 $('#price_id').val(response.data.price_id);
-                                $('.price').val(response.data.price)
+                                // $('.price').val(response.data.price)
                                 $('#total-harga').text(response.data.price);
                                 $('#estimation').val(response.data.estimation)
-                                $('.weight').val(response.data.minweights)
+                                // $('.weight').val(response.data.minweights)
 
 
                                 $('.weight').off('keyup').on('keyup', function() {
@@ -370,7 +371,7 @@
                                         calculatetotalsvolume()
                                    }
                                 })
-                                calculateTotals();
+                                // calculateTotals();
                             },
                             error: function(xhr, status, error) {
                                 console.log('Error: ', xhr.responseText)
@@ -403,14 +404,14 @@
                                 destination_id: destination_id,
                             },
                             success: function(response) {
-                                var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data
-                                    .minweights);
+                                var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data.minweights);
+
                                 var nextweightprice = response.data.nextweightprices;
                                 var minimumweight = response.data.minweights;
                                 var price = response.data.price;
 
                                 $(`#price-${rowIndex}`).val(price);
-                                    weightField.val(minimumweight);
+                                // weightField.val(minimumweight);
 
                                     weightField.off('keyup').on('keyup', function() {
                                         var weight = parseFloat($(this).val()) || 0;
@@ -434,7 +435,7 @@
                                         }
                                         calculateTotals();
                                     });
-                                calculateTotals();
+                                // calculateTotals();
                             },
                             error: function(xhr, status, error) {
                                 console.log('Error: ', xhr.responseText);
