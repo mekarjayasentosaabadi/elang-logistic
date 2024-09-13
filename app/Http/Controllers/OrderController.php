@@ -615,6 +615,7 @@ class OrderController extends Controller
             $validator = Validator::make($request->all(), [
                 'customer_id'       =>  'required',
                 'destination_id'    =>  'required',
+                'pengambilan_id'    =>  'required',
                 'armada'            =>  'required',
                 'address'           =>  'required',
                 // 'weight'            =>  'required',
@@ -629,6 +630,7 @@ class OrderController extends Controller
             ], [
                 'customer_id.required'    => 'Pilih Salah Satu Customer',
                 'destination_id.required' => 'Pilih Salah Satu Destinasi',
+                'pengambilan_id.required' => 'required',
                 'armada.required'         => 'Pilih Salah Satu Armada',
                 'payment_method.required' => 'Pilih Salah Satu Metode Pembayaran',
                 'service.required'        => 'Pilih Salah Satu Jenis',
@@ -710,6 +712,7 @@ class OrderController extends Controller
             $order->armada          = $request->armada;
             $order->service         = $request->service;
             $order->destinations_id = $request->destination_id;
+            $order->pengambilan_id  = $request->pengambilan_id;
             $order->address         = $request->address;
             $order->weight          = $request->total_weight;
             $order->volume          = array_sum($request->input('total_volume'));
