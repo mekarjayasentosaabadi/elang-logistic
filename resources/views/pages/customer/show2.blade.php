@@ -12,15 +12,16 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Detail Customer</h4>
-                    <a href="{{ route('customer.index') }}" class="btn btn-warning"><li class="fa fa-undo"></li> Kembali </a>
+                    <a href="{{ route('customer.index') }}" class="btn btn-warning">
+                        <li class="fa fa-undo"></li> Kembali
+                    </a>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-2 col-lg-2 col-sm-12">
-                            <img class="img-fluid rounded mb-2"
-                            {{-- src="{{ asset('storage/customer/')$customer->picures }}" height="110" --}}
-                            src="{{ asset( $customer->picures == null ? 'assets/img/img_default.jpg' : 'storage/customer/'.$customer->picures) }}"
-                            width="110" alt="User avatar" />
+                            <img class="img-fluid rounded mb-2" {{-- src="{{ asset('storage/customer/')$customer->picures }}" height="110" --}}
+                                src="{{ asset($customer->picures == null ? 'assets/img/img_default.jpg' : 'storage/customer/' . $customer->picures) }}"
+                                width="110" alt="User avatar" />
                         </div>
                         <div class="col-md-10 col-lg-10 col-sm-12">
                             <table class="table ">
@@ -70,7 +71,7 @@
                                             <th>Option</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tbody-price-customer">
+                                    <tbody>
 
                                     </tbody>
                                 </table>
@@ -106,36 +107,36 @@
                                     <label for="price">Price</label>
                                     <input type="text" name="price" id="price" class="form-control">
                                 </div>
-                                @if (Auth::user()->role_id == "1")
-                                <div class="form-group">
-                                    <label for="minweight">Berat Minimal</label>
-                                    <div class="input-group">
-                                        <input type="text" name="minweight" id="minweight"
-                                            class="form form-control">
-                                        <span class="input-group-text">Kg</span>
+                                @if (Auth::user()->role_id == '1')
+                                    <div class="form-group">
+                                        <label for="minweight">Berat Minimal</label>
+                                        <div class="input-group">
+                                            <input type="text" name="minweight" id="minweight" class="form form-control">
+                                            <span class="input-group-text">Kg</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="form-group mt-1">
-                                    <label for="minimumprice">Minimum Price</label>
-                                    <input type="text" name="minimumprice" id="minimumprice" class="form-control"
-                                        placeholder="20000">
-                                </div>
-                                <div class="form-group mt-1">
-                                    <label for="estimation">Estimation</label>
-                                    <input type="text" name="estimation" id="estimation" class="form-control"
-                                        placeholder="1">
-                                </div>
-                                <div class="form-group mt-1">
-                                    <label for="pricenext">Next Weight Price</label>
-                                    <input type="text" name="pricenext" id="pricenext" class="form-control"
-                                        placeholder="2000">
-                                </div>
+                                    <div class="form-group mt-1">
+                                        <label for="minimumprice">Minimum Price</label>
+                                        <input type="text" name="minimumprice" id="minimumprice" class="form-control"
+                                            placeholder="20000">
+                                    </div>
+                                    <div class="form-group mt-1">
+                                        <label for="estimation">Estimation</label>
+                                        <input type="text" name="estimation" id="estimation" class="form-control"
+                                            placeholder="1">
+                                    </div>
+                                    <div class="form-group mt-1">
+                                        <label for="pricenext">Next Weight Price</label>
+                                        <input type="text" name="pricenext" id="pricenext" class="form-control"
+                                            placeholder="2000">
+                                    </div>
                                 @endif
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-primary btn-md" type="submit"><i class="fa fa-save"></i> Perbaharui</button>
+                        <button class="btn btn-primary btn-md" type="submit"><i class="fa fa-save"></i>
+                            Perbaharui</button>
                     </div>
                 </div>
             </form>
@@ -143,8 +144,8 @@
     </div>
     {{-- End Modal Edit Price --}}
     {{-- Modal new harga manual --}}
-    <div class="modal fade" id="exampleModalNewHargaManual" tabindex="-1" aria-labelledby="exampleModalNewHargaManualTitle"
-        aria-hidden="true">
+    <div class="modal fade" id="exampleModalNewHargaManual" tabindex="-1"
+        aria-labelledby="exampleModalNewHargaManualTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -161,6 +162,15 @@
                                         <select name="outlet" id="outlet" class="form-control">
                                             <option value="">-- Pilih Outlet --</option>
                                             @foreach ($outlet as $item)
+                                                <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="form-group mt-1">
+                                        <label for="outlet">Origin</label>
+                                        <select name="origin" id="origin" class="form-control">
+                                            <option value="">-- Origin --</option>
+                                            @foreach ($destination as $item)
                                                 <option value="{{ $item->id }}">{{ $item->name }}</option>
                                             @endforeach
                                         </select>
@@ -253,41 +263,43 @@
             currency: 'IDR'
         });
         $(document).ready(function() {
-            //get data customer price
-            $.getJSON(window.location.origin + '/' + listRoutes['customer.getcustomerprice'].replace('{id}',
-                customerId), function(e) {}).done(function(e) {
-                    console.log(e)
-                if (e.data.customerprice.length == 0) {
-                    $('#tbody-price-customer').html(
-                        `
-                        <tr>
-                            <td colspan="6" class="text-center">Belum Ada Harga</td>
-                        </tr>
-                        `
-                    )
-                    $('#btn-generate-price').removeClass('hidden')
-                    $('#btn-add-other-price').addClass('hidden')
-                } else {
-                    $('#btn-add-other-price').removeClass('hidden')
-                    $('#btn-generate-price').addClass('hidden')
-                    e.data.customerprice.map((x) => {
-                        let dataPriceCustomer = {
-                            icustomerprice: x.id,
-                            armada: x.armada,
-                            origin: x.origin.name,
-                            destination: x.destination.name,
-                            price: x.price,
-                            estimation: x.estimation,
-                            minimumprice: x.minimumprice,
-                            nextweightprices: x.nextweightprices,
-                            minweight: x.minweights
-                        }
-                        listPriceCustomer.push(dataPriceCustomer)
-                    })
-                    getListPriceCustomer()
-                }
-            }).fail(function(e) {
-                console.log(e);
+            $('#tbl-Price-customer').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: window.location.origin + '/' + listRoutes['customer.getcustomerprice'].replace(
+                        '{id}', customerId),
+                    type: 'GET'
+                },
+                columns: [{
+                        data: 'DT_RowIndex',
+                        orderable: false,
+                    },
+                    {
+                        data: 'service',
+                        name: 'service'
+                    },
+                    {
+                        data: 'origin.name',
+                        name: 'origin.name'
+                    },
+                    {
+                        data: 'destination.name',
+                        name: 'destination.name'
+                    },
+                    {
+                        data: 'price',
+                        name: 'price'
+                    },
+                    {
+                        data: 'estimation',
+                        name: 'estimation'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action'
+                    }
+                ]
             })
         })
         //confirm generate price customer
@@ -321,53 +333,29 @@
                 }
             })
         }
+        function changePrice(x) {
+            $.getJSON(window.location.origin + '/' + listRoutes['customer.getdetail'].replace('{id}', x), function(e){
 
-        //get list price customer
-        const getListPriceCustomer = () => {
-            $('#tbody-price-customer').html('');
-            let no = 1;
-            listPriceCustomer.map((x, i) => {
+            }).done(function(e){
+                $('#form-change-pricecustomer')[0].reset();
+                $('#price').val('')
+                $('#price').val(e.data[0].price)
+                $('#destination').val('')
+                $('#destination').val(e.data[0].destination.name)
+                $('#service').val('')
                 var armada;
-                if (x.armada == 1) {
+                if (e.data[0].armada == 1) {
                     armada = 'Darat';
-                } else if (x.armada == 2) {
+                } else if (e.data[0].armada == 2) {
                     armada = 'Laut';
                 } else {
                     armada = 'Udara';
                 }
-                $('#tbody-price-customer').append(
-                    `
-                    <tr>
-                        <td>${no++}</td>
-                        <td>${armada}</td>
-                        <td>${x.origin}</td>
-                        <td>${x.destination}</td>
-                        <td>${ formatter.format(x.price)}</td>
-                        <td>${x.estimation}</td>
-                        <td><button data-bs-toggle="modal" data-bs-target="#exampleModalCenter" class="btn btn-primary btn-sm" onclick="changePrice(${x.icustomerprice},${x.price}, '${armada}', ${x.minimumprice}, ${x.nextweightprices}, '${x.destination}', '${armada}', ${x.minweight} )"><i class="fa fa-edit"></i></button></td>
-                    </tr>
-                    `
-                )
+                $('#service').val(armada)
+                icustomerprice = e.data[0].id;
+            }).fail(function(e){
+                console.log(e)
             })
-        }
-
-        function changePrice(x, p, a, m, n, d, ar, mw) {
-            console.log(x, p, a, m, n)
-            $('#form-change-pricecustomer')[0].reset();
-            icustomerprice = '';
-            $('#price').val('')
-            $('#minweight').val('')
-            $('#minimumprice').val('')
-            $('#minimumprice').val(m)
-            $('#minweight').val(mw)
-            $('#price').val(p)
-            $('#pricenext').val('')
-            $('#pricenext').val(n)
-            $('#service').val('')
-            $('#service').val(ar)
-            $('#destination').val('')
-            $('#destination').val(d)
-            icustomerprice = x;
         }
 
         $('#form-change-pricecustomer').validate({
@@ -412,23 +400,24 @@
             },
             submitHandler: function() {
                 $.ajax({
-                    url: window.location.origin + '/' + listRoutes['customer.addmanualprice'].replace('{id}', customerId),
+                    url: window.location.origin + '/' + listRoutes['customer.addmanualprice'].replace(
+                        '{id}', customerId),
                     type: "POST",
                     dataType: "JSON",
                     data: new FormData($('#formAddManualPrice')[0]),
                     processData: false,
                     contentType: false,
-                    success: function(e){
-                        if(e.data.validate == false){
+                    success: function(e) {
+                        if (e.data.validate == false) {
                             notifSweetAlertErrors(e.meta.message);
                         } else {
                             notifSweetAlertSuccess(e.meta.message);
-                            setTimeout(function(){
+                            setTimeout(function() {
                                 location.reload()
                             }, 1500)
                         }
                     },
-                    error: function(e){
+                    error: function(e) {
                         console.log(e);
                     }
                 })

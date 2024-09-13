@@ -246,9 +246,26 @@ class CustomerController extends Controller
 
     function getcustomerprice($id){
         $customerprice = CustomerPrice::with(['destination', 'origin'])->where('customer_id', Crypt::decrypt($id))->get();
-        return ResponseFormatter::success([
-            'customerprice'     => $customerprice
-        ], 'get customer price successfuly');
+        return DataTables::of($customerprice)
+                ->addColumn('service', function($x){
+                    if($x->armada == 1){
+                        return "Darat";
+                    } else if($x->armada == 2){
+                        return "Laut";
+                    } else {
+                        return "Udara";
+                    }
+                })
+                ->addColumn('action', function($x){
+                    // $btn = "<button>";
+                    $destination = ''.$x->destination->name.'';
+                    // return ''.$destination.'';
+                    $btn = '<button data-bs-toggle="modal" data-bs-target="#exampleModalCenter" class="btn btn-primary btn-sm" onclick="changePrice('.$x->id.')"><i class="fa fa-edit"></i></button>';
+                    return $btn;
+                })
+                ->rawColumns(['service', 'action'])
+                ->addIndexColumn()
+                ->make(true);
     }
 
     function generatecustomerprice($id){
@@ -298,15 +315,17 @@ class CustomerController extends Controller
         $search = [
             'outlets_id'    => $request->outlet,
             'armada'        => $request->armada,
-            'destinations_id'=> $request->destination
+            'destinations_id'=> $request->destination,
+            'origin_id'     => $request->origin
         ];
         $filter = Masterprice::where($search)->first();
         if($filter){
             return ResponseFormatter::success(['validate'=>false], 'Data Masterprice tersebut sudah ada.!, Mohon periksa kembali');
         }
         $dataStoredMasterPrice = [
-            'outlets_id'    => $request->outlet,
-            'armada'        => $request->armada,
+            'outlets_id'        => $request->outlet,
+            'armada'            => $request->armada,
+            'origin_id'         => $request->origin,
             'destinations_id'   => $request->destination,
             'price'             => $request->price,
             'minweight'         => $request->minweight,
@@ -319,6 +338,7 @@ class CustomerController extends Controller
             'customer_id'       => $customer->id,
             'outlet_id'         => $request->outlet,
             'armada'            => $request->armada,
+            'origin_id'         => $request->origin,
             'destination_id'    => $request->destination,
             'price'             => $request->price,
             'minweights'        => $request->minweight,
@@ -329,5 +349,10 @@ class CustomerController extends Controller
         ];
         CustomerPrice::create($dataStoredCustomerPrice);
         return ResponseFormatter::success(['validate'=>true], 'Berhasil menambahkan data hargamanual price.!');
+    }
+
+    function getDetailPrice($id){
+        $customerprice = CustomerPrice::with(['destination', 'origin'])->where('id', $id)->first();
+        return ResponseFormatter::success([$customerprice], 'Get data successfuly');
     }
 }
