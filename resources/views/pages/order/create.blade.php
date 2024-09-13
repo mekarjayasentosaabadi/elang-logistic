@@ -226,37 +226,35 @@
                                         <th scope="col">T</th>
                                         <th scope="col">Total Volume</th>
                                         <th scope="col">Berat Volume</th>
-                                        <th scope="col">Harga</th>
+                                        <th scope="col" class="hidden">Harga</th>
                                         <th scope="col">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <th>1</th>
-                                        <td style="min-width: 150px">
+                                        <td>
                                             <div class="input-group">
-                                                <input type="number" name="weight[]" id="weight"
+                                                <input style="min-width: 150px" type="number" name="weight[]" id="weight"
                                                     class="form-control weight"
-                                                    placeholder="masukan berat kg"><span
-                                                    class="input-group-text">Kg</span>
-                                                <span class="text-danger" id="error-minweight"></span>
+                                                    placeholder="masukan berat kg">
                                             </div>
                                         </td>
-                                        <td style="min-width: 150px">
+                                        <td>
                                             <div class="input-group">
-                                                <input name="panjang_volume[]" type="number" id="panjang_volume"
+                                                <input style="min-width: 150px" name="panjang_volume[]" type="number" id="panjang_volume"
                                                     class="form-control panjang_volume" placeholder="Panjang">
                                             </div>
                                         </td>
-                                        <td style="min-width: 150px">
+                                        <td>
                                             <div class="input-group">
-                                                <input name="lebar_volume[]" type="number" id="lebar_volume"
+                                                <input style="min-width: 150px" name="lebar_volume[]" type="number" id="lebar_volume"
                                                     class="form-control lebar_volume" placeholder="Lebar">
                                             </div>
                                         </td>
-                                        <td style="min-width: 150px">
+                                        <td>
                                             <div class="input-group">
-                                                <input name="tinggi_volume[]" type="number" id="tinggi_volume"
+                                                <input style="min-width: 150px" name="tinggi_volume[]" type="number" id="tinggi_volume"
                                                     class="form-control tinggi_volume" placeholder="Tinggi">
                                             </div>
                                         </td>
@@ -267,7 +265,7 @@
                                                 id="kg_volume" class="form-control kg_volume bg-transparent" readonly>
                                         </td>
                                         <td><input name="price[]" style="min-width: 150px" type="text" id="price"
-                                                class="form-control price bg-transparent"></td>
+                                                class="form-control price bg-transparent hidden"></td>
                                         <td></td>
                                     </tr>
                                 </tbody>
@@ -288,8 +286,8 @@
                     </div>
                     <div class="card-body">
                         <div class="">
-                            <p>Total Berat: <span id="total-weight"></span></p>
-                            <p>Total Harga: <span id="total-price"></span></p>
+                            <p>Total Berat: <input class="form-control" type="text" name="total_weight" id="total-weight"></input></p>
+                            <p>Total Harga: <input class="form-control" type="text" name="total_price" id="total-price"></input></p>
                         </div>
                         <button type="submit" class="btn btn-primary mt-2 float-end btn-send-update">
                             <li class="fa fa-save"></li> Simpan
@@ -350,15 +348,7 @@
                                 $('.weight').off('keyup').on('keyup', function() {
                                    if ($('.weight').val() >  $('#kg_volume').val()) {
                                         var weight = parseFloat($('.weight').val()) || 0
-                                        if (weight < minimumweight) {
-                                            $('#error-minweight').text('minimal berat ' +
-                                                minimumweight + ' kg')
-                                            $('.weight').addClass('border border-danger')
-                                            $('.price').val(price);
-                                            $('.btn-send-update').attr('type', 'button');
-                                        } else {
-                                            $('#error-minweight').empty();
-                                            $('.btn-send-update').attr('type', 'submit');
+                                        $('.btn-send-update').attr('type', 'submit');
                                             totalPrice = 0
                                             if (weight > minimumweight) {
                                                 if (armada == '1') {
@@ -375,8 +365,8 @@
                                             $('.price').val(totalPrice.toFixed(0))
                                             $('#total-harga').text(totalPrice.toFixed(0));
                                             $('.weight').removeClass('border border-danger')
-                                        }
-                                   }else{
+                                        calculatetotalsvolume()
+                                    }else{
                                         calculatetotalsvolume()
                                    }
                                 })
@@ -419,8 +409,7 @@
                                 var minimumweight = response.data.minweights;
                                 var price = response.data.price;
 
-                                if (rowIndex) {
-                                    $(`#price-${rowIndex}`).val(price);
+                                $(`#price-${rowIndex}`).val(price);
                                     weightField.val(minimumweight);
 
                                     weightField.off('keyup').on('keyup', function() {
@@ -428,51 +417,8 @@
                                         var totalPrice = 0;
 
                                         if (weight > $(`#kg_volume-${rowIndex}`).val()) {
-                                            if (weight < minimumweight) {
-                                                $(`#error-minweight-${rowIndex}`).text(
-                                                    'Minimal berat ' + minimumweight + ' kg');
-                                                $(this).addClass('border border-danger');
-                                                $(`#price-${rowIndex}`).val(price);
-                                                calculateTotals();
-                                            } else {
-                                                $(`#error-minweight-${rowIndex}`).empty();
-                                                $(this).removeClass('border border-danger');
-    
-                                                if (weight > minimumweight) {
-                                                    if (armada == '1') {
-                                                        totalPrice = price + ((weight - minimumweight) *
-                                                            nextweightprice);
-                                                    } else if (armada == '2' || armada == '3') {
-                                                        totalPrice = weight * pricePerKg;
-                                                    }
-                                                } else {
-                                                    totalPrice = price;
-                                                }
-                                                $(`#price-${rowIndex}`).val(totalPrice.toFixed(0));
-                                            }
-                                        }
+                                            $(this).removeClass('border border-danger');
 
-                                    });
-                                } else {
-                                    $('#price_id').val(response.data.price_id);
-                                    $('.price').val(response.data.price);
-                                    $('#total-harga').text(response.data.price);
-                                    $('#estimation').val(response.data.estimation);
-                                    $('.weight').val(response.data.minweights);
-
-                                    $('.weight').off('keyup').on('keyup', function() {
-                                        var weight = parseFloat($('.weight').val()) || 0;
-                                        var totalPrice = 0;
-
-                                        if (weight < minimumweight) {
-                                            $('.error-minweight').text('Minimal berat ' +
-                                                minimumweight + ' kg');
-                                            $('.weight').addClass('border border-danger');
-                                            $('.price').val(price);
-                                            $('.btn-send-update').attr('type', 'button');
-                                        } else {
-                                            $('.error-minweight').empty();
-                                            $('.btn-send-update').attr('type', 'submit');
                                             if (weight > minimumweight) {
                                                 if (armada == '1') {
                                                     totalPrice = price + ((weight - minimumweight) *
@@ -483,13 +429,11 @@
                                             } else {
                                                 totalPrice = price;
                                             }
-                                            $('.price').val(totalPrice.toFixed(0));
-                                            $('#total-harga').text(totalPrice.toFixed(0));
-                                            $('.weight').removeClass('border border-danger');
+                                            
+                                            $(`#price-${rowIndex}`).val(totalPrice.toFixed(0));
                                         }
+                                        calculateTotals();
                                     });
-
-                                }
                                 calculateTotals();
                             },
                             error: function(xhr, status, error) {
@@ -768,30 +712,29 @@
                         `
                     <tr>
                         <td>${rowCount}</td>
-                        <td  style="min-width: 150px">
+                        <td>
                             <div class="input-group">
-                                <input  type="number" name="weight[]" id="weight-${rowIndex}"  class="form-control weight" placeholder="masukan berat kg"><span class="input-group-text">Kg</span>
-                                <span class="text-danger" id="error-minweight-${rowIndex}"></span>
+                                <input  style="min-width: 150px" type="number" name="weight[]" id="weight-${rowIndex}"  class="form-control weight" placeholder="masukan berat kg">
                             </div>
                         </td>
-                        <td  style="min-width: 150px">
+                        <td>
                             <div class="input-group">
-                                <input  name="panjang_volume[]" type="number" id="panjang_volume-${rowIndex}" class="form-control panjang_volume" placeholder="Panjang">
+                                <input  style="min-width: 150px" name="panjang_volume[]" type="number" id="panjang_volume-${rowIndex}" class="form-control panjang_volume" placeholder="Panjang">
                             </div>
                         </td>
-                        <td  style="min-width: 150px">
+                        <td>
                             <div class="input-group">
-                                <input  name="lebar_volume[]" type="number" id="lebar_volume-${rowIndex}" class="form-control lebar_volume" placeholder="Lebar">
+                                <input  style="min-width: 150px" name="lebar_volume[]" type="number" id="lebar_volume-${rowIndex}" class="form-control lebar_volume" placeholder="Lebar">
                             </div>
                         </td>
-                        <td  style="min-width: 150px">
+                        <td>
                             <div class="input-group">
-                                <input  name="tinggi_volume[]" type="number" id="tinggi_volume-${rowIndex}" class="form-control tinggi_volume" placeholder="Tinggi">
+                                <input  style="min-width: 150px" name="tinggi_volume[]" type="number" id="tinggi_volume-${rowIndex}" class="form-control tinggi_volume" placeholder="Tinggi">
                             </div>
                         </td>
                         <td><input name="total_volume[]" style="min-width: 150px" type="text" id="total_volume-${rowIndex}" class="form-control total_volume bg-transparent" readonly></td>
                         <td><input name="kg_volume[]" style="min-width: 150px" type="text" id="kg_volume-${rowIndex}" class="form-control kg_volume bg-transparent" readonly></td>
-                        <td><input name="price[]" style="min-width: 150px" type="text" id="price-${rowIndex}" class="form-control price bg-transparent"></td>
+                        <td><input name="price[]" style="min-width: 150px" type="text" id="price-${rowIndex}" class="form-control price bg-transparent hidden"></td>
                         <td><button type="button"  class="btn btn-danger remove-row"><li class="fa fa-trash"></li></button></td>
                     </tr>
                     `;
@@ -821,23 +764,69 @@
             // calculate totals weight and price order
             function calculateTotals() {
                     let totalWeight = 0;
-                    let totalPrice = 0;
+                    // let totalPrice = 0;
 
                     $('#koli-table tbody tr').each(function() {
                         let weight = parseFloat($(this).find('.weight').val()) || 0;
-                        let price = parseFloat($(this).find('.price').val()) || 0;
+                        let kg_volume = parseFloat($(this).find('.kg_volume').val()) || 0;
 
-                        totalWeight += weight;
-                        totalPrice += price;
+                        let calculateWeight = 0;
+                        if (weight < kg_volume) {
+                            calculateWeight = kg_volume
+                        }else if(weight > kg_volume){
+                            calculateWeight = weight
+                        }
+
+                        totalWeight += calculateWeight;
                     });
 
-                    $('#total-weight').text(totalWeight.toFixed(2) + ' Kg');
-                    $('#total-price').text(totalPrice.toLocaleString('id-ID', { 
-                        style: 'currency', 
-                        currency: 'IDR', 
-                        minimumFractionDigits: 0, 
-                        maximumFractionDigits: 0 
-                    }));
+                    $('#total-weight').val(totalWeight.toFixed(0));
+
+
+                    var outletasal = $('#outlet_id_hidden').val()
+                    var customer_id = $('#customer_id').val()
+                    var armada = $('#armada').val()
+                    var destination_id = $('#destination_id').val()
+
+
+                    if (armada || destination_id || customer_id || outletasal) {
+                        $.ajax({
+                            url: '{{ url('/order/get-estimation') }}',
+                            type: 'GET',
+                            data: {
+                                outletasal: outletasal,
+                                customer_id: customer_id,
+                                armada: armada,
+                                destination_id: destination_id,
+                            },
+                            success: function(response) {
+                                var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data.minweights)
+                                var nextweightprice = response.data.nextweightprices
+                                minimumweight = response.data.minweights;
+
+                                var price = response.data.price
+                                var price_id = response.data.price_id
+                               
+                               if ($('#armada').val() || $('#destination_id').val() || $('#customer_id').val() || $('#outlet_id_hidden').val()) {
+                                   totalWeight = $('#total-weight').val();
+
+                                   if ($('#armada').val() == 1) {
+                                       totalPrice = price + ((totalWeight - minimumweight) * nextweightprice)
+                                   } else if ($('#armada').val() == 2) {
+                                       totalPrice = totalWeight * pricePerKg;
+                                   } else if ($('#armada').val() == 3) {
+                                       totalPrice = totalWeight * pricePerKg;
+                                   }
+
+                                   $('#total-price').val(totalPrice.toFixed(0));
+                               }
+                            },
+                            error: function(xhr, status, error) {
+                                console.log('Error: ', xhr.responseText)
+                            }
+                        });
+                    }
+                   
             }
             calculateTotals();
 

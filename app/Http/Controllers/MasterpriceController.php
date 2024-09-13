@@ -65,7 +65,15 @@ class MasterpriceController extends Controller
                                   ->get();
             }
 
+            if ($existingPrices->count() > 0) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Origin sudah ada untuk service dan outlet yang dipilih.'
+                ]);
+            }
+
             return response()->json([
+                'status'            => 'success',
                 'destination'       => $destination,
                 'armada'            => $request->armada,
                 'existingPrices'    => $existingPrices
