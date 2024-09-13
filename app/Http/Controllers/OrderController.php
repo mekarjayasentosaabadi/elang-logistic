@@ -206,18 +206,18 @@ class OrderController extends Controller
 
         
         if ($request->outletasal) {
-            $estimation = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', $request->outletasal)->where('customer_id', $request->customer_id)->first();
+            $estimation = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', $request->outletasal)->where('customer_id', $request->customer_id)->where('origin_id', $request->pengambilan_id)->first();
             if ($estimation == null) {
-                $estimation = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', $request->outletasal)->first();
+                $estimation = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', $request->outletasal)->where('origin_id', $request->pengambilan_id)->first();
             }
         } else {
             if ($request->customer_id) {
-                $estimation = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', Auth::user()->outlets_id)->where('customer_id', $request->customer_id)->first();
+                $estimation = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', Auth::user()->outlets_id)->where('customer_id', $request->customer_id)->where('origin_id', $request->pengambilan_id)->first();
                 if ($estimation == null) {
-                    $estimation = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
+                    $estimation = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->where('origin_id', $request->pengambilan_id)->first();
                 }
             } else {
-                $estimation = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
+                $estimation = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->where('origin_id', $request->pengambilan_id)->first();
             }
         }
         if ($estimation) {
@@ -359,6 +359,7 @@ class OrderController extends Controller
                 $validator = Validator::make($request->all(), [
                     'customer_id'       =>  'required',
                     'destination_id'    =>  'required',
+                    'pengambilan_id'    =>  'required',
                     'armada'            =>  'required',
                     'address'           =>  'required',
                     'weight'            =>  'required',
@@ -375,6 +376,7 @@ class OrderController extends Controller
                 ], [
                     'customer_id.required'    => 'Pilih Salah Satu Customer',
                     'destination_id.required' => 'Pilih Salah Satu Destinasi',
+                    'pengambilan_id.required' => 'Pilih Salah Satu Pengambilan',
                     'armada.required'         => 'Pilih Salah Satu Armada',
                     'service.required'        => 'Pilih Salah Satu Jenis',
                     'address.required'        => 'Penerima Harus Diisi',
@@ -456,6 +458,7 @@ class OrderController extends Controller
                 $order->armada          =  $request->armada;
                 $order->service         =  $request->service;
                 $order->destinations_id =  $request->destination_id;
+                $order->pengambilan_id  =  $request->pengambilan_id;
                 $order->address         =  $request->address;
                 $order->weight          =  $request->total_weight;
                 $order->volume          =  array_sum($request->input('total_volume'));
