@@ -63,8 +63,9 @@
 
                             <div class="d-flex flex-wrap">
                                 <div class="col-md-6">
-                                    <p>Pengirim: {{ $historyOrder->order->customer->name }}</p>
+                                    <p>Pengirim: {{ $historyOrder->order->customer->name ?? '-' }}</p>
                                     <p>Penerima: {{ $historyOrder->penerima ?? '-' }}</p>
+                                    <p>Pengambilan: {{ $historyOrder->order->pengambilan->name ?? '-' }}</p>
                                     <p>Destinasi: {{ $historyOrder->order->destination->name }}</p>
                                     <p>Jenis Barang: {{ $historyOrder->service == 1 ? 'Document' : 'Package' }}</p>
                                     <p>Koli: {{ $historyOrder->koli ?? '-' }}</p>
