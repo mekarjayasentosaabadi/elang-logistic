@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use PDF;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Outlet;
@@ -73,6 +74,30 @@ class OrderController extends Controller
                 $html .= '<small class="text-sm"><br/><i class="fas fa-truck"></i> ' . $query->status_awb . '</small>';
                 return  $html;
             })
+            ->editColumn('status_kenerlambatan', function ($query) {
+                $createdAt = Carbon::parse($query->created_at);
+                $estimation = $query->estimation; 
+                
+                $estimatedDate = $createdAt->copy()->addDays($estimation);
+
+                // Tanggal saat ini
+                $now = Carbon::now();
+                
+                if($estimation != null){
+                    if ($now->greaterThanOrEqualTo($estimatedDate)) {
+                        $status = "<span class='badge bg-danger'>Terlambat</span>";
+                    } elseif ($now->diffInDays($estimatedDate) <= 1) {
+                        $status = "<span class='badge bg-warning'>Hampir Terlambat</span>";
+                    } else {
+                        $status = "<span class='badge bg-success'>Masih Dalam Estimasi</span>";
+                    }
+                }else{
+                    $status = "<span class='badge bg-info'>Belum Ada Estimasi</span>";
+                }
+
+                return $status;
+                    
+            })
             ->editColumn('created_at', function ($query) {
                 return $query->created_at ? $query->created_at->format('d-m-Y H:i') : '-';
             })
@@ -123,7 +148,7 @@ class OrderController extends Controller
                 }
                 $btn .= '</div></div>';
                 return $btn;
-            })->rawColumns(['numberorders', 'destination', 'pengirim', 'penerima', 'created_at', 'note', 'status_orders', 'aksi', 'created_at'])
+            })->rawColumns(['numberorders', 'destination', 'pengirim', 'penerima', 'created_at', 'note', 'status_orders', 'status_kenerlambatan', 'aksi', 'created_at'])
             ->addIndexColumn()
             ->make(true);
     }
