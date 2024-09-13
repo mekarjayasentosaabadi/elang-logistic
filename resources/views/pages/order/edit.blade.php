@@ -857,23 +857,27 @@
             // calculate totals weight and price order
              function calculateTotals() {
                     let totalWeight = 0;
+                    let totalKgVolume = 0;
                     // let totalPrice = 0;
 
                     $('#koli-table tbody tr').each(function() {
                         let weight = parseFloat($(this).find('.weight').val()) || 0;
                         let kg_volume = parseFloat($(this).find('.kg_volume').val()) || 0;
 
-                        let calculateWeight = 0;
-                        if (weight < kg_volume) {
-                            calculateWeight = kg_volume
-                        }else if(weight > kg_volume){
-                            calculateWeight = weight
-                        }
+                        // let calculateWeight = 0;
 
-                        totalWeight += calculateWeight;
+                        totalWeight += weight;
+                        totalKgVolume += kg_volume;
+                        // if (weight < kg_volume) {
+                        //     calculateWeight = kg_volume
+                        // }else if(weight > kg_volume){
+                        //     calculateWeight = weight
+                        // }
+
+                        // totalWeight += calculateWeight;
                     });
-
-                    $('#total-weight').val(totalWeight.toFixed(0));
+                    let finalWeight = Math.max(totalWeight, totalKgVolume);
+                    $('#total-weight').val(finalWeight.toFixed(0));
 
 
                     var outletasal = $('#outlet_id_hidden').val()
