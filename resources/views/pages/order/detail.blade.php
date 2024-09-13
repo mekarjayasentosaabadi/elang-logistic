@@ -168,7 +168,7 @@
                                         <th scope="col">Tinggi Volume</th>
                                         <th scope="col">Total Volume</th>
                                         <th scope="col">Berat Volume</th>
-                                        <th scope="col">Harga</th>
+                                        {{-- <th scope="col">Harga</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -181,7 +181,7 @@
                                             <td>{{ $detailorder->tinggi }}</td>
                                             <td>{{ $detailorder->total_volume }}</td>
                                             <td>{{ $detailorder->berat_volume }}</td>
-                                            <td>{{ formatRupiah($detailorder->harga) }}</td>
+                                            {{-- <td>{{ formatRupiah($detailorder->harga) }}</td> --}}
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -189,8 +189,8 @@
                         </div>
                         <hr>
                         <div class="d-flex flex-wrap gap-2">
-                            <p>Total Berat: <b>{{ $detailorders->sum('weight') }}</b></p> |
-                            <p>Total Harga: <b>{{ formatRupiah($detailorders->sum('harga')) }}</b></p>
+                            <p>Total Berat: <b>{{ $orderWeight }}</b></p> |
+                            <p>Total Harga: <b>{{ formatRupiah($orderPrice) }}</b></p>
                         </div>
                     </div>
                 </div>
