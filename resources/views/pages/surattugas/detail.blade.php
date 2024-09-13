@@ -49,7 +49,7 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $item->detailsurattugas->first()->manifest->manifestno }}</td>
-                                    <td>-</td>
+                                    <td>{{ $item->detailsurattugas->first()->manifest->no_smd }}</td>
                                     <td>{{ $item->destination->name }}</td>
                                 </tr>
                             @endforeach
