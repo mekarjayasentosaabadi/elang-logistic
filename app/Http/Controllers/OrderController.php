@@ -29,13 +29,14 @@ class OrderController extends Controller
     function index()
     {
         confirmDelete('Batalkan Transaksi', 'Apakah Anda Yakin Ingin Membatalkan Transaksi Ini?');
-        return view('pages.order.index');
+        $destinations = Destination::all();
+        return view('pages.order.index', compact('destinations'));
     }
 
 
 
 
-    function getAll()
+    function getAll(Request $request)
     {
         if (Auth::user()->role_id == '1') {
             $q = Order::with('customer', 'histories', 'destination');
@@ -45,6 +46,51 @@ class OrderController extends Controller
             $q = Order::where('outlet_id', Auth::user()->outlets_id)->with('customer', 'histories', 'destination');
         }
 
+        // filter status orders
+        if ($request->status_order) {
+            $q->where('status_orders', $request->status_order);
+        }
+        
+        // filter pengembalian
+        if ($request->pengambilan) {
+            $q->where('pengambilan_id', $request->pengambilan);
+        }
+
+
+        // filter status keterlambatan
+        if ($request->has('keterlambatan')) {
+            $status = $request->input('keterlambatan');
+            $q->where(function($q) use ($status) {
+                $now = Carbon::now();
+                $q->where(function($subQuery) use ($status, $now) {
+                    // Handle status 'Terlambat'
+                    if ($status == 'Terlambat') {
+                        $subQuery->whereRaw('DATE_ADD(created_at, INTERVAL estimation DAY) < ?', [$now]);
+                    }
+
+                    // Handle status 'Hampir Terlambat'
+                    elseif ($status == 'Hampir Terlambat') {
+                        $subQuery->whereRaw('DATEDIFF(DATE_ADD(created_at, INTERVAL estimation DAY), ?) = 1', [$now]);
+                    }
+                    
+                    // Handle status 'Masih Dalam Estimasi'
+                    elseif ($status == 'Masih Dalam Estimasi') {
+                        $subQuery->whereRaw('DATE_ADD(created_at, INTERVAL estimation DAY) > ?', [$now])
+                                 ->whereRaw('DATEDIFF(DATE_ADD(created_at, INTERVAL estimation DAY), ?) > 1', [$now]);
+                    }
+
+                    // Handle status 'Tepat Waktu'
+                    elseif ($status == 'Tepat Waktu') {
+                        $subQuery->where('status_orders', 4)->whereRaw('DATE_ADD(created_at, INTERVAL estimation DAY) >= ?', [$now]);
+                    }
+
+                    // Handle status 'Belum Ada Estimasi'
+                    elseif ($status == 'Belum Ada Estimasi') {
+                        $subQuery->whereNull('estimation');
+                    }
+                });
+            });
+        }
 
 
         $q->orderByRaw("
@@ -76,22 +122,29 @@ class OrderController extends Controller
             })
             ->editColumn('status_kenerlambatan', function ($query) {
                 $createdAt = Carbon::parse($query->created_at);
-                $estimation = $query->estimation; 
+                $estimation = $query->estimation;
                 
                 $estimatedDate = $createdAt->copy()->addDays($estimation);
-
-                // Tanggal saat ini
+                
                 $now = Carbon::now();
                 
-                if($estimation != null){
-                    if ($now->greaterThanOrEqualTo($estimatedDate)) {
-                        $status = "<span class='badge bg-danger'>Terlambat</span>";
-                    } elseif ($now->diffInDays($estimatedDate) <= 1) {
-                        $status = "<span class='badge bg-warning'>Hampir Terlambat</span>";
-                    } else {
-                        $status = "<span class='badge bg-success'>Masih Dalam Estimasi</span>";
+                if ($estimation !== null) {
+                    if ($query->status_orders == 3 && $now->lessThanOrEqualTo($estimatedDate)) {
+                        $status = "<span class='badge bg-success'>Tepat Waktu</span>";
                     }
-                }else{
+
+                    elseif ($now->greaterThan($estimatedDate)) {
+                        $status = "<span class='badge bg-danger'>Terlambat</span>";
+                    }
+
+                    elseif ($now->diffInDays($estimatedDate) == 1) {
+                        $status = "<span class='badge bg-warning'>Hampir Terlambat</span>";
+                    }
+
+                    else {
+                        $status = "<span class='badge bg-primary'>Masih Dalam Estimasi</span>";
+                    }
+                } else {
                     $status = "<span class='badge bg-info'>Belum Ada Estimasi</span>";
                 }
 
