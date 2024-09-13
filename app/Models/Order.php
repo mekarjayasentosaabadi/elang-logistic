@@ -33,6 +33,11 @@ class Order extends Model
         return $this->belongsTo(Destination::class, 'destinations_id', 'id');
     }
 
+    function pengambilan()
+    {
+        return $this->belongsTo(Destination::class, 'pengambilan_id', 'id');
+    }
+
     //relation to detailmanifests
     function detailmanifests()
     {
