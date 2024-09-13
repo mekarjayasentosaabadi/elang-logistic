@@ -743,6 +743,7 @@ class OrderController extends Controller
             $historyOrder->numberorders     = $order->numberorders;
             $historyOrder->customer_id      = $order->customer_id;
             $historyOrder->outlet_id        = $order->outlet_id;
+            $historyOrder->pengambilan_id   = $order->pengambilan_id;
             $historyOrder->destinations_id  = $order->destinations_id;
             $historyOrder->koli             = $order->koli;
             $historyOrder->weight           = $order->weight;

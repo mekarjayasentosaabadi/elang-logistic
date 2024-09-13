@@ -68,9 +68,9 @@
 
                             <div class="d-flex flex-wrap">
                                 <div class="col-md-6">
-                                    <p>Pengirim: {{ $order->customer->name }}</p>
+                                    <p>Pengirim: {{ $order->customer->name ?? '-' }}</p>
                                     <p>Penerima: {{ $order->penerima ?? '-' }}</p>
-                                    <p>Pengambilan: {{ $order->pengambilan->name }}</p>
+                                    <p>Pengambilan: {{ $order->pengambilan->name ?? '-' }}</p>
                                     <p>Destinasi: {{ $order->destination->name }}</p>
                                     <p>Jenis Barang: {{ $order->service == 1 ? 'Document' : 'Package' }}</p>
                                     <p>Koli: {{ $order->koli ?? '-' }}</p>
