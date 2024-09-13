@@ -487,7 +487,7 @@ class OrderController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             // dd($th);
-            Alert::error('Gagal', 'Terjadi Kesalahan');
+            Alert::error('Gagal', 'Terjadi Kesalahan Mohon Periksa Kembali Data Yang Dimasukkan');
             return redirect()->back();
         }
     }
@@ -783,7 +783,7 @@ class OrderController extends Controller
         } catch (\Throwable $th) {
             // dd($th);
             DB::rollBack();
-            Alert::error('Gagal', 'Terjadi Kesalahan');
+            Alert::error('Gagal', 'Terjadi Kesalahan Mohon Periksa Kembali Data Yang Dimasukkan');
             return redirect()->back();
         }
     }
