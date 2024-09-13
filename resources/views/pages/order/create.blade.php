@@ -735,7 +735,7 @@
                         </td>
                         <td><input name="total_volume[]" style="min-width: 150px" type="text" id="total_volume-${rowIndex}" class="form-control total_volume bg-transparent" readonly></td>
                         <td><input name="kg_volume[]" style="min-width: 150px" type="text" id="kg_volume-${rowIndex}" class="form-control kg_volume bg-transparent" readonly></td>
-                        <td><input name="price[]" style="min-width: 150px" type="text" id="price-${rowIndex}" class="form-control price bg-transparent hidden"></td>
+                        <td class="hidden"><input name="price[]" style="min-width: 150px" type="text" id="price-${rowIndex}" class="form-control price bg-transparent hidden"></td>
                         <td><button type="button"  class="btn btn-danger remove-row"><li class="fa fa-trash"></li></button></td>
                     </tr>
                     `;
@@ -746,7 +746,7 @@
                 }
 
                 $(document).on('click', '#add-row-btn', function() {
-                    calculateTotals();
+                    // calculateTotals();
                     addRowTableKoli();
                 });
 

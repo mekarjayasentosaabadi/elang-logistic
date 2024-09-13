@@ -616,38 +616,38 @@ class OrderController extends Controller
                 'awb.unique'              => 'AWB Sudah Digunakan Harap Gunkan AWB Lain',
             ]);
 
-            if ($validator->fails()) {
-                $errors       = $validator->errors()->all();
-                $errorMessage = implode(', ', $errors);
+            // if ($validator->fails()) {
+            //     $errors       = $validator->errors()->all();
+            //     $errorMessage = implode(', ', $errors);
 
-                Alert::error('Gagal', $errorMessage);
-                return redirect()->back()->withInput();
-            }
+            //     Alert::error('Gagal', $errorMessage);
+            //     return redirect()->back()->withInput();
+            // }
 
-            if ($request->price_id) {
-                if ($request->outlet_id) {
-                    $minimumPrice = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', $request->outlet_id)->where('customer_id', $request->customer_id)->first();
-                    if ($minimumPrice == null) {
-                        $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', $request->outlet_id)->first();
-                    }
-                } else {
-                    if ($request->customer_id) {
-                        $minimumPrice = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', Auth::user()->outlets_id)->where('customer_id', $request->customer_id)->first();
-                        if ($minimumPrice == null) {
-                            $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
-                        }
-                    } else {
-                        $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
-                    }
-                }
+            // if ($request->price_id) {
+            //     if ($request->outlet_id) {
+            //         $minimumPrice = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', $request->outlet_id)->where('customer_id', $request->customer_id)->first();
+            //         if ($minimumPrice == null) {
+            //             $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', $request->outlet_id)->first();
+            //         }
+            //     } else {
+            //         if ($request->customer_id) {
+            //             $minimumPrice = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', Auth::user()->outlets_id)->where('customer_id', $request->customer_id)->first();
+            //             if ($minimumPrice == null) {
+            //                 $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
+            //             }
+            //         } else {
+            //             $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
+            //         }
+            //     }
 
                 
 
-                if ($request->price < $minimumPrice->minimumprice) {
-                    Alert::error('Gagal', 'Harga tidak boleh lebih kecil dari ' . formatRupiah($minimumPrice->minimumprice));
-                    return redirect()->back()->withInput();
-                }
-            }
+            //     if ($request->price < $minimumPrice->minimumprice) {
+            //         Alert::error('Gagal', 'Harga tidak boleh lebih kecil dari ' . formatRupiah($minimumPrice->minimumprice));
+            //         return redirect()->back()->withInput();
+            //     }
+            // }
 
 
             // cek awb
@@ -683,12 +683,12 @@ class OrderController extends Controller
             $order->service         = $request->service;
             $order->destinations_id = $request->destination_id;
             $order->address         = $request->address;
-            $order->weight          = array_sum($request->input('weight'));
+            $order->weight          = $request->total_weight;
             $order->volume          = array_sum($request->input('total_volume'));
             // $order->panjang_volume  = $panjangVolume ?? null;
             // $order->lebar_volume    = $lebarVolume ?? null;
             // $order->tinggi_volume   = $tinggiVolume ?? null;
-            $order->price           = array_sum($request->input('price'));
+            $order->price           = $request->total_price;
             $order->payment_method  = $request->payment_method;
             $order->estimation      = $request->estimation;
             $order->description     = $request->description;
