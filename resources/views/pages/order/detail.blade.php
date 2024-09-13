@@ -70,6 +70,7 @@
                                 <div class="col-md-6">
                                     <p>Pengirim: {{ $order->customer->name }}</p>
                                     <p>Penerima: {{ $order->penerima ?? '-' }}</p>
+                                    <p>Pengambilan: {{ $order->pengambilan->name }}</p>
                                     <p>Destinasi: {{ $order->destination->name }}</p>
                                     <p>Jenis Barang: {{ $order->service == 1 ? 'Document' : 'Package' }}</p>
                                     <p>Koli: {{ $order->koli ?? '-' }}</p>
@@ -206,8 +207,7 @@
                                     <div class="timeline-event">
                                         <div class="d-flex justify-content-between flex-sm-row flex-column mb-sm-0 mb-1">
                                             <h6>No Order {{ $historyAwb->awb }}</h6>
-                                            <span
-                                                class="timeline-event-time me-1">{{ $historyAwb->created_at->diffForHumans() }}</span>
+                                            <span class="timeline-event-time me-1">{{ $historyAwb->created_at->diffForHumans() }}</span>
                                         </div>
                                         <p>{{ $historyAwb->status }}</p>
                                     </div>

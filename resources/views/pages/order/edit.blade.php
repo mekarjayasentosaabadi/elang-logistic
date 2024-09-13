@@ -134,6 +134,39 @@
                             <div class="row mt-2">
                                 <div class="col-md-6">
                                     <div class="form-group">
+                                        <label for="pengambilan_id">Pengambilan</label>
+                                        @if ($order->status_orders == 1)
+                                            <select name="pengambilan_id" id="pengambilan_id" class="form-control">
+                                                <option value="">Pilih Pengambilan</option>
+                                                @foreach ($destinations as $destination)
+                                                    <option {{ Old('pengambilan_id', $order->pengambilan_id ) == $destination->id ? 'selected' : '' }} value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <select name="pengambilan_id" id="pengambilan_id" class="form-control" disabled readonly>
+                                                <option value="">Pilih Pengambilan</option>
+                                                @foreach ($destinations as $destination)
+                                                    <option {{ Old('pengambilan_id', $order->pengambilan_id ) == $destination->id ? 'selected' : '' }} value="{{ $destination->id }}">{{ $destination->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            <input type="hidden" name="pengambilan_id" value="{{ $order->pengambilan->id }}">
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="service">Jenis Barang</label>
+                                        <select name="service" id="service" class="form-control">
+                                            <option value="">Pilih Jenis</option>
+                                            <option {{ Old('service', $order->service) == '1' ? 'selected' : '' }} value="1">Dokumen</option>
+                                            <option {{ Old('service', $order->service) == '2' ? 'selected' : '' }} value="2">Paket</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-md-6">
+                                    <div class="form-group">
                                         <label for="destination_id">Destinasi</label>
                                         @if ($order->status_orders == 1)
                                             <select name="destination_id" id="destination_id" class="form-control">
@@ -155,12 +188,11 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="service">Jenis Barang</label>
-                                        <select name="service" id="service" class="form-control">
-                                            <option value="">Pilih Jenis</option>
-                                            <option {{ Old('service', $order->service) == '1' ? 'selected' : '' }} value="1">Dokumen</option>
-                                            <option {{ Old('service', $order->service) == '2' ? 'selected' : '' }} value="2">Paket</option>
-                                        </select>
+                                        <label for="estimation">Estimasi</label>
+                                        <div class="input-group">
+                                            <input type="number" name="estimation" id="estimation" class="form-control" value="{{ Old('estimation', $order->estimation) }}" placeholder="masukan estimasi">
+                                            <span class="input-group-text">Hari</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -184,11 +216,8 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="estimation">Estimasi</label>
-                                        <div class="input-group">
-                                            <input type="number" name="estimation" id="estimation" class="form-control" value="{{ Old('estimation', $order->estimation) }}" placeholder="masukan estimasi">
-                                            <span class="input-group-text">Hari</span>
-                                        </div>
+                                        <label for="note">Catatan</label>
+                                        <textarea name="note" id="note" class="form-control" placeholder="masukan catatan">{{ Old('note', $order->note) }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -197,12 +226,6 @@
                                     <div class="form-group">
                                         <label for="description">Deskripsi Barang</label>
                                         <textarea name="description" id="description" class="form-control" placeholder="masukan deskripsi">{{ Old('description', $order->description) }}</textarea>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="note">Catatan</label>
-                                        <textarea name="note" id="note" class="form-control" placeholder="masukan catatan">{{ Old('note', $order->note) }}</textarea>
                                     </div>
                                 </div>
                             </div>
@@ -417,6 +440,7 @@
                     var outletasal = $('#outlet_id_hidden').val()
                     var customer_id = $('#customer_id').val()
                     var armada = $('#armada').val()
+                    var pengambilan_id = $('#pengambilan_id').val()
                     var destination_id = $('#destination_id').val()
 
 
@@ -429,6 +453,7 @@
                                 customer_id: customer_id,
                                 armada: armada,
                                 destination_id: destination_id,
+                                pengambilan_id: pengambilan_id
                             },
 
                             success: function(response) {
@@ -481,13 +506,14 @@
                     }
                 }
 
-                $('#armada, #destination_id, #customer_id, #outlet_id_select').change(sendEstimationRequest);
+                $('#armada, #destination_id, #customer_id, #outlet_id_select, #pengambilan_id').change(sendEstimationRequest);
 
 
             function sendEstimationRequestTableRow(rowIndex) {
                     var outletasal = $('#outlet_id_hidden').val();
                     var customer_id = $('#customer_id').val();
                     var armada = $('#armada').val();
+                    var pengambilan_id = $('#pengambilan_id').val()
                     var destination_id = $('#destination_id').val();
 
                     // console.log(rowIndex);
@@ -503,6 +529,7 @@
                                 customer_id: customer_id,
                                 armada: armada,
                                 destination_id: destination_id,
+                                pengambilan_id: pengambilan_id
                             },
                             success: function(response) {
                                 var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data.minweights);
@@ -669,6 +696,7 @@
                     var outletasal = $('#outlet_id_hidden').val()
                     var customer_id = $('#customer_id').val()
                     var armada = $('#armada').val()
+                    var pengambilan_id = $('#pengambilan_id').val()
                     var destination_id = $('#destination_id').val()
 
 
@@ -681,6 +709,7 @@
                                 customer_id: customer_id,
                                 armada: armada,
                                 destination_id: destination_id,
+                                pengambilan_id: pengambilan_id
                             },
                             success: function(response) {
                                 var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data.minweights)
@@ -721,6 +750,7 @@
                     var outletasal = $('#outlet_id_hidden').val()
                     var customer_id = $('#customer_id').val()
                     var armada = $('#armada').val()
+                    var pengambilan_id = $('#pengambilan_id').val()
                     var destination_id = $('#destination_id').val()
 
 
@@ -733,6 +763,7 @@
                                 customer_id: customer_id,
                                 armada: armada,
                                 destination_id: destination_id,
+                                pengambilan_id: pengambilan_id
                             },
                             success: function(response) {
                                 var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data.minweights)
@@ -848,6 +879,7 @@
                     var outletasal = $('#outlet_id_hidden').val()
                     var customer_id = $('#customer_id').val()
                     var armada = $('#armada').val()
+                    var pengambilan_id = $('#pengambilan_id').val()
                     var destination_id = $('#destination_id').val()
 
 
@@ -860,6 +892,7 @@
                                 customer_id: customer_id,
                                 armada: armada,
                                 destination_id: destination_id,
+                                pengambilan_id: pengambilan_id
                             },
                             success: function(response) {
                                 var pricePerKg = parseFloat(response.data.price) / parseFloat(response.data.minweights)
@@ -933,6 +966,7 @@
 
             $('#customer_id').select2();
             $('#destination_id').select2();
+            $('#pengambilan_id').select2();
 
             $('#form-edit-transaksi').validate({
                 rules:{
@@ -950,6 +984,11 @@
                         }
                     },
                     'destination_id' : {
+                        required: function (element) {
+                            return $('#pesanan_masal')
+                        }
+                    },
+                    'pengambilan_id' : {
                         required: function (element) {
                             return $('#pesanan_masal')
                         }
@@ -1010,6 +1049,7 @@
                     'armada'          :  'Pilih salah satu armada.',
                     'service'         :  'Pilih jenis barang.',
                     'destination_id'  :  'Pilih salah satu destinasi.',
+                    'pengambilan_id'  :  'Pilih salah satu pengambilan.',
                     'address'         :  'Alamat harus diisi.',
                     'weight'          :  'Berat harus diisi.',
                     'volume'          :  'Volume harus diisi.',
