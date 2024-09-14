@@ -50,19 +50,19 @@ class OrderController extends Controller
         if ($request->status_order) {
             $q->where('status_orders', $request->status_order);
         }
-        
+
         // filter pengembalian
-        if ($request->pengambilan) {
-            $q->where('pengambilan_id', $request->pengambilan);
+        if ($request->destinasi) {
+            $q->where('destinations_id', $request->destinasi);
         }
 
 
         // filter status keterlambatan
         if ($request->has('keterlambatan')) {
             $status = $request->input('keterlambatan');
-            $q->where(function($q) use ($status) {
+            $q->where(function ($q) use ($status) {
                 $now = Carbon::now();
-                $q->where(function($subQuery) use ($status, $now) {
+                $q->where(function ($subQuery) use ($status, $now) {
                     // Handle status 'Terlambat'
                     if ($status == 'Terlambat') {
                         $subQuery->whereRaw('DATE_ADD(created_at, INTERVAL estimation DAY) < ?', [$now]);
@@ -72,11 +72,11 @@ class OrderController extends Controller
                     elseif ($status == 'Hampir Terlambat') {
                         $subQuery->whereRaw('DATEDIFF(DATE_ADD(created_at, INTERVAL estimation DAY), ?) = 1', [$now]);
                     }
-                    
+
                     // Handle status 'Masih Dalam Estimasi'
                     elseif ($status == 'Masih Dalam Estimasi') {
                         $subQuery->whereRaw('DATE_ADD(created_at, INTERVAL estimation DAY) > ?', [$now])
-                                 ->whereRaw('DATEDIFF(DATE_ADD(created_at, INTERVAL estimation DAY), ?) > 1', [$now]);
+                            ->whereRaw('DATEDIFF(DATE_ADD(created_at, INTERVAL estimation DAY), ?) > 1', [$now]);
                     }
 
                     // Handle status 'Tepat Waktu'
@@ -120,39 +120,39 @@ class OrderController extends Controller
                 $html .= '<small class="text-sm"><br/><i class="fas fa-truck"></i> ' . $query->status_awb . '</small>';
                 return  $html;
             })
-            ->editColumn('status_kenerlambatan', function ($query) {
-                $createdAt = Carbon::parse($query->created_at);
-                $estimation = $query->estimation;
-                
+            ->editColumn('estimation', function ($q) {
+
+                $createdAt = Carbon::parse($q->created_at);
+                $estimation = $q->estimation;
+
                 $estimatedDate = $createdAt->copy()->addDays($estimation);
-                
+
                 $now = Carbon::now();
-                
+
                 if ($estimation !== null) {
-                    if ($query->status_orders == 3 && $now->lessThanOrEqualTo($estimatedDate)) {
+                    if ($q->status_orders == 3) {
+                        $status = "<span class='badge bg-success'>Selesai</span>";
+                    } else if ($q->status_orders == 3 && $now->lessThanOrEqualTo($estimatedDate)) {
                         $status = "<span class='badge bg-success'>Tepat Waktu</span>";
-                    }
-
-                    elseif ($now->greaterThan($estimatedDate)) {
+                    } elseif ($now->greaterThan($estimatedDate)) {
                         $status = "<span class='badge bg-danger'>Terlambat</span>";
-                    }
-
-                    elseif ($now->diffInDays($estimatedDate) == 1) {
+                    } elseif ($now->diffInDays($estimatedDate) == 1) {
                         $status = "<span class='badge bg-warning'>Hampir Terlambat</span>";
-                    }
-
-                    else {
+                    } else {
                         $status = "<span class='badge bg-primary'>Masih Dalam Estimasi</span>";
                     }
                 } else {
                     $status = "<span class='badge bg-info'>Belum Ada Estimasi</span>";
                 }
-
-                return $status;
-                    
+                $html = $q->estimation > 0 ? $q->estimation . 'hari' : '-';
+                $date_finish = Carbon::parse($q->created_at)->addDays($q->estimation)->format('d-m-Y');
+                $html .= '<small class="text-sm"><br/> ' . $date_finish . '</small>';
+                $html .= '<small class="text-sm"><br/> ' . $status . '</small>';
+                return $html;
             })
+
             ->editColumn('created_at', function ($query) {
-                return $query->created_at ? $query->created_at->format('d-m-Y H:i') : '-';
+                return $query->created_at ? $query->created_at->format('d-m-Y') : '-';
             })
             ->editColumn('note', function ($query) {
                 return $query->note ??  '-';
@@ -201,7 +201,7 @@ class OrderController extends Controller
                 }
                 $btn .= '</div></div>';
                 return $btn;
-            })->rawColumns(['numberorders', 'destination', 'pengirim', 'penerima', 'created_at', 'note', 'status_orders', 'status_kenerlambatan', 'aksi', 'created_at'])
+            })->rawColumns(['numberorders', 'estimation', 'destination', 'pengirim', 'penerima', 'created_at', 'note', 'status_orders', 'status_kenerlambatan', 'aksi', 'created_at'])
             ->addIndexColumn()
             ->make(true);
     }
@@ -257,7 +257,7 @@ class OrderController extends Controller
     function getEstimation(Request $request)
     {
 
-        
+
         if ($request->outletasal) {
             $estimation = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', $request->outletasal)->where('customer_id', $request->customer_id)->where('origin_id', $request->pengambilan_id)->first();
             if ($estimation == null) {
@@ -538,7 +538,7 @@ class OrderController extends Controller
                 $total_volumes  = $request->input('total_volume');
                 $kg_volumes     = $request->input('kg_volume');
                 $prices         = $request->input('price');
-            
+
                 foreach ($weights as $index => $weight) {
                     DetailOrder::create([
                         'order_id'      => $order->id,
@@ -724,7 +724,7 @@ class OrderController extends Controller
             //         }
             //     }
 
-                
+
 
             //     if ($request->price < $minimumPrice->minimumprice) {
             //         Alert::error('Gagal', 'Harga tidak boleh lebih kecil dari ' . formatRupiah($minimumPrice->minimumprice));
@@ -829,14 +829,14 @@ class OrderController extends Controller
             $total_volumes  = $request->input('total_volume');
             $kg_volumes     = $request->input('kg_volume');
             $prices         = $request->input('price');
-            
+
 
             foreach ($weights as $index => $weight) {
 
                 $detailOrderId = $request->input('detail_order_id')[$index] ?? null;
                 if ($detailOrderId) {
                     $detailOrder = DetailOrder::where('id', $detailOrderId)->where('order_id', $order->id)->first();
-            
+
                     if ($detailOrder) {
                         $detailOrder->update([
                             'weight'        => $weight,

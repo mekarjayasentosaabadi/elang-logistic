@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\HistoryVehicle;
 use App\Models\Manifest;
 use App\Models\Order;
 use App\Models\Outlet;
@@ -43,11 +44,7 @@ class UpdateResiController extends Controller
 
     function getListOrder(Request $request)
     {
-        if (Auth::user()->role_id == '1') {
-            $q = Order::with('customer', 'histories');
-        } else {
-            $q = Order::where('outlet_id', Auth::user()->outlets_id)->with('customer', 'histories')->get();
-        }
+        $q = Order::with('customer', 'histories');
 
         if ($request->update_data == '2' && $request->noResi) {
             // $q where order id in manifest detail
@@ -105,9 +102,6 @@ class UpdateResiController extends Controller
     {
 
         $q = Manifest::with(['destination', 'outlet']);
-        if (auth()->user()->role_id != 1) {
-            $q->where('outlet_id', auth()->user()->outlets_id);
-        }
 
 
         if ($request->update_data == '2' && $request->noResi) {
@@ -171,8 +165,8 @@ class UpdateResiController extends Controller
         try {
             $outlet = Auth::user()->role_id == 1 ? $request->outlet_id : Auth::user()->outlets_id;
             $outlet = Outlet::find($outlet);
-            $is_arived = $request->has('is_arived') ? 3 : 2;
-            if ($request->status_resi == '1') {
+            $is_arived = $request->status_resi == 3 ? 3 : 2;
+            if ($request->status_resi == '1' || $request->status_resi == '3') {
                 $message = "Pesanan tiba di " . $outlet->name;
             } else {
                 $message = "Pesanan di berangkatkan dari " . $outlet->name;
@@ -209,6 +203,20 @@ class UpdateResiController extends Controller
                             ]);
                         }
                     }
+                    if ($request->status_resi == '1' || $request->status_resi == '3') {
+                        $message = "Tiba di";
+                    } else {
+                        $message = "Dibearangkatkan dari";
+                    }
+                    HistoryVehicle::create([
+                        'vehicle_id'    => $value->vehicle_id,
+                        'user_id'       => auth()->user()->id,
+                        'status'        => $request->status_resi,
+                        'outlet_id'     => $outlet->id,
+                        'destination_id' => $outlet->location_id,
+                        'note'          => 'Kendaran ' . $message . $outlet->name,
+                        'noreference'   => $value->id
+                    ]);
                 }
             } else {
                 // manifest
@@ -233,11 +241,45 @@ class UpdateResiController extends Controller
                         ]);
                     }
                 }
+                // update status surat tugas when all manifest is arrived
+                $surattugas = Surattugas::whereHas('detailsurattugas', function ($query) use ($request) {
+                    $query->whereIn('manifest_id', $request->noResi);
+                })->first();
+
+                if ($surattugas) {
+                    $status = 0;
+                    foreach ($surattugas->detailsurattugas as $key => $value) {
+                        if ($value->manifest->status_manifest == 3) {
+                            $status++;
+                        }
+                    }
+                    if ($status == $surattugas->detailsurattugas->count()) {
+                        $surattugas->update([
+                            'statussurattugas' => 3,
+                        ]);
+                    }
+                }
+                if ($request->status_resi == '1' || $request->status_resi == '3') {
+                    $message = "Tiba di";
+                } else {
+                    $message = "Dibearangkatkan dari";
+                }
+                HistoryVehicle::create([
+                    'vehicle_id'    => $surattugas->vehicle_id,
+                    'user_id'       => auth()->user()->id,
+                    'status'        => $request->status_resi,
+                    'outlet_id'     => $outlet->id,
+                    'destination_id' => $outlet->location_id,
+                    'note'          => 'Kendaran ' . $message . $outlet->name,
+                    'noreference'   => $surattugas->id
+                ]);
             }
+
             DB::commit();
             Alert::success('Berhasil', 'Data Berhasil Diubah');
             return redirect()->route('update-resi.index');
         } catch (\Exception $e) {
+            dd($e);
             DB::rollBack();
             Alert::error('Gagal', 'Data Gagal Diubah');
             return redirect()->back();

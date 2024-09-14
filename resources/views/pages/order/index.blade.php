@@ -31,9 +31,9 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="pengambilan">Pengambilan</label>
-                                        <select name="pengambilan" id="pengambilan" class="form-control">
-                                            <option value="">Pilih  Pengambilan</option>
+                                        <label for="destinasi">Destinasi</label>
+                                        <select name="destinasi" id="destinasi" class="form-control">
+                                            <option value="">Pilih Destinasi</option>
                                             @foreach ($destinations as $destination)
                                                 <option value="{{ $destination->id }}">{{ $destination->name }}</option>
                                             @endforeach
@@ -57,7 +57,8 @@
                                 </div>
                             </div>
                             <div class="mt-2 text-end">
-                                <button type="submit" class="btn btn-primary"><i data-feather="eye" class="font-medium-3 me-50"></i>Lihat</button>
+                                <button type="submit" class="btn btn-primary"><i data-feather="eye"
+                                        class="font-medium-3 me-50"></i>Lihat</button>
                             </div>
                         </form>
                     </div>
@@ -71,7 +72,9 @@
                 <div class="card-header">
                     <h4 class="card-title">Daftar Transaksi</h4>
                     @if (Auth::user()->role_id != '4')
-                        <a href="{{ url('/order/create') }}" class="btn btn-primary"><li class="fa fa-plus"></li> Tambah Tansaksi</a>
+                        <a href="{{ url('/order/create') }}" class="btn btn-primary">
+                            <li class="fa fa-plus"></li> Tambah Tansaksi
+                        </a>
                     @endif
                 </div>
                 <div class="card-body">
@@ -87,7 +90,7 @@
                                     <th>Tanggal</th>
                                     <th>Catatan</th>
                                     <th>Status</th>
-                                    <th>Status Keterlambatan</th>
+                                    <th>Estimasi</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -106,7 +109,7 @@
     <script>
         $(document).ready(function() {
 
-            $('#pengambilan').select2();
+            $('#destinasi').select2();
 
 
             $('#tbl-order').DataTable({
@@ -161,8 +164,8 @@
                         searchable: true
                     },
                     {
-                        data: 'status_kenerlambatan',
-                        name: 'status_kenerlambatan',
+                        data: 'estimation',
+                        name: 'estimation',
                         orderable: false,
                         searchable: false
                     },
@@ -177,88 +180,88 @@
 
 
 
-           $('#form-filter-order').on('submit', function(e) {
-               e.preventDefault();
+            $('#form-filter-order').on('submit', function(e) {
+                e.preventDefault();
 
-               var outlet_id = $('#outlet_id').val();
-               var destination_id = $('#destination_id').val();
-               var keterlambatan = $('#keterlambatan').val();
-               var status = $('#status').val();
+                var outlet_id = $('#outlet_id').val();
+                var destination_id = $('#destination_id').val();
+                var keterlambatan = $('#keterlambatan').val();
+                var status = $('#status').val();
 
-               $('#tbl-order').DataTable().destroy();
+                $('#tbl-order').DataTable().destroy();
 
-               $('#tbl-order').DataTable({
-                   processing: true,
-                   serverSide: true,
-                   ajax: {
-                       url: "{{ url('/order/getAll') }}",
-                       type: 'GET',
-                       data: {
-                           pengambilan: $('#pengambilan').val(),
-                           status_order: $('#status_order').val(),
-                           keterlambatan: $('#keterlambatan').val(),
-                       },
-                   },
-                   columns: [{
-                           data: 'DT_RowIndex',
-                           orderable: false,
-                           searchable: false
-                       },
-                       {
-                           data: 'numberorders',
-                           name: 'orders.numberorders',
-                           orderable: true,
-                           searchable: true
-                       },
-                       {
-                           data: 'destination',
-                           name: 'destination.name',
-                           searchable: true
-                       },
-                       {
-                           data: 'pengirim',
-                           name: 'customer.name',
-                           orderable: true,
-                           searchable: true
-                       },
-                       {
-                           data: 'penerima',
-                           name: 'orders.penerima',
-                           orderable: true,
-                           searchable: true
-                       },
-                       {
-                           data: 'created_at',
-                           name: 'orders.created_at',
-                           orderable: true,
-                           searchable: true
-                       },
-                       {
-                           data: 'note',
-                           name: 'note',
-                       },
-                       {
-                           data: 'status_orders',
-                           name: 'status_orders',
-                           orderable: true,
-                           searchable: true
-                       },
-                       {
-                           data: 'status_kenerlambatan',
-                           name: 'status_kenerlambatan',
-                           orderable: false,
-                           searchable: false
-                       },
-                       {
-                           data: 'aksi',
-                           name: 'aksi',
-                           orderable: false,
-                           searchable: false
-                       }
-                   ]
-               });
+                $('#tbl-order').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: "{{ url('/order/getAll') }}",
+                        type: 'GET',
+                        data: {
+                            destinasi: $('#destinasi').val(),
+                            status_order: $('#status_order').val(),
+                            keterlambatan: $('#keterlambatan').val(),
+                        },
+                    },
+                    columns: [{
+                            data: 'DT_RowIndex',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'numberorders',
+                            name: 'orders.numberorders',
+                            orderable: true,
+                            searchable: true
+                        },
+                        {
+                            data: 'destination',
+                            name: 'destination.name',
+                            searchable: true
+                        },
+                        {
+                            data: 'pengirim',
+                            name: 'customer.name',
+                            orderable: true,
+                            searchable: true
+                        },
+                        {
+                            data: 'penerima',
+                            name: 'orders.penerima',
+                            orderable: true,
+                            searchable: true
+                        },
+                        {
+                            data: 'created_at',
+                            name: 'orders.created_at',
+                            orderable: true,
+                            searchable: true
+                        },
+                        {
+                            data: 'note',
+                            name: 'note',
+                        },
+                        {
+                            data: 'status_orders',
+                            name: 'status_orders',
+                            orderable: true,
+                            searchable: true
+                        },
+                        {
+                            data: 'estimation',
+                            name: 'estimation',
+                            orderable: false,
+                            searchable: false
+                        },
+                        {
+                            data: 'aksi',
+                            name: 'aksi',
+                            orderable: false,
+                            searchable: false
+                        }
+                    ]
+                });
 
-           });
+            });
 
 
 

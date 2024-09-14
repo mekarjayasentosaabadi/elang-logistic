@@ -13,7 +13,9 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Form Add Manifest</h4>
-                        <a href="{{ route('manifest.index') }}" class="btn btn-warning"><li class="fa fa-undo"></li> Kembali</a>
+                        <a href="{{ route('manifest.index') }}" class="btn btn-warning">
+                            <li class="fa fa-undo"></li> Kembali
+                        </a>
                     </div>
                     <div class="card-body">
 
@@ -101,8 +103,10 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Detail Manifest</h3>
-                        <button type="button" class="btn btn-primary" id="add-order"><li class="fa fa-plus"></li> Add
-                            Order</button>
+                        <button type="button" class="btn btn-primary" id="add-order">
+                            <li class="fa fa-plus"></li> Add
+                            Order
+                        </button>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -157,7 +161,8 @@
                                             <div class="row mt-2">
                                                 <div class="col-md-6">
                                                     <button class="btn btn-primary btn-md" onclick="saveManifest()">
-                                                        <li class="fa fa-save"></li> Simpan</button>
+                                                        <li class="fa fa-save"></li> Simpan
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -173,7 +178,7 @@
     {{-- Modal  --}}
     <div class="modal fade" id="exampleModalCenter" tabindex="-1" aria-labelledby="exampleModalCenterTitle"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalCenterTitle">List Data Orders</h5>
