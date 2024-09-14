@@ -98,35 +98,30 @@
                                     <input type="text" name="destination" id="destination" class="form-control" disabled>
                                 </div>
                             </div>
-                            <div class="col-12 mt-1">
+                            <div class="col-12 mt-1 form-edit-harga" id="form-price">
                                 <div class="form-group">
                                     <label for="price">Harga</label>
-                                    <input type="text" name="price" id="price" class="form-control">
+                                    <input type="text" name="price" id="price" class="form-control edit-harga">
                                 </div>
                             </div>
-                            <div class="col-12 mt-1">
-                                <div class="form-group">
-                                    <label for="minweightprice">Minimal Price</label>
-                                    <input type="text" name="minweightprice" id="minweightprice" class="form-control">
-                                </div>
-                            </div>
-                            <div class="col-12 mt-1">
+                            <div class="col-12 mt-1 form-edit-harga" id="form-nextweightprices">
                                 <div class="form-group">
                                     <label for="nextweightprices">Next Weight Price</label>
                                     <input type="text" name="nextweightprices" id="nextweightprices"
-                                        class="form-control">
+                                        class="form-control edit-harga">
                                 </div>
                             </div>
-                            <div class="col-12 mt-1">
+                            <div class="col-12 mt-1 form-edit-harga" id="form-minweights">
                                 <div class="form-group">
-                                    <label for="minimumprice">Minimum Prices</label>
-                                    <input type="text" name="minimumprice" id="minimumprice" class="form-control">
+                                    <label for="minweights">Minimum Berat</label>
+                                    <input type="text" name="minweights" id="minweights" class="form-control edit-harga">
                                 </div>
                             </div>
-                            <div class="col-12 mt-1">
+                            <div class="col-12 mt-1 form-edit-harga" id="form-estimation">
                                 <div class="form-group">
                                     <label for="estimation">Estimation</label>
-                                    <input type="text" name="estimation" id="estimation" class="form-control">
+                                    <input type="text" name="estimation" id="estimation"
+                                        class="form-control edit-harga">
                                 </div>
                             </div>
                         </div>
@@ -152,6 +147,8 @@
         var table2;
         var baseUrl = window.location.origin;
         var masterPriceId;
+        let armada = 0;
+
         $(document).ready(function() {
             table = $('#tbl-masterprice').DataTable({
                 processing: true,
@@ -185,6 +182,14 @@
                     },
                 ]
             });
+
+            $('#tbl-masterprice').on('click', '.btn-list', function() {
+                var orid = $(this).data('orid');
+                var oid = $(this).data('oid');
+                var armd = $(this).data('armd');
+                showDetail(orid, oid, armd);
+                $('#exampleModalCenter').modal('show');
+            });
         });
 
         function showDetail(orid, oid, armd) {
@@ -192,80 +197,201 @@
             $('#tbl-list').DataTable().destroy();
             var url = window.location.origin + '/' + listRoutes['masterprice.listhargapublic'].replace('{id}', orid)
                 .replace('{id2}', oid).replace('{id3}', armd);
-            table2 = $('#tbl-list').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: {
-                    url: url,
-                    type: 'GET'
-                },
-                columns: [{
-                        data: 'DT_RowIndex',
-                        orderable: false,
+
+            if (armd == 1) {
+                $('#tbl-list thead tr').html(
+                    '<th>#</th><th>Asal Outlet</th><th>Origin</th><th>Destination</th><th>Harga</th><th>Harga Berikutnya</th><th>Estimasi</th><th>Aksi</th>'
+                );
+                table2 = $('#tbl-list').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: url,
+                        type: 'GET'
                     },
-                    {
-                        data: 'outlet.name',
-                        name: 'outlet.name',
-                        searchable: true
+                    columns: [{
+                            data: 'DT_RowIndex',
+                            orderable: false,
+                        },
+                        {
+                            data: 'outlet.name',
+                            name: 'outlet.name',
+                            searchable: true
+                        },
+                        {
+                            data: 'origin.name',
+                            name: 'origin.name',
+                            searchable: true
+                        },
+                        {
+                            data: 'destination.name',
+                            name: 'destination.name',
+                            searchable: true
+                        },
+                        {
+                            data: 'price',
+                            name: 'price',
+                            searchable: true
+                        },
+                        {
+                            data: 'nextweightprices',
+                            name: 'nextweightprices',
+                        },
+                        {
+                            data: 'estimation',
+                            name: 'estimation',
+                        },
+                        {
+                            data: 'aksi',
+                            name: 'aksi'
+                        }
+                    ]
+                });
+            } else if (armd == 2) {
+                $('#tbl-list thead tr').html(
+                    '<th>#</th><th>Asal Outlet</th><th>Origin</th><th>Destination</th><th>Harga</th><th>Min. Kilo</th><th>Estimasi</th><th>Aksi</th>'
+                );
+                table2 = $('#tbl-list').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: url,
+                        type: 'GET'
                     },
-                    {
-                        data: 'origin.name',
-                        name: 'origin.name',
-                        searchable: true
+                    columns: [{
+                            data: 'DT_RowIndex',
+                            orderable: false,
+                        },
+                        {
+                            data: 'outlet.name',
+                            name: 'outlet.name',
+                            searchable: true
+                        },
+                        {
+                            data: 'origin.name',
+                            name: 'origin.name',
+                            searchable: true
+                        },
+                        {
+                            data: 'destination.name',
+                            name: 'destination.name',
+                            searchable: true
+                        },
+                        {
+                            data: 'price',
+                            name: 'price',
+                            searchable: true
+                        },
+                        {
+                            data: 'minweights',
+                            name: 'minweights',
+                        },
+                        {
+                            data: 'estimation',
+                            name: 'estimation',
+                        },
+                        {
+                            data: 'aksi',
+                            name: 'aksi'
+                        }
+                    ]
+                });
+            } else {
+                $('#tbl-list thead tr').html(
+                    '<th>#</th><th>Asal Outlet</th><th>Origin</th><th>Destination</th><th>Harga</th><th>Estimasi</th><th>Aksi</th>'
+                );
+                table2 = $('#tbl-list').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    ajax: {
+                        url: url,
+                        type: 'GET'
                     },
-                    {
-                        data: 'destination.name',
-                        name: 'destination.name',
-                        searchable: true
-                    },
-                    {
-                        data: 'price',
-                        name: 'price',
-                        searchable: true
-                    },
-                    {
-                        data: 'aksi',
-                        name: 'aksi'
-                    }
-                ]
-            });
+                    columns: [{
+                            data: 'DT_RowIndex',
+                            orderable: false,
+                        },
+                        {
+                            data: 'outlet.name',
+                            name: 'outlet.name',
+                            searchable: true
+                        },
+                        {
+                            data: 'origin.name',
+                            name: 'origin.name',
+                            searchable: true
+                        },
+                        {
+                            data: 'destination.name',
+                            name: 'destination.name',
+                            searchable: true
+                        },
+                        {
+                            data: 'price',
+                            name: 'price',
+                            searchable: true
+                        },
+                        {
+                            data: 'estimation',
+                            name: 'estimation',
+                        },
+                        {
+                            data: 'aksi',
+                            name: 'aksi'
+                        }
+                    ]
+                });
+            }
+            armada = armd;
         }
 
         function editPrice(txt, id) {
             $.getJSON(window.location.origin + '/' + listRoutes['masterprice.detail'].replace('{id}', id), function(e) {})
                 .done(function(e) {
-                    console.log(e)
                     masterPriceId = id;
                     $('#price').val(e.data[0].price);
-                    $('#minweightprice').val(e.data[0].minimumprice);
                     $('#nextweightprices').val(e.data[0].nextweightprices);
-                    $('#minimumprice').val(e.data[0].minimumprice);
+                    $('#minweights').val(e.data[0].minweights);
                     $('#asaloutlet').val(e.data[0].outlet.name);
                     $('#origin').val(e.data[0].origin.name);
                     $('#destination').val(e.data[0].destination.name);
                     $('#estimation').val(e.data[0].estimation);
+                    $('.form-edit-harga').removeClass('d-none');
+                    if (armada == 1) {
+                        $('#form-minweightprice').addClass('d-none');
+                        $('#form-minimumprice').addClass('d-none');
+                        $('#form-minweights').addClass('d-none');
+                    } else if (armada == 2) {
+                        $('#form-nextweightprices').addClass('d-none');
+                    } else {
+                        $('#form-minweightprice').addClass('d-none');
+                        $('#form-nextweightprices').addClass('d-none');
+                        $('#form-minweights').addClass('d-none');
+                    }
+
                 })
         }
-        function ubah(){
+
+        function ubah() {
             console.log(masterPriceId)
         }
         $('#formeditprice').validate({
-            rules:{
+            rules: {
                 'price': 'required',
             },
-            submitHandler:function(){
+            submitHandler: function() {
                 $.ajax({
-                    url: baseUrl+'/'+ listRoutes['masterprice.ubah'].replace('{id}', masterPriceId),
+                    url: baseUrl + '/' + listRoutes['masterprice.ubah'].replace('{id}', masterPriceId),
                     type: "POST",
                     dataType: "JSON",
                     data: new FormData($('#formeditprice')[0]),
                     processData: false,
                     contentType: false,
-                    success: function(e){
+                    success: function(e) {
                         notifSweetAlertSuccess(e.meta.message);
                         table2.ajax.reload();
                     },
-                    error: function(e){
+                    error: function(e) {
                         console.log(e)
                     }
                 })

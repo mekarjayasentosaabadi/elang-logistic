@@ -35,8 +35,9 @@
                                     <label for="noResi">Status Resi</label>
                                     <select name="status_resi" id="status_resi" class="form-control">
                                         <option value="">-- Pilih Status Resi --</option>
-                                        <option value="1">Tiba di</option>
-                                        <option value="2">Di berangkatkan</option>
+                                        <option value="1">Tiba/Transit di</option>
+                                        <option value="2">Di Berangkatkan</option>
+                                        <option value="3">Di Turunkan</option>
                                     </select>
                                 </div>
                             </div>
@@ -53,18 +54,10 @@
                                     </div>
                                 </div>
                             @endif
-                            <div class="col-12">
-                                <div class="form-group mt-1">
-                                    <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" id="is_arived" value="checked"
-                                            name="is_arived">
-                                        <label class="form-check-label" for="is_arived" id="label_is_arived">Apakah manifest
-                                            sudah tiba?</label>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary mt-2 float-end"><li class="fa fa-save"></li> Update</button>
+                        <button type="submit" class="btn btn-primary mt-2 float-end">
+                            <li class="fa fa-save"></li> Update
+                        </button>
                     </form>
                 </div>
             </div>
@@ -275,10 +268,8 @@
             $('#update_data').on('change', function() {
                 if ($(this).val() == 1) {
                     $('#label-no-resi').text('No Surat Tugas');
-                    $('#label_is_arived').text('Apakah surat tugas sudah sampai tujuan akhir?');
                 } else {
                     $('#label-no-resi').text('No Manifest');
-                    $('#label_is_arived').text('Apakah manifest sudah tiba?');
                 }
                 $('.select2').attr('disabled', false);
                 $('#noResi').val(null).trigger('change');

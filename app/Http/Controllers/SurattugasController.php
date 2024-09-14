@@ -74,9 +74,6 @@ class SurattugasController extends Controller
         $destination    = Destination::all();
         $vehicle        = Vehicle::where('is_active', '1')->get();
         $driver         = User::where('role_id', '5');
-        if (auth()->user()->role_id != 1) {
-            $driver->where('outlets_id', auth()->user()->outlets_id);
-        }
         $driver = $driver->get();
         $outlets = Outlet::all();
         return view('pages.surattugas.create', compact('destination', 'vehicle', 'driver', 'outlets'));

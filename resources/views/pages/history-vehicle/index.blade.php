@@ -27,10 +27,11 @@
                                 <div class="col-md-6 col-lg-6 col-sm-12 mb-1">
                                     <div class="form-group">
                                         <label for="noResi">Status</label>
-                                        <select name="satus" id="satus" class="form-control">
+                                        <select name="status_resi" id="satus" class="form-control">
                                             <option value="">-- Pilih Status --</option>
-                                            <option value="Tiba">Tiba di</option>
-                                            <option value="Berangkat">Di berangkatkan dari</option>
+                                            <option value="1">Tiba/Transit di</option>
+                                            <option value="2">Di Berangkatkan</option>
+                                            <option value="3">Di Turunkan</option>
                                         </select>
                                     </div>
                                 </div>
@@ -41,6 +42,18 @@
                                             <option value="">-- Pilih Outlet --</option>
                                             @foreach ($outlet as $item)
                                                 <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-sm-12 mt-2">
+                                    <div class="form-group ">
+                                        <label for="manifest_id">Manifest</label>
+                                        <select name="manifest_id[]" id="manifest_id" class="form-control" multiple>
+                                            <option value="">-- Pilih Manifest --</option>
+                                            <option value="all">Semua</option>
+                                            @foreach ($manifest as $item)
+                                                <option value="{{ $item->id }}">{{ $item->manifestno }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -67,6 +80,7 @@
 @section('custom-js')
     <script>
         $(document).ready(function() {
+            $('#manifest_id').select2();
             $('#formsurattugas').validate({
                 rules: {
                     satus: {
