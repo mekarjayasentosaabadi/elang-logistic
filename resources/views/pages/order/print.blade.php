@@ -2,6 +2,9 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
+    body{
+        font-size: 5px;
+    }
     .p-10{
         padding: 10px;
     }

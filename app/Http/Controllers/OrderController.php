@@ -933,8 +933,8 @@ class OrderController extends Controller
         $pdf::SetAutoPageBreak(true, $bottomMargin);
 
         //set paper size
-        $pageWidth = 300;
-        $pageHeight = 130;
+        $pageWidth = 118;
+        $pageHeight = 80;
         $pdf::AddPage('L', [$pageWidth, $pageHeight]);
 
         // Path gambar
