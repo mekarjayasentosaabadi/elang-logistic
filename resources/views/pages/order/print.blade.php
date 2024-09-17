@@ -35,9 +35,9 @@
                     @endif
                     </div>
                     <div>Deskripsi : {{ $order->description }}</div>
-                    <div>Berat : {{ $order->weight }}</div>
+                    <div>Berat : {{ $order->weight }} Kg</div>
                     <div>Jumlah Kiriman : {{ $order->koli }}</div>
-                    <div>Biaya Kirim : {{ $order->price }}</div>
+                    <div>Biaya Kirim : {{ formatRupiah($order->price) }}</div>
                     <div>Kota Tujuan : {{ $order->destination->name }} </div>
                 </th>
             </tr>
