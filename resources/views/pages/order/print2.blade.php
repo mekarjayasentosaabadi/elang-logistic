@@ -78,8 +78,8 @@
                                     <td class="border px-1 fs-8px">{{ $originLocationOrder->name}}</td>
                                     <td class="border px-1 fs-8px">{{ $order->destination->name }}</td>
                                     <td class="border px-1 fs-8px">{{ $order->koli }}</td>
-                                    <td class="border px-1 fs-8px">{{ $order->weight }}</td>
-                                    <td class="border px-1 fs-8px">{{ $order->volume }}</td>
+                                    <td class="border px-1 fs-8px">{{ $order->weight }} Kg</td>
+                                    <td class="border px-1 fs-8px">{{ $kgVolume }} Kg</td>
                                     <td class="border px-1 fs-8px">{{ $order->numberorders }}</td>
                                 </tr>
                                 <tr class="">
@@ -103,7 +103,7 @@
                                 <tr class="border-bottom">
                                     <td class="border px-1  fs-8px text-top align-left" rowspan="2" colspan="2">
                                         Instruksi Khusus</td>
-                                    <td class="border px-1  fs-8px text-top align-left" rowspan="2">Nilai Barang <br> {{ $order->price }}</td>
+                                    <td class="border px-1  fs-8px text-top align-left" rowspan="2">Nilai Barang <br> {{ formatRupiah($order->price) }}</td>
                                     <td class="border px-1  fs-8px fs-8px text-top align-left" rowspan="2"
                                         colspan="3">Keterangan Barang</td>
                                     <td class="border px-1  fs-8px">Biaya</td>

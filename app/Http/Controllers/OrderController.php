@@ -960,8 +960,12 @@ class OrderController extends Controller
 
         $order = Order::find($decrypted);
         $originLocationOrder = Destination::find($order->outlet->location_id);
-
-        return view('pages.order.print2', compact('order', 'originLocationOrder'));
+        $detailOrders = DetailOrder::where('order_id', $order->id)->get();
+        $kgVolume = 0;
+        foreach($detailOrders as $detailOrder){
+            $kgVolume += $detailOrder->berat_volume;
+        }
+        return view('pages.order.print2', compact('order', 'originLocationOrder', 'kgVolume'));
     }
 
 

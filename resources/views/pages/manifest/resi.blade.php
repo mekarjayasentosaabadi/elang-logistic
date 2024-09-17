@@ -65,11 +65,12 @@
                                     <td class="border px-1 fs-8px"><img src="{{ asset('assets/img/logo.png') }}" height="30" alt=""></td>
                                     <td>
 
-                                            <div class="row">
+                                            <div class="row" style="padding: 5px">
                                                 <div class="col-4 fs-8px">
-                                                    <div class="row">COURIER MANIFEST</div>
-                                                    <div class="row">
-                                                        ORIGIN : <b>{{ $manifest->outlet->name }}</b>
+                                                    <div>COURIER MANIFEST</div>
+                                                    <div>
+                                                        ORIGIN : <br>
+                                                        <b>{{ $manifest->outlet->name }}</b>
                                                     </div>
                                                 </div>
                                                 <div class="col-8 fs-8px">
@@ -151,7 +152,7 @@
             window.print();
         }
 
-        // window.onload = printPage;
+        window.onload = printPage;
 
         document.getElementById('print-button').addEventListener('click', printPage);
     </script>
