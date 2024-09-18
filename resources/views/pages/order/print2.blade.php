@@ -49,13 +49,17 @@
                 <div class="invoice-print p-2">
                     <div class="invoice-header d-flex justify-content-between flex-md-row flex-column">
                         <div>
-                            <div class="d-flex mb-1">
+                            <div class="mb-1">
                                 <img src="{{ asset('assets/img/logo.png') }}" height="30" alt="">
                             </div>
                         </div>
                         <div class="mt-md-0 mt-2">
                             <h4 class="text-end mb-1 fw-bold">ASPERINE</h4>
                         </div>
+                    </div>
+                    <div class="mt-2 text-center" style="width: 190px">
+                        <div >{!! '<img  width="210" height="40" src="data:image/png;base64,' . DNS1D::getBarcodePNG("$order->numberorders", 'C39+') .'" alt="barcode"   />' !!}</div>
+                        <div>{{ $order->numberorders }}</div>
                     </div>
                     <hr class="my-1" />
 
@@ -78,8 +82,8 @@
                                     <td class="border px-1 fs-8px">{{ $originLocationOrder->name}}</td>
                                     <td class="border px-1 fs-8px">{{ $order->destination->name }}</td>
                                     <td class="border px-1 fs-8px">{{ $order->koli }}</td>
-                                    <td class="border px-1 fs-8px">{{ $order->weight }}</td>
-                                    <td class="border px-1 fs-8px">{{ $order->volume }}</td>
+                                    <td class="border px-1 fs-8px">{{ $order->weight }} Kg</td>
+                                    <td class="border px-1 fs-8px">{{ $kgVolume }} Kg</td>
                                     <td class="border px-1 fs-8px">{{ $order->numberorders }}</td>
                                 </tr>
                                 <tr class="">
@@ -103,7 +107,7 @@
                                 <tr class="border-bottom">
                                     <td class="border px-1  fs-8px text-top align-left" rowspan="2" colspan="2">
                                         Instruksi Khusus</td>
-                                    <td class="border px-1  fs-8px text-top align-left" rowspan="2">Nilai Barang <br> {{ $order->price }}</td>
+                                    <td class="border px-1  fs-8px text-top align-left" rowspan="2">Nilai Barang <br> {{ formatRupiah($order->price) }}</td>
                                     <td class="border px-1  fs-8px fs-8px text-top align-left" rowspan="2"
                                         colspan="3">Keterangan Barang</td>
                                     <td class="border px-1  fs-8px">Biaya</td>
