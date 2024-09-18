@@ -49,13 +49,17 @@
                 <div class="invoice-print p-2">
                     <div class="invoice-header d-flex justify-content-between flex-md-row flex-column">
                         <div>
-                            <div class="d-flex mb-1">
+                            <div class="mb-1">
                                 <img src="{{ asset('assets/img/logo.png') }}" height="30" alt="">
                             </div>
                         </div>
                         <div class="mt-md-0 mt-2">
                             <h4 class="text-end mb-1 fw-bold">ASPERINE</h4>
                         </div>
+                    </div>
+                    <div class="mt-2 text-center" style="width: 190px">
+                        <div >{!! '<img  width="210" height="40" src="data:image/png;base64,' . DNS1D::getBarcodePNG("$order->numberorders", 'C39+') .'" alt="barcode"   />' !!}</div>
+                        <div>{{ $order->numberorders }}</div>
                     </div>
                     <hr class="my-1" />
 

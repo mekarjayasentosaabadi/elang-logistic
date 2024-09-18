@@ -41,7 +41,11 @@
     <!-- BEGIN: Content-->
     <div class="fs-10px mx-2 ">
         <div class="pt-2 w-full">
-            <h5 class="">No SMD : {{ $manifest->no_smd}} </h5>
+            <div style="text-align: center; width: 190px">
+                {!! '<img  width="210" height="40" src="data:image/png;base64,' . DNS1D::getBarcodePNG("$manifest->no_smd", 'C39+') .'" alt="barcode"   />' !!}
+                <h5 class="">No SMD : {{ $manifest->no_smd}} </h5>
+            </div>
+            <hr>
             <h3 class="text-center mb-2">SURAT MUATAN DATARAT</h3>
             <div class="">
                 <div class="row">
