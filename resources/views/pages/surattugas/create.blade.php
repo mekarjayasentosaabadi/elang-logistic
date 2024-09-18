@@ -40,7 +40,7 @@
                                     <select name="vehicle" id="vehicle" class="form-control">
                                         <option value="">-- Pilih Kendaraan --</option>
                                         @foreach ($vehicle as $item)
-                                            <option value="{{ $item->id }}">{{ $item->police_no }}</option>
+                                            <option value="{{ $item->id }}">{{ $item->police_no }} | {{ $item->type == "1" ? "CDD BOX" : ($item->type == "2" ? "CDE BOX" : "GRANDMAX") }}</option>
                                         @endforeach
                                     </select>
                                 </div>

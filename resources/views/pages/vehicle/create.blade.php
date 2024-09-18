@@ -22,9 +22,9 @@
                                     <label for="type">Tipe</label>
                                     <select name="type" id="type" class="form-control">
                                         <option value="" hidden>Pilih tipe</option>
-                                        <option {{ old('type') == '1' ? 'selected' : ''  }} value="1">Truck Container</option>
-                                        <option {{ old('type') == '2' ? 'selected' : ''  }} value="2">BOX</option>
-                                        <option {{ old('type') == '3' ? 'selected' : ''  }} value="3">Pickup</option>
+                                        <option {{ old('type') == '1' ? 'selected' : ''  }} value="1">CDD BOX</option>
+                                        <option {{ old('type') == '2' ? 'selected' : ''  }} value="2">CDE BOX</option>
+                                        <option {{ old('type') == '3' ? 'selected' : ''  }} value="3">GRANDMAX</option>
                                     </select>
                                 </div>
                                 <div class="form-group mb-2">
