@@ -923,10 +923,10 @@ class OrderController extends Controller
 
 
         // Set margin
-        $leftMargin = 5;
-        $topMargin = 5;
-        $rightMargin = 5;
-        $bottomMargin = 5;
+        $leftMargin = 2;
+        $topMargin = 2;
+        $rightMargin = 3;
+        $bottomMargin = 2;
 
         // Set margins to page
         $pdf::SetMargins($leftMargin, $topMargin, $rightMargin);
@@ -934,7 +934,7 @@ class OrderController extends Controller
 
         //set paper size
         $pageWidth = 118;
-        $pageHeight = 80;
+        $pageHeight = 55;
         $pdf::AddPage('L', [$pageWidth, $pageHeight]);
 
         // Path gambar

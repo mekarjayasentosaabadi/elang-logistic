@@ -14,7 +14,7 @@
 </style>
 <body>
     <div>
-        <table border="1" class="p-10">
+        <table border="1" style="padding: 2px">
             <tr>
                 <th colspan="2">
                     <div class="text-center">
