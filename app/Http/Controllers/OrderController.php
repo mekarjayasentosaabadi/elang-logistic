@@ -914,7 +914,40 @@ class OrderController extends Controller
         $originLocationOrder = Destination::find($order->outlet->location_id);
 
 
+        // format print resi old
+        // $pdf = new TCPDF;
+        // $pdf::SetFont('helvetica', '', 12);
+        // $pdf::SetTitle("$order->numberorders-pdf");
+        // $pdf::SetAuthor('Kaushal');
+        // $pdf::SetSubject('Generated PDF');
 
+
+        // // Set margin
+        // $leftMargin = 2;
+        // $topMargin = 2;
+        // $rightMargin = 3;
+        // $bottomMargin = 2;
+
+        // // Set margins to page
+        // $pdf::SetMargins($leftMargin, $topMargin, $rightMargin);
+        // $pdf::SetAutoPageBreak(true, $bottomMargin);
+
+        // //set paper size
+        // $pageWidth = 118;
+        // $pageHeight = 55;
+        // $pdf::AddPage('L', [$pageWidth, $pageHeight]);
+
+        // // Path gambar
+        // $imagePath = public_path('assets/img/logo.png');
+
+        // // HTML dengan gambar dalam tabel
+        // $html = view()->make('pages.order.print', compact('order', 'imagePath'));
+
+        // $pdf::writeHTML($html, true, false, true, false, '');
+        // $pdf::Output("$order->numberorders-pdf.pdf", 'I');
+        // $pdf::reset();
+
+        // format print resi new
         $pdf = new TCPDF;
         $pdf::SetFont('helvetica', '', 12);
         $pdf::SetTitle("$order->numberorders-pdf");
@@ -926,7 +959,7 @@ class OrderController extends Controller
         $leftMargin = 2;
         $topMargin = 2;
         $rightMargin = 3;
-        $bottomMargin = 2;
+        $bottomMargin = 0;
 
         // Set margins to page
         $pdf::SetMargins($leftMargin, $topMargin, $rightMargin);
@@ -934,14 +967,14 @@ class OrderController extends Controller
 
         //set paper size
         $pageWidth = 118;
-        $pageHeight = 55;
+        $pageHeight = 64;
         $pdf::AddPage('L', [$pageWidth, $pageHeight]);
 
         // Path gambar
         $imagePath = public_path('assets/img/logo.png');
 
         // HTML dengan gambar dalam tabel
-        $html = view()->make('pages.order.print', compact('order', 'imagePath'));
+        $html = view()->make('pages.order.print1', compact('order', 'imagePath'));
 
         $pdf::writeHTML($html, true, false, true, false, '');
         $pdf::Output("$order->numberorders-pdf.pdf", 'I');
