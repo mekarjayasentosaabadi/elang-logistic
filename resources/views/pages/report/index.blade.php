@@ -45,6 +45,7 @@
                                         <label for="outlet_id_select">Outlet</label>
                                         <select name="outlet_id_select" id="outlet_id_select" class="form-control">
                                             <option value="" hidden>Pilih Outlet</option>
+                                            <option value="all_outlet">Tampilkan Semua Outlet</option>
                                             @foreach ($outlets as $outlet)
                                                     <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
                                             @endforeach
@@ -212,6 +213,7 @@
                                                     <label for="outlet_id_select_customer">Outlet</label>
                                                     <select name="outlet_id_select_customer" id="outlet_id_select_customer" class="form-control">
                                                         <option value="" hidden>Pilih Outlet</option>
+                                                        <option value="all_outlet">Tampilkan Semua Outlet</option>
                                                         @foreach ($outlets as $outlet)
                                                             <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
                                                         @endforeach
