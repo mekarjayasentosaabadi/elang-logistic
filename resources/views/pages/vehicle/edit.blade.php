@@ -23,9 +23,9 @@
                                     <label for="type">Tipe</label>
                                     <select name="type" id="type" class="form-control">
                                         <option value="" hidden>Pilih tipe</option>
-                                        <option {{ $vehicle->type == '1' ? 'selected' : '' }} value="1">Truck Container</option>
-                                        <option {{ $vehicle->type == '2' ? 'selected' : '' }} value="2">BOX</option>
-                                        <option {{ $vehicle->type == '3' ? 'selected' : '' }} value="3">Pickup</option>
+                                        <option {{ $vehicle->type == '1' ? 'selected' : '' }} value="1">CDD BOX</option>
+                                        <option {{ $vehicle->type == '2' ? 'selected' : '' }} value="2">CDE BOX</option>
+                                        <option {{ $vehicle->type == '3' ? 'selected' : '' }} value="3">GRANDMAX</option>
                                     </select>
                                 </div>
                                 <div class="form-group mb-2">
