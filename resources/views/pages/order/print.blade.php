@@ -2,6 +2,9 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
+    body{
+        font-size: 5px;
+    }
     .p-10{
         padding: 10px;
     }
@@ -11,7 +14,7 @@
 </style>
 <body>
     <div>
-        <table border="1" class="p-10">
+        <table border="1" style="padding: 2px">
             <tr>
                 <th colspan="2">
                     <div class="text-center">
@@ -32,9 +35,9 @@
                     @endif
                     </div>
                     <div>Deskripsi : {{ $order->description }}</div>
-                    <div>Berat : {{ $order->weight }}</div>
+                    <div>Berat : {{ $order->weight }} Kg</div>
                     <div>Jumlah Kiriman : {{ $order->koli }}</div>
-                    <div>Biaya Kirim : {{ $order->price }}</div>
+                    <div>Biaya Kirim : {{ formatRupiah($order->price) }}</div>
                     <div>Kota Tujuan : {{ $order->destination->name }} </div>
                 </th>
             </tr>

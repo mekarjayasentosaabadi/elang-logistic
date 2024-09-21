@@ -39,9 +39,13 @@
 
 <body class="vertical-layout vertical-menu-modern blank-page navbar-floating footer-static  " data-open="click" data-menu="vertical-menu-modern" data-col="blank-page">
     <!-- BEGIN: Content-->
-    <div class="fs-10px mt-4 container">
-        <div class="w-100">
-            <h5 class="">No SMD : {{ $manifest->no_smd}} </h5>
+    <div class="fs-10px mx-2 ">
+        <div class="pt-2 w-full">
+            <div style="text-align: center; width: 190px">
+                {!! '<img  width="210" height="40" src="data:image/png;base64,' . DNS1D::getBarcodePNG("$manifest->no_smd", 'C39+') .'" alt="barcode"   />' !!}
+                <h5 class="">No SMD : {{ $manifest->no_smd}} </h5>
+            </div>
+            <hr>
             <h3 class="text-center mb-2">SURAT MUATAN DATARAT</h3>
             <div class="">
                 <div class="row">
@@ -50,29 +54,33 @@
                     </div>
                 </div>
             </div>
-            <div class="d-flex justify-content-center">
-                <div class="container">
+            <div class="d-flex justify-content-center mx-1">
+                <div class="w-100">
                     <div class="row w-full">
-                        <div class="col-4 border">
+                        <div class="col-4 border" style="padding: 5px">
                             Kota Asal : <b> {{ $manifest->outlet->destination->name ?? '-'}} </b>
                         </div>
-                        <div class="col-4 border">Tujuan : <b> {{ $manifest->destination->name ?? '-' }} </b></div>
-                        <div class="col-4 border">Tanggal : <b>{{ $manifest->created_at }}</b> </div>
+                        <div class="col-4 border" style="padding: 5px">
+                            Tujuan : <b> {{ $manifest->destination->name ?? '-' }} </b>
+                        </div>
+                        <div class="col-4 border" style="padding: 5px">
+                            Tanggal : <b>{{ $manifest->created_at }}</b> 
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="d-flex ">
+            <div class="d-flex mt-1">
                 Sejumlah :
             </div>
-            <div class="d-flex justify-content-center">
-                <div class="container">
+            <div class="d-flex justify-content-center mx-1">
+                <div class="w-100">
                     <div class="row w-full">
-                        <div class="col-4 border">
+                        <div class="col-4 border" style="padding: 5px">
                             {{-- Koli : <b> {{ $manifest->detailsurattugas->count() }} </b> --}}
                             Koli : <b> {{ $totalKoli }} </b>
                         </div>
-                        <div class="col-4 border">Berat : <b> {{ $totalBerat }} </b> kg</div>
-                        <div class="col-4 border">Keterangan : </div>
+                        <div class="col-4 border" style="padding: 5px">Berat : <b> {{ $totalBerat }} </b> kg</div>
+                        <div class="col-4 border" style="padding: 5px">Keterangan : </div>
                     </div>
                 </div>
             </div>

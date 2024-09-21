@@ -47,13 +47,18 @@
 
             <div class="content-body">
                 <div class="invoice-print p-2">
-                    <div class="invoice-header d-flex justify-content-between flex-md-row flex-column">
+                    {{-- <div class="invoice-header d-flex justify-content-between flex-md-row flex-column"> --}}
+                    <div class="invoice-header">
                         <div>
                             <div class="d-flex mb-1">
                             </div>
                         </div>
                         <div class="mt-md-0 mt-2">
-                            <h4 class="text-end mb-1 fw-bold">MNF : {{ $manifest->manifestno }}</h4>
+                            <div style="text-align: center; width: 190px">
+                                {!! '<img  width="210" height="40" src="data:image/png;base64,' . DNS1D::getBarcodePNG("$manifest->manifestno", 'C39+') .'" alt="barcode"   />' !!}
+                                <h5 class="">No MNF : {{  $manifest->manifestno  }} </h5>
+                            </div>
+                            {{-- <h4 class="text-end mb-1 fw-bold">MNF : {{ $manifest->manifestno }}</h4> --}}
                         </div>
                     </div>
                     <hr class="my-1" />
@@ -65,11 +70,12 @@
                                     <td class="border px-1 fs-8px"><img src="{{ asset('assets/img/logo.png') }}" height="30" alt=""></td>
                                     <td>
 
-                                            <div class="row">
+                                            <div class="row" style="padding: 5px">
                                                 <div class="col-4 fs-8px">
-                                                    <div class="row">COURIER MANIFEST</div>
-                                                    <div class="row">
-                                                        ORIGIN : <b>{{ $manifest->outlet->name }}</b>
+                                                    <div>COURIER MANIFEST</div>
+                                                    <div>
+                                                        ORIGIN : <br>
+                                                        <b>{{ $manifest->outlet->name }}</b>
                                                     </div>
                                                 </div>
                                                 <div class="col-8 fs-8px">
@@ -151,7 +157,7 @@
             window.print();
         }
 
-        // window.onload = printPage;
+        window.onload = printPage;
 
         document.getElementById('print-button').addEventListener('click', printPage);
     </script>

@@ -11,6 +11,8 @@
             <th>Volume / Berat  </th>
             <th>Total Volume / Berat</th>
             <th>Total Harga</th>
+            <th>PPN</th>
+            <th>HARGA + PPN</th>
         </tr>
     </thead>
     <tbody>
@@ -26,6 +28,12 @@
                 <td>{{ $order->weight ?? $order->volume ?? '-'}}</td>
                 <td>{{ $order->weight ?? $order->volume ?? '-'}}</td>
                 <td>{{ formatRupiah($order->price) ?? '-'}}</td>
+                @php
+                    $ppn = ($order->price ?? 0) * 0.011;
+                    $total_with_ppn = ($order->price ?? 0) + $ppn;
+                @endphp
+                <td>{{ formatRupiah($ppn) }}</td>
+                <td>{{ formatRupiah($total_with_ppn) }}</td>
             </tr>
         @endforeach
         <tr>
@@ -33,6 +41,8 @@
             <td>{{ $totalWeightVolume }}</td>
             <td>{{ $totalWeightVolume }}</td>
             <td>{{ formatRupiah($totalPrice) }}</td>
+            <td>{{ formatRupiah($totalPPN) }}</td>
+            <td>{{ formatRupiah($totalPriceWithPPN) }}</td>
         </tr>
     </tbody>
 </table>

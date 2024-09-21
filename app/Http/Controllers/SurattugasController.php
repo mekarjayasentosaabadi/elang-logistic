@@ -56,7 +56,7 @@ class SurattugasController extends Controller
             ->addColumn('option', function ($x) {
                 $option = '<div>';
 
-                $option .= '<a href="surattugas/' . Crypt::encrypt($x->id) . '/printsurattugas" class="btn btn-primary btn-sm" title="Cetak Surat Tugas"><li class="fa fa-print"></li></a> ';
+                $option .= '<a href="surattugas/' . Crypt::encrypt($x->id) . '/printsurattugas" class="btn btn-primary btn-sm" title="Cetak Surat Tugas" target="_blank"><li class="fa fa-print"></li></a> ';
                 $option .= '<a title="Detail Surat Tugas" href="surattugas/' . Crypt::encrypt($x->id) . '/detail" class="btn btn-success btn-sm "><i class="fa fa-list"></i></a> ';
                 if ($x->statussurattugas == 1) {
                     $option .= '<button class="btn btn-success btn-sm" title="Berangkatkan" onclick="onGoing(' . $x->id . ')"><li class="fa fa-truck"></li></button> ';
