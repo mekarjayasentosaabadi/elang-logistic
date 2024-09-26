@@ -19,6 +19,7 @@ class AwbController extends Controller
         $dt = [];
         foreach ($history as $key => $value) {
             $dt[] = [
+                'no_resi' => $value->awb,
                 'created_at' => $value->created_at->format('d-m-Y H:i'),
                 'status' => $value->status
             ];
