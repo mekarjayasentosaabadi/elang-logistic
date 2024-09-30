@@ -563,7 +563,7 @@ class OrderController extends Controller
 
                 DB::commit();
                 Alert::success('Berhasil', 'Pesanan Berhasil Dibuat');
-                return redirect()->to('/order');
+                return redirect()->to('/order')->with('id', Crypt::encrypt($order->id));
             }
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -956,7 +956,7 @@ class OrderController extends Controller
 
 
         // Set margin
-        $leftMargin = 2;
+        $leftMargin = 10;
         $topMargin = 2;
         $rightMargin = 3;
         $bottomMargin = 0;
@@ -995,7 +995,7 @@ class OrderController extends Controller
         $originLocationOrder = Destination::find($order->outlet->location_id);
         $detailOrders = DetailOrder::where('order_id', $order->id)->get();
         $kgVolume = 0;
-        foreach($detailOrders as $detailOrder){
+        foreach ($detailOrders as $detailOrder) {
             $kgVolume += $detailOrder->berat_volume;
         }
         return view('pages.order.print2', compact('order', 'originLocationOrder', 'kgVolume'));

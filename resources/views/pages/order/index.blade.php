@@ -107,7 +107,15 @@
 
 @section('custom-js')
     <script>
+        const idOrder =
+            "{{ session()->has('id') ? session()->get('id') : '' }}";
         $(document).ready(function() {
+            // if id order is not null then create hyperlink to print order
+            if (idOrder != '') {
+                //pindah halaman baru dengan target _blank
+                // window.location.href = "{{ url('/order') }}/" + idOrder + "/print";
+                window.open("{{ url('/order') }}/" + idOrder + "/print", "_blank");
+            }
 
             $('#destinasi').select2();
 
