@@ -25,7 +25,14 @@ class VehicleController extends Controller
 
         return DataTables::of($q)
         ->  editColumn('type', function ($query){
-                return typeVehicle($query->type);
+                if($query->type =="1"){
+                    return "CDD BOX";
+                }else if($query->type =="2"){
+                    return "CDE BOX";
+                }else {
+                    return "GRANDMAX";
+                }
+                // return typeVehicle($query->type);
             })
         ->  editColumn('is_active', function ($query){
                 if ($query->is_active == '1') {
@@ -49,7 +56,7 @@ class VehicleController extends Controller
                 </div>';
                 return $btn;
         })
-        ->  rawColumns(['is_active','aksi'])
+        ->  rawColumns(['is_active','aksi', 'type'])
         ->  addIndexColumn()
         ->  make(true);
     }

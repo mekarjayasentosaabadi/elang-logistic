@@ -2,20 +2,24 @@
 <html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-    .p-10{
+    .p-10 {
         padding: 10px;
     }
-    .text-center{
+
+    .text-center {
         text-align: center
     }
 </style>
+
 <body>
     <div>
         <table border="1" class="p-10">
             <tr>
                 <th colspan="2">
                     <div class="text-center">
-                        {!! '<img  width="120" height="30" src="data:image/png;base64,' . DNS1D::getBarcodePNG("$order->numberorders", 'C39+') .'" alt="barcode"   />' !!}
+                        {!! '<img  width="120" height="30" src="data:image/png;base64,' .
+                            DNS1D::getBarcodePNG("$order->numberorders", 'C39+') .
+                            '" alt="barcode"   />' !!}
                         <div>{{ $order->numberorders }}</div>
                     </div>
                 </th>
@@ -23,13 +27,13 @@
                     <div>Tanggal : {{ $order->created_at }}</div>
                     <div>No. Order : {{ $order->numberorders }}</div>
                     <div>Servis :
-                    @if ($order->armada == 1)
-                        Darat
-                    @elseif($order->armada == 2)
-                        Udara
-                    @else
-                        Laut
-                    @endif
+                        @if ($order->armada == 1)
+                            Darat
+                        @elseif($order->armada == 2)
+                            Udara
+                        @else
+                            Laut
+                        @endif
                     </div>
                     <div>Deskripsi : {{ $order->description }}</div>
                     <div>Berat : {{ $order->weight }}</div>

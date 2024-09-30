@@ -81,7 +81,9 @@ class ReportController extends Controller
 
         if (Auth::user()->role_id == 1) {
             if (!empty($params['outlet_id'])) {
-                $query->where('surattugas.outlets_id', $params['outlet_id']);
+                if($params['outlet_id'] != 'all_outlet'){
+                    $query->where('surattugas.outlets_id', $params['outlet_id']);
+                }
             }
         } else {
             $query->where('surattugas.outlets_id', Auth::user()->outlets_id);
@@ -208,7 +210,9 @@ class ReportController extends Controller
 
         if (Auth::user()->role_id == 1) {
             if (isset($params['outlet_id'])) {
-                $query->where('outlet_id', $params['outlet_id']);
+                if ($params['outlet_id'] != "all_outlet") {
+                    $query->where('outlet_id', $params['outlet_id']);
+                }
             }
         } else {
             $query->where('outlet_id', Auth::user()->outlets_id);
@@ -313,9 +317,13 @@ class ReportController extends Controller
 
         if (Auth::user()->role_id == 1) {
             if ($request->outlet_id_select) {
-                $query->where('surattugas.outlets_id', $request->outlet_id_select);
-                $outlet = Outlet::find($request->outlet_id_select);
-                $dataFilter['outlet'] = $outlet->name;
+                if($request->outlet_id_select != 'all_outlet'){
+                    $query->where('surattugas.outlets_id', $request->outlet_id_select);
+                    $outlet = Outlet::find($request->outlet_id_select);
+                    $dataFilter['outlet'] = $outlet->name;
+                }else{
+                    $dataFilter['outlet'] = "Semua Outlet";
+                }
             }
         } else {
             $query->where('surattugas.outlets_id', Auth::user()->outlets_id);
@@ -418,9 +426,12 @@ class ReportController extends Controller
 
 
 
+        
         if (Auth::user()->role_id == 1) {
             if ($request->outlet_id_select) {
-                $query->where('surattugas.outlets_id', $request->outlet_id_select);
+                if($request->outlet_id_select != 'all_outlet'){
+                    $query->where('surattugas.outlets_id', $request->outlet_id_select);
+                }
             }
         } else {
             $query->where('surattugas.outlets_id', Auth::user()->outlets_id);
@@ -478,9 +489,14 @@ class ReportController extends Controller
 
         if (Auth::user()->role_id == 1) {
             if ($request->outlet_id_select_customer) {
-                $query->where('outlet_id', $request->outlet_id_select_customer);
-                $outlet = Outlet::find($request->outlet_id_select_customer);
-                $dataFilter['outlet'] = $outlet->name;
+                if ($request->outlet_id_select_customer != "all_outlet") {
+                    $query->where('outlet_id', $request->outlet_id_select_customer);
+                    $outlet = Outlet::find($request->outlet_id_select_customer);
+                    $dataFilter['outlet'] = $outlet->name;
+                }else{
+                    $dataFilter['outlet'] = "Semua Outlet";
+                }
+                
             }
         }else{
             $query->where('outlet_id', Auth::user()->outlets_id);
@@ -554,7 +570,9 @@ class ReportController extends Controller
 
         if (Auth::user()->role_id == 1) {
             if ($request->outlet_id_select_customer) {
-                $query->where('outlet_id', $request->outlet_id_select_customer);
+                if ($request->outlet_id_select_customer != "all_outlet") {
+                    $query->where('outlet_id', $request->outlet_id_select_customer);
+                }
             }
         } else {
             $query->where('outlet_id', Auth::user()->outlets_id);

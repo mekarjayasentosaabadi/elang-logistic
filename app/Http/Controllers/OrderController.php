@@ -563,7 +563,7 @@ class OrderController extends Controller
 
                 DB::commit();
                 Alert::success('Berhasil', 'Pesanan Berhasil Dibuat');
-                return redirect()->to('/order');
+                return redirect()->to('/order')->with('id', Crypt::encrypt($order->id));
             }
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -914,7 +914,40 @@ class OrderController extends Controller
         $originLocationOrder = Destination::find($order->outlet->location_id);
 
 
+        // format print resi old
+        // $pdf = new TCPDF;
+        // $pdf::SetFont('helvetica', '', 12);
+        // $pdf::SetTitle("$order->numberorders-pdf");
+        // $pdf::SetAuthor('Kaushal');
+        // $pdf::SetSubject('Generated PDF');
 
+
+        // // Set margin
+        // $leftMargin = 2;
+        // $topMargin = 2;
+        // $rightMargin = 3;
+        // $bottomMargin = 2;
+
+        // // Set margins to page
+        // $pdf::SetMargins($leftMargin, $topMargin, $rightMargin);
+        // $pdf::SetAutoPageBreak(true, $bottomMargin);
+
+        // //set paper size
+        // $pageWidth = 118;
+        // $pageHeight = 55;
+        // $pdf::AddPage('L', [$pageWidth, $pageHeight]);
+
+        // // Path gambar
+        // $imagePath = public_path('assets/img/logo.png');
+
+        // // HTML dengan gambar dalam tabel
+        // $html = view()->make('pages.order.print', compact('order', 'imagePath'));
+
+        // $pdf::writeHTML($html, true, false, true, false, '');
+        // $pdf::Output("$order->numberorders-pdf.pdf", 'I');
+        // $pdf::reset();
+
+        // format print resi new
         $pdf = new TCPDF;
         $pdf::SetFont('helvetica', '', 12);
         $pdf::SetTitle("$order->numberorders-pdf");
@@ -923,25 +956,25 @@ class OrderController extends Controller
 
 
         // Set margin
-        $leftMargin = 5;
-        $topMargin = 5;
-        $rightMargin = 5;
-        $bottomMargin = 5;
+        $leftMargin = 10;
+        $topMargin = 2;
+        $rightMargin = 3;
+        $bottomMargin = 0;
 
         // Set margins to page
         $pdf::SetMargins($leftMargin, $topMargin, $rightMargin);
         $pdf::SetAutoPageBreak(true, $bottomMargin);
 
         //set paper size
-        $pageWidth = 300;
-        $pageHeight = 130;
+        $pageWidth = 118;
+        $pageHeight = 64;
         $pdf::AddPage('L', [$pageWidth, $pageHeight]);
 
         // Path gambar
         $imagePath = public_path('assets/img/logo.png');
 
         // HTML dengan gambar dalam tabel
-        $html = view()->make('pages.order.print', compact('order', 'imagePath'));
+        $html = view()->make('pages.order.print1', compact('order', 'imagePath'));
 
         $pdf::writeHTML($html, true, false, true, false, '');
         $pdf::Output("$order->numberorders-pdf.pdf", 'I');
@@ -960,8 +993,12 @@ class OrderController extends Controller
 
         $order = Order::find($decrypted);
         $originLocationOrder = Destination::find($order->outlet->location_id);
-
-        return view('pages.order.print2', compact('order', 'originLocationOrder'));
+        $detailOrders = DetailOrder::where('order_id', $order->id)->get();
+        $kgVolume = 0;
+        foreach ($detailOrders as $detailOrder) {
+            $kgVolume += $detailOrder->berat_volume;
+        }
+        return view('pages.order.print2', compact('order', 'originLocationOrder', 'kgVolume'));
     }
 
 

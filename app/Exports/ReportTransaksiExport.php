@@ -17,6 +17,9 @@ class ReportTransaksiExport implements FromView, WithHeadings, WithStyles, WithC
     protected $orders;
     protected $totalWeightVolume;
     protected $totalPrice;
+    protected $totalPPN;
+    protected $totalPriceWithPPN;
+
 
     public function __construct($orders)
     {
@@ -29,11 +32,21 @@ class ReportTransaksiExport implements FromView, WithHeadings, WithStyles, WithC
     {
         $this->totalWeightVolume = 0;
         $this->totalPrice = 0;
+        $this->totalPPN = 0;
+        $this->totalPriceWithPPN = 0;
+    
+
 
         foreach ($this->orders as $order) {
-                $weightVolume = $order->weight ?? $order->volume ?? 0;
-                $this->totalWeightVolume += $weightVolume;
-                $this->totalPrice += $order->price ?? 0;
+            $weightVolume = $order->weight ?? $order->volume ?? 0;
+            $price = $order->price ?? 0;
+            $ppn = $price * 0.011;
+            $priceWithPPN = $price + $ppn;
+    
+            $this->totalWeightVolume += $weightVolume;
+            $this->totalPrice += $price;
+            $this->totalPPN += $ppn;
+            $this->totalPriceWithPPN += $priceWithPPN;
 
         }
     }
@@ -43,7 +56,9 @@ class ReportTransaksiExport implements FromView, WithHeadings, WithStyles, WithC
         return view('pages.report.excelreporttransaksi', [
             'orders' => $this->orders,
             'totalWeightVolume' => $this->totalWeightVolume,
-            'totalPrice' => $this->totalPrice
+            'totalPrice' => $this->totalPrice,
+            'totalPPN' => $this->totalPPN,
+            'totalPriceWithPPN' => $this->totalPriceWithPPN
         ]);
     }
 
@@ -51,7 +66,7 @@ class ReportTransaksiExport implements FromView, WithHeadings, WithStyles, WithC
     public function headings(): array
     {
         return [
-            'No', 'Nama Customer', 'AWB', 'Tanggal Order', 'Tanggal Finish', 'Asal', 'Destinasi', 'Volume/Berat', 'Total Volume/Berat', 'Total Harga'
+            'No', 'Nama Customer', 'AWB', 'Tanggal Order', 'Tanggal Finish', 'Asal', 'Destinasi', 'Volume/Berat', 'Total Volume/Berat', 'Total Harga', 'PPN', 'Total Harga + PPN'
         ];
     }
 
@@ -60,7 +75,7 @@ class ReportTransaksiExport implements FromView, WithHeadings, WithStyles, WithC
     {
         $lastRow = count($this->orders)+2;
 
-        $sheet->getStyle('A1:J'. $lastRow)->applyFromArray([
+        $sheet->getStyle('A1:L'. $lastRow)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN
@@ -78,7 +93,7 @@ class ReportTransaksiExport implements FromView, WithHeadings, WithStyles, WithC
     {
         return [
             AfterSheet::class => function (AfterSheet $event)  {
-                foreach (range('A', 'J') as $column) {
+                foreach (range('A', 'L') as $column) {
                     $event->sheet->getDelegate()->getColumnDimension($column)->setAutoSize(true);
                 }
             }
