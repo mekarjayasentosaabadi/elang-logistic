@@ -50,6 +50,8 @@
     @endif
     <form id="form-edit-transaksi" action="{{ url('/order/' . Crypt::encrypt($order->id)) }}" method="post">
         <input type="hidden" id="status_orders" name="status_orders" value="{{ $order->status_orders }}">
+        <input type="hidden" id="price_orders" name="price_orders" value="{{ $order->price }}">
+        <input type="hidden" id="estimation_orders" name="estimation_orders" value="{{ $order->estimation }}">
         @csrf
         <div class="row">
             <div class="col-12">
@@ -535,6 +537,10 @@
                             $('#estimation').val(response.data.estimation)
                             // $('.weight').val(response.data.minweights)
 
+                            // price dan estimasi jika destinasi dan armada dan origin dan outlet tidak ada pada master price
+                            $('#total-price').val($('#price_orders').val());
+                            $('#estimation').val($('#estimation_orders').val());
+                            
 
                             $('.weight').off('keyup').on('keyup', function() {
                                 if ($('.weight').val() > $('#kg_volume').val()) {
