@@ -370,6 +370,7 @@
 
                             $('.weight').off('keyup').on('keyup', function() {
                                 if ($('.weight').val() > $('#kg_volume').val()) {
+                                    calculateTotals();
                                     var weight = parseFloat($('.weight').val()) || 0
                                     $('.btn-send-update').attr('type', 'submit');
                                     totalPrice = 0
@@ -385,10 +386,12 @@
                                     } else {
                                         totalPrice = price;
                                     }
+
                                     $('.price').val(totalPrice.toFixed(0))
                                     $('#total-harga').text(totalPrice.toFixed(0));
                                     $('.weight').removeClass('border border-danger')
                                     calculatetotalsvolume()
+                                    
                                 } else {
                                     calculatetotalsvolume()
                                 }
@@ -445,7 +448,7 @@
                             weightField.off('keyup').on('keyup', function() {
                                 var weight = parseFloat($(this).val()) || 0;
                                 var totalPrice = 0;
-
+                                calculateTotals();
                                 if (weight > $(`#kg_volume-${rowIndex}`).val()) {
                                     $(this).removeClass('border border-danger');
 
@@ -462,7 +465,7 @@
 
                                     $(`#price-${rowIndex}`).val(totalPrice.toFixed(0));
                                 }
-                                calculateTotals();
+                                
                             });
                             // calculateTotals();
                         },
@@ -529,8 +532,10 @@
 
                         if (kgVolume > $('#weight').val()) {
                             sendEstimationRequestCalculateVolume(kgVolume);
+                            calculateTotals();
                         } else {
                             sendEstimationRequestCalculateVolume($('#weight').val());
+                            calculateTotals();
                         }
                     }
 
@@ -542,8 +547,10 @@
 
                         if (kgVolume > $('#weight').val()) {
                             sendEstimationRequestCalculateVolume(kgVolume);
+                            calculateTotals();
                         } else {
                             sendEstimationRequestCalculateVolume($('#weight').val());
+                            calculateTotals();
                         }
                     }
 
@@ -555,8 +562,10 @@
 
                         if (kgVolume > $('#weight').val()) {
                             sendEstimationRequestCalculateVolume(kgVolume);
+                            calculateTotals();
                         } else {
                             sendEstimationRequestCalculateVolume($('#weight').val());
+                            calculateTotals();
                         }
                     }
 
@@ -669,7 +678,7 @@
                             } else if ($('#armada').val() == 3) {
                                 totalPrice = totalPriceKg;
                             }
-
+                            
                             $('#price').val(totalPrice.toFixed(0))
 
                             $('#total-harga').text(totalPrice.toFixed(0));

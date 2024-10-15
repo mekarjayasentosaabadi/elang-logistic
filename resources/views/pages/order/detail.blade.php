@@ -74,7 +74,7 @@
                                     <p>Destinasi: {{ $order->destination->name }}</p>
                                     <p>Jenis Barang: {{ $order->service == 1 ? 'Document' : 'Package' }}</p>
                                     <p>Koli: {{ $order->koli ?? '-' }}</p>
-                                    <p>Berat: {{ $order->weight ?? '-' }}</p>
+                                    <p>Berat: {{ $order->weight ?? '-' }} Kg</p>
                                     <p>Volume: {{ $order->volume ?? '-' }}</p>
                                     <p>Harga: {{ formatRupiah($order->price) ?? '-' }}</p>
                                     <p>Metode Pembayaran:
@@ -190,7 +190,7 @@
                         </div>
                         <hr>
                         <div class="d-flex flex-wrap gap-2">
-                            <p>Total Berat: <b>{{ $orderWeight }}</b></p> |
+                            <p>Total Berat: <b>{{ $orderWeight }}</b> Kg</p> |
                             <p>Total Harga: <b>{{ formatRupiah($orderPrice) }}</b></p>
                         </div>
                     </div>
