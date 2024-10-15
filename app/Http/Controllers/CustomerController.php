@@ -241,7 +241,7 @@ class CustomerController extends Controller
             }
         } catch (Exception $error) {
             return ResponseFormatter::error([$error], 'Gagal Memperbaharui data');
-        }
+        }   
     }
 
     function getcustomerprice($id){
@@ -328,7 +328,7 @@ class CustomerController extends Controller
             'origin_id'         => $request->origin,
             'destinations_id'   => $request->destination,
             'price'             => $request->price,
-            'minweight'         => $request->minweight,
+            'minweights'         => $request->minweight,
             'nextweightprices'  => $request->pricenext,
             'minimumprice'      => $request->minimumprice,
             'estimation'        => $request->estimation
