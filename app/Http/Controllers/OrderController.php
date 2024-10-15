@@ -547,8 +547,8 @@ class OrderController extends Controller
                         'lebar'         => $lebars[$index],
                         'tinggi'        => $tinggis[$index],
                         'total_volume'  => $total_volumes[$index],
-                        'berat_volume'  => $kg_volumes[$index],
-                        'harga'         => $prices[$index],
+                        'berat_volume'  => $kg_volumes[$index] ?? 0,
+                        'harga'         => $prices[$index] ?? 0,
                     ]);
                 }
 
