@@ -2,13 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use App\Models\Outlet;
+use App\Models\Destination;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
-use RealRashid\SweetAlert\Facades\Alert;
 use Yajra\DataTables\DataTables;
+use App\Helper\ResponseFormatter;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Crypt;
+use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
 
 class OutletController extends Controller
 {
@@ -23,8 +27,8 @@ class OutletController extends Controller
     public function getAll()
     {
 
+        // $q = Outlet::with(['operators'])->get();
         $q = Outlet::query();
-
 
         return DataTables::of($q)
             ->editColumn('type', function ($query) {
@@ -42,22 +46,33 @@ class OutletController extends Controller
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 me-50"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                             <span>Edit</span>
                         </a>
-                         <a class="dropdown-item"  href="' . url('/outlet/' . $encryptId) . '" data-confirm-delete="true">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash me-50"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                            <span>Hapus</span>
-                        </a>
+
                     </div>
                 </div>';
                 return $btn;
             })
-            ->rawColumns(['aksi'])
+            ->addColumn('toogle', function ($x) {
+                $checked = $x->is_active == '1' ? 'checked' : '';
+                $toogle = '';
+                $toogle .= '<div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" ' . $checked . ' id="paymentTerms" onclick="changeStatus(this, ' . $x->id . ')" />
+                                <label class="form-check-label" for="paymentTerms"></label>
+                            </div>';
+                return $toogle;
+            })
+            ->rawColumns(['aksi', 'operator', 'toogle'])
             ->addIndexColumn()
             ->make(true);
+            // <a class="dropdown-item"  href="' . url('/outlet/' . $encryptId) . '" data-confirm-delete="true">
+            // <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash me-50"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            // <span>Hapus</span>
+            // </a>
     }
 
     public function create()
     {
-        return view('pages.outlet.create');
+        $destination = Destination::all();
+        return view('pages.outlet.create', compact('destination'));
     }
 
 
@@ -65,10 +80,11 @@ class OutletController extends Controller
     {
         $validate = Validator::make($request->all(), [
             'name' => Rule::unique('outlets', 'name'),
+            'email' => Rule::unique('outlets', 'email')
         ]);
 
         if ($validate->fails()) {
-            Alert::error('Gagal', 'Nama Outlet Sudah Ada');
+            Alert::error('Gagal', 'Nama Outlet Sudah Ada atau Email sudah ada');
             return redirect()->back()->withInput();
         }
 
@@ -87,17 +103,19 @@ class OutletController extends Controller
     {
         $id = Crypt::decrypt($id);
         $outlet = Outlet::find($id);
-        return view('pages.outlet.edit', compact('outlet'));
+        $destination = Destination::all();
+        return view('pages.outlet.edit', compact('outlet', 'destination'));
     }
 
     function update(Request $request, $id)
     {
         $validate = Validator::make($request->all(), [
             'name' => Rule::unique('outlets', 'name')->ignore(Crypt::decrypt($id)),
+            'email' => Rule::unique('outlets', 'email')->ignore(Crypt::decrypt($id))
         ]);
 
         if ($validate->fails()) {
-            Alert::error('Gagal', 'Nama Outlet Sudah Ada');
+            Alert::error('Gagal', 'Nama Outlet Sudah Ada atau Email sudah terdaftar');
             return redirect()->back()->withInput();
         }
 
@@ -124,6 +142,29 @@ class OutletController extends Controller
         } else {
             Alert::error('Gagal', 'Outlet Gagal Dihapus');
             return redirect()->back();
+        }
+    }
+
+    function changeStatus(Request $request, $id)
+    {
+        try {
+            $status = Outlet::find($id);
+            if ($status->is_active == '1') {
+                $update = [
+                    'is_active' => '0'
+                ];
+                $status->update($update);
+                return ResponseFormatter::success([$status], 'Berhasil Menon Aktifkan Outlet');
+            } else {
+                $update = [
+                    'is_active' => '1'
+                ];
+                $status->update($update);
+                return ResponseFormatter::success([$status], 'Berhasil Mengaktifkan Outlet');
+            }
+
+        } catch (Exception $error) {
+            return ResponseFormatter::error([$error], 'Gagal Memperbaharui data');
         }
     }
 }

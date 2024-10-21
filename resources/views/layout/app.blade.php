@@ -3,8 +3,9 @@
 <!-- BEGIN: Head-->
 
 <head>
+    @include('layout.meta')
+    <title>Layout Empty - Vuexy - Bootstrap HTML admin template</title>
 
-    <title>Elang Logistics</title>
     @include('layout.css')
     @yield('custom-css')
 
@@ -49,6 +50,7 @@
     @include('layout.js')
 
     @yield('custom-js')
+    @include('sweetalert::alert')
 </body>
 <!-- END: Body-->
 

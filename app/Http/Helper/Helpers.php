@@ -1,12 +1,14 @@
 <?php
 
 use App\Models\Order;
+use App\Models\ShippingCourier;
+use Illuminate\Support\Facades\Auth;
 
 if (!function_exists('listMenu')) {
     function listMenu($role)
     {
         $data = [];
-        if ($role == 'superadmin') {
+        if ($role == 1 || $role == 2) {
             $data = [
                 [
                     'title' => 'Dashboard',
@@ -26,6 +28,11 @@ if (!function_exists('listMenu')) {
                             'icon' => 'circle'
                         ],
                         [
+                            'title' => 'Destinasi',
+                            'url' => '/destination',
+                            'icon' => 'circle'
+                        ],
+                        [
                             'title' => 'Outlet',
                             'url' => '/outlet',
                             'icon' => 'circle'
@@ -37,7 +44,12 @@ if (!function_exists('listMenu')) {
                         ],
                         [
                             'title' => 'Harga Public',
-                            'url' => '/price',
+                            'url' => '/masterprice',
+                            'icon' => 'circle'
+                        ],
+                        [
+                            'title' => 'Kendaraan',
+                            'url' => '/vehicle',
                             'icon' => 'circle'
                         ]
                     ]
@@ -58,9 +70,14 @@ if (!function_exists('listMenu')) {
                             'url' => '/manifest',
                             'icon' => 'circle'
                         ],
+                        // [
+                        //     'title' => 'Surat Jalan',
+                        //     'url' => '/delivery',
+                        //     'icon' => 'circle'
+                        // ],
                         [
-                            'title' => 'Surat Jalan',
-                            'url' => '/delivery',
+                            'title' => 'Surat Tugas',
+                            'url' => '/surattugas',
                             'icon' => 'circle'
                         ],
                         [
@@ -72,6 +89,12 @@ if (!function_exists('listMenu')) {
                     ]
                 ],
                 [
+                    'title' => 'Shipping Courier',
+                    'url' => '/shipping-courier',
+                    'hasChild' => false,
+                    'icon' => 'truck'
+                ],
+                [
                     'title' => 'Cek Resi',
                     'url' => '/cek-resi',
                     'hasChild' => false,
@@ -79,9 +102,91 @@ if (!function_exists('listMenu')) {
                 ],
                 [
                     'title' => 'Laporan',
-                    'url' => 'Report',
+                    'url' => '/report',
                     'hasChild' => false,
                     'icon' => 'file'
+                ],
+                [
+                    'title' => 'Profile',
+                    'url' => '/profile',
+                    'hasChild' => false,
+                    'icon' => 'users'
+                ]
+            ];
+        }
+        if ($role == 3) {
+            $data = [
+                [
+                    'title' => 'Shipping Courier',
+                    'url' => '/shipping-courier',
+                    'hasChild' => false,
+                    'icon' => 'truck'
+                ],
+                [
+                    'title' => 'Profile',
+                    'url' => '/profile',
+                    'hasChild' => false,
+                    'icon' => 'users'
+                ]
+            ];
+        }
+        if ($role == 4) {
+            $data = [
+                [
+                    'title' => 'Order',
+                    'url' => '/order',
+                    'icon' => 'shopping-cart',
+                    'hasChild' => false
+                ],
+                [
+                    'title' => 'Cek Resi',
+                    'url' => '/cek-resi',
+                    'icon' => 'search',
+                    'hasChild' => false
+                ],
+                [
+                    'title' => 'Profile',
+                    'url' => '/profile',
+                    'hasChild' => false,
+                    'icon' => 'users'
+                ]
+            ];
+        }
+        if ($role == 5) {
+            $data = [
+                [
+                    'title' => 'Update Status Kendaraan',
+                    'url' => '/update-vehicle',
+                    'hasChild' => false,
+                    'icon' => 'truck'
+                ],
+                [
+                    'title' => 'Profile',
+                    'url' => '/profile',
+                    'hasChild' => false,
+                    'icon' => 'users'
+                ]
+            ];
+        }
+        if ($role == 6) {
+            $data = [
+                [
+                    'title' => 'Dashboard',
+                    'url' => '/',
+                    'hasChild' => false,
+                    'icon' => 'home'
+                ],
+                [
+                    'title' => 'Log Actifity',
+                    'url' => '/logactifity',
+                    'hasChild' => false,
+                    'icon' => 'clock'
+                ],
+                [
+                    'title' => 'Profile',
+                    'url' => '/profile',
+                    'hasChild' => false,
+                    'icon' => 'users'
                 ]
             ];
         }
@@ -107,6 +212,12 @@ if (!function_exists('role')) {
             case 4:
                 $data = 'Customer';
                 break;
+            case 5:
+                $data = 'Driver';
+                break;
+            case 6:
+                $data = 'Directur';
+                break;
         }
         return $data;
     }
@@ -122,6 +233,25 @@ if (!function_exists('typeOutlet')) {
                 break;
             case 2:
                 $data = 'Agen';
+                break;
+        }
+        return $data;
+    }
+}
+
+if (!function_exists('typeVehicle')) {
+    function typeVehicle($type)
+    {
+        $data = '';
+        switch ($type) {
+            case 1:
+                $data = "Truck Continer";
+                break;
+            case 2:
+                $data = "Truck BOX";
+                break;
+            case 3:
+                $data = "Truck Pickup";
                 break;
         }
         return $data;
@@ -213,6 +343,22 @@ if (!function_exists('generateAwb')) {
     {
         $last = Order::count();
         $data = 'EL' . str_pad($last + 1, 8, '0', STR_PAD_LEFT);
+        return $data;
+    }
+}
+
+if (!function_exists('formatRupiah')) {
+    function formatRupiah($angka)
+    {
+        return 'Rp ' . number_format($angka, 0, ',', '.');
+    }
+}
+
+if (!function_exists('generateShippingNo')) {
+    function generateShippingNo()
+    {
+        $last = ShippingCourier::count();
+        $data = 'SC' . str_pad($last + 1, 8, '0', STR_PAD_LEFT);
         return $data;
     }
 }

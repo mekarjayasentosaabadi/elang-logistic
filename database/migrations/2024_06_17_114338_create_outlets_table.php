@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('outlets', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('ops_id');
+            $table->unsignedBigInteger('location_id');
             $table->string('name');
             $table->string('address');
             $table->string('phone');
@@ -20,6 +22,7 @@ return new class extends Migration
             $table->string('lat');
             $table->string('long');
             $table->integer('type')->default(1)->comment('1: Cabang, 2: Agen');
+            $table->enum('is_active',['0','1'])->comment('0: Non Aktif, 1: Aktif')->default('1');
             $table->timestamps();
         });
     }

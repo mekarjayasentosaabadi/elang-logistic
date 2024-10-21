@@ -18,6 +18,10 @@ return new class extends Migration
             $table->integer('armada')->default(1)->comment('1 = Darat, 2 = Laut, 3 = Udara');
             $table->integer('destination_id');
             $table->integer('price');
+            $table->integer('minweights')->default(10);
+            $table->integer('nextweightprices');
+            $table->integer('minimumprice');
+            $table->unsignedBigInteger('masterprices_id');
             $table->integer('estimation');
             $table->timestamps();
         });

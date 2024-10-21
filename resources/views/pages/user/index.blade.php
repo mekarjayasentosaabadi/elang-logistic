@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Daftar Pengguna</h4>
-                    <a href="{{ url('/user/create') }}" class="btn btn-primary">Tambah Pengguna</a>
+                    <a href="{{ url('/user/create') }}" class="btn btn-primary"><li class="fa fa-plus"></li> Tambah Pengguna</a>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -20,9 +20,11 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
+                                    <th>Photos</th>
                                     <th>Nama</th>
                                     <th>Email</th>
                                     <th>Role</th>
+                                    <th>Status Aktif</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -49,23 +51,39 @@
                 },
                 columns: [{
                         data: 'DT_RowIndex',
-                        orderable: false,
+                        orderable : false,
+                        searchable: false
+                    },
+                    {
+                        data: 'pictures',
+                        name: 'pictures',
+                        searchable:false
                     },
                     {
                         data: 'name',
-                        name: 'name'
+                        name: 'name',
+                        searchable:true
                     },
                     {
                         data: 'email',
-                        name: 'email'
+                        name: 'email',
+                        searchable:true
                     },
                     {
                         data: 'role_id',
-                        name: 'role_id'
+                        name: 'role_id',
+                        searchable:true
+                    },
+                    {
+                        data: 'is_active',
+                        name: 'is_active',
+                        searchable:true
                     },
                     {
                         data: 'aksi',
-                        name: 'aksi'
+                        name: 'aksi',
+                        orderable:false,
+                        searchable:false
                     }
                 ]
             });

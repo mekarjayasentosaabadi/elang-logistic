@@ -6,7 +6,7 @@
 @endsection
 
 @section('custom-css')
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets') }}/app-assets/vendors/css/maps/leaflet.min.css">
+
 @endsection
 
 @section('content')
@@ -15,6 +15,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Tambah Outlet</h4>
+                    <a href="{{ route('outlet.index') }}" class="btn btn-warning btn-md"><li class="fa fa-undo"></li> Kembali</a>
                 </div>
                 <div class="card-body">
                     <form action="{{ url('/outlet') }}" method="post" id="formValidate">
@@ -22,7 +23,16 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group mb-2">
-                                    <label for="name">Nama</label>
+                                    <label for="location">Location</label>
+                                    <select name="location_id" id="location" class="form-control select2">
+                                        <option value="">-- Select location --</option>
+                                        @foreach ($destination as $item)
+                                            <option value="{{ $item->id }}">{{ $item->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group mb-2">
+                                    <label for="name">Nama Outlet</label>
                                     <input type="text" name="name" id="name" value="{{ old('name') }}"
                                         class="form-control" required>
                                 </div>
@@ -32,64 +42,22 @@
                                         class="form-control" required>
                                 </div>
                                 <div class="row">
-                                    <div class="col-md-5">
+                                    <div class="col-md-6">
                                         <div class="form-group mb-2">
                                             <label for="lat">Latitude</label>
                                             <input type="text" name="lat" id="lat" value="{{ old('lat') }}"
                                                 class="form-control" readonly required>
                                         </div>
                                     </div>
-                                    <div class="col-md-5">
+                                    <div class="col-md-6">
                                         <div class="form-group mb-2">
                                             <label for="long">Longitude</label>
                                             <input type="text" name="long" id="long" value="{{ old('long') }}"
                                                 class="form-control" readonly required>
                                         </div>
                                     </div>
-                                    <div class="col-md-2 ">
-                                        <button type="button" class="btn btn-warning mt-2 mb-2" data-bs-toggle="modal"
-                                            data-bs-target="#default">
-                                            <i class="fas fa-search"></i>
-                                        </button>
-
-                                        <!-- Modal -->
-                                        <div class="modal fade text-start" id="default" tabindex="-1"
-                                            data-bs-backdrop="static" data-bs-keyboard="false"
-                                            aria-labelledby="addressModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-lg">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h4 class="modal-title" id="addressModalLabel">Pilih Lokasi</h4>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div id="map" style="height: 400px;"></div>
-                                                        <div class="row mt-3">
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="findlat">Latitude</label>
-                                                                    <input type="text" name="findlat" id="findlat"
-                                                                        class="form-control">
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <div class="form-group">
-                                                                    <label for="findlong">Longitude</label>
-                                                                    <input type="text" name="findlong" id="findlong"
-                                                                        class="form-control">
-                                                                </div>
-
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" id="btnPilih" class="btn btn-primary"
-                                                            data-bs-dismiss="modal">Pilih</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="col-12">
+                                        <div id="maps" class="leaflet-container"></div>
                                     </div>
                                 </div>
 
@@ -115,7 +83,7 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary float-end">Simpan</button>
+                        <button type="submit" class="btn btn-primary float-end"><li class="fa fa-save"></li> Simpan</button>
                     </form>
                 </div>
             </div>
@@ -126,31 +94,43 @@
 
 
 @section('custom-js')
-    <script src="{{ asset('assets') }}/app-assets/vendors/js/maps/leaflet.min.js"></script>
 
     <script>
+        let markers;
+        let latitude = -7.351564695753717
+        let longitude = 108.63515798523339
+        var zoomLevel = 13;
+        var maps = L.map('maps').setView([latitude, longitude], zoomLevel);
+
+        // Menambahkan tile layer dari OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(maps);
+
+        // Menambahkan marker di koordinat yang ditentukan
+        function marker(latitude, longitude) {
+            // var marker
+            if(markers != undefined){
+                markers.remove()
+            }
+            markers = L.marker([latitude, longitude]).addTo(maps)
+                .bindPopup('Lokasi Kantor.')
+                .openPopup();
+        }
+
+        maps.on('click', function(e) {
+            let latitude = e.latlng.lat.toString().substring(0, 15);
+            let longitude = e.latlng.lng.toString().substring(0, 15);
+            $('#lat').val(latitude);
+            $('#long').val(longitude);
+            updateMarker(latitude, longitude);
+        })
+        function updateMarker(latitude, longitude) {
+            marker(latitude, longitude);
+        }
         var formValidate = $('#formValidate');
-        $(() => {
-            var mapCenter = [-6.2765247, 106.9589698];
-
-            // Initialize the map
-            var map = L.map('map').setView(mapCenter, 8);
-
-            // Set basemap tiles (choose a provider like OpenStreetMap)
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-
-            // add 3 markers
-            const markers = [-6.2765247, 106.9589698]
-
-            marker = L.marker(markers, {
-                draggable: true
-            }).addTo(map).on('dragend', function(e) {
-                var coord = e.target.getLatLng();
-                $('#findlat').val(coord.lat);
-                $('#findlong').val(coord.lng);
-            });
+        $(document).ready(function(){
+            $('.select2').select2();
 
             formValidate.validate({
                 rules: {
@@ -201,15 +181,6 @@
                     }
                 }
             })
-
-        })
-
-        $('#btnPilih').click(() => {
-            var lat = $('#findlat').val();
-            var long = $('#findlong').val();
-
-            $('#lat').val(lat);
-            $('#long').val(long);
         })
     </script>
 @endsection

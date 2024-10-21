@@ -9,10 +9,14 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
+        "elibyy/tcpdf-laravel": "^11.1",
         "guzzlehttp/guzzle": "^7.2",
+        "intervention/image": "^3.7",
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "maatwebsite/excel": "^3.1",
+        "milon/barcode": "^11.0",
         "realrashid/sweet-alert": "^7.2",
         "yajra/laravel-datatables": "^10.0"
     },
@@ -32,7 +36,9 @@
             "Database\\Seeders\\": "database/seeders/"
         },
         "files": [
-            "app/Http/Helper/Helpers.php"
+            "app/Http/Helper/Helpers.php",
+            "app/Helper/ResponseFormatter.php",
+            "app/Helper/Helpers.php"
         ]
     },
     "autoload-dev": {

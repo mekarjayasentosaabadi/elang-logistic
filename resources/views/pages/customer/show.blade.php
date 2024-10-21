@@ -12,22 +12,30 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Detail Customer</h4>
+                    <a href="{{ route('customer.index') }}" class="btn btn-warning"> Kembali </a>
                 </div>
                 <div class="card-body">
-                    <table class="table ">
-                        <tr>
-                            <th width="20%">Nama</th>
-                            <td>: {{ $customer->name }}</td>
-                        </tr>
-                        <tr>
-                            <th>Email</th>
-                            <td>: {{ $customer->email }}</td>
-                        </tr>
-                        <tr>
-                            <th>Phone</th>
-                            <td>: {{ $customer->phone }}</td>
-                        </tr>
-                    </table>
+                    <div class="row">
+                        <div class="col-md-2 col-lg-2 col-sm-12">
+                            <img src="{{ Storage::url('customer/'.$customer->pictures) }}" alt="" class="img-thumnail">
+                        </div>
+                        <div class="col-md-10 col-lg-10 col-sm-12">
+                            <table class="table ">
+                                <tr>
+                                    <th width="20%">Nama</th>
+                                    <td>: {{ $customer->name }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email</th>
+                                    <td>: {{ $customer->email }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone</th>
+                                    <td>: {{ $customer->phone }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -37,12 +45,13 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title">Harga Customer</h4>
+                    <button class="btn btn-primary btn-md"><i class="fa fa-recycle"></i> Generate Harga Customer</button>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-3 col-sm-12">
                             <ul class="nav nav-pills flex-column">
-                                @foreach ($customer_prices as $customer_price)
+                                {{-- @foreach ($customer_prices as $customer_price)
                                     <li class="nav-item">
                                         <a class="nav-link {{ $loop->first ? 'active' : '' }}"
                                             id="stacked-pill-{{ $loop->iteration }}" data-bs-toggle="pill"
@@ -50,12 +59,12 @@
                                             {{ $customer_price['outlet'] }}
                                         </a>
                                     </li>
-                                @endforeach
+                                @endforeach --}}
                             </ul>
                         </div>
                         <div class="col-md-9 col-sm-12">
                             <div class="tab-content">
-                                @foreach ($customer_prices as $i => $customer_price)
+                                {{-- @foreach ($customer_prices as $i => $customer_price)
                                     <div role="tabpanel" class="tab-pane {{ $loop->first ? 'active' : '' }}"
                                         id="vertical-pill-{{ $loop->iteration }}"
                                         aria-labelledby="stacked-pill-{{ $loop->iteration }}" aria-expanded="true">
@@ -99,7 +108,7 @@
                                             @endforeach
                                         </div>
                                     </div>
-                                @endforeach
+                                @endforeach --}}
                             </div>
                         </div>
                     </div>

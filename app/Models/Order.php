@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Outlet;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Order extends Model
 {
@@ -14,11 +15,48 @@ class Order extends Model
 
     function customer()
     {
-        return $this->belongsTo(Customer::class, 'customer_id');
+        return $this->belongsTo(User::class, 'customer_id', 'id');
     }
 
     function histories()
     {
         return $this->hasMany(HistoryAwb::class, 'order_id');
+    }
+
+    function outlet()
+    {
+        return $this->belongsTo(Outlet::class, 'outlet_id', 'id');
+    }
+
+    function destination()
+    {
+        return $this->belongsTo(Destination::class, 'destinations_id', 'id');
+    }
+
+    function pengambilan()
+    {
+        return $this->belongsTo(Destination::class, 'pengambilan_id', 'id');
+    }
+
+    //relation to detailmanifests
+    function detailmanifests()
+    {
+        return $this->hasOne(Detailmanifest::class, 'orders_id', 'id');
+    }
+
+    function detailshippingcourier()
+    {
+        return $this->hasMany(DetailShippingCourier::class, 'orders_id', 'id');
+    }
+
+    function historyupdateorders()
+    {
+        return $this->hasMany(HistoryUpdateOrder::class, 'order_id', 'id');
+    }
+
+
+    function users()
+    {
+        return $this->belongsTo(User::class, 'customer_id', 'id');
     }
 }

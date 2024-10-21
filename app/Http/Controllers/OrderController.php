@@ -2,35 +2,232 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
-use App\Models\Destination;
+use PDF;
+use Carbon\Carbon;
+use App\Models\User;
 use App\Models\Order;
+use App\Models\Outlet;
+use App\Models\Customer;
+use App\Models\HistoryAwb;
+use App\Models\Destination;
+use App\Models\DetailOrder;
+use App\Models\Masterprice;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\DB;
-use RealRashid\SweetAlert\Facades\Alert;
+use App\Models\CustomerPrice;
+use Elibyy\TCPDF\Facades\TCPDF;
 use Yajra\DataTables\DataTables;
+use App\Models\HistoryUpdateOrder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+use RealRashid\SweetAlert\Facades\Alert;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class OrderController extends Controller
 {
     function index()
     {
-        return view('pages.order.index');
+        confirmDelete('Batalkan Transaksi', 'Apakah Anda Yakin Ingin Membatalkan Transaksi Ini?');
+        $destinations = Destination::all();
+        return view('pages.order.index', compact('destinations'));
     }
 
-    public function getAll()
+
+
+
+    function getAll(Request $request)
+    {
+        if (Auth::user()->role_id == '1') {
+            $q = Order::with('customer', 'histories', 'destination');
+        } else if (Auth::user()->role_id == '4') {
+            $q = Order::with('customer', 'histories', 'destination')->where('customer_id', Auth::user()->id);
+        } else {
+            $q = Order::where('outlet_id', Auth::user()->outlets_id)->with('customer', 'histories', 'destination');
+        }
+
+        // filter status orders
+        if ($request->status_order) {
+            $q->where('status_orders', $request->status_order);
+        }
+
+        // filter pengembalian
+        if ($request->destinasi) {
+            $q->where('destinations_id', $request->destinasi);
+        }
+
+
+        // filter status keterlambatan
+        if ($request->has('keterlambatan')) {
+            $status = $request->input('keterlambatan');
+            $q->where(function ($q) use ($status) {
+                $now = Carbon::now();
+                $q->where(function ($subQuery) use ($status, $now) {
+                    // Handle status 'Terlambat'
+                    if ($status == 'Terlambat') {
+                        $subQuery->whereRaw('DATE_ADD(created_at, INTERVAL estimation DAY) < ?', [$now]);
+                    }
+
+                    // Handle status 'Hampir Terlambat'
+                    elseif ($status == 'Hampir Terlambat') {
+                        $subQuery->whereRaw('DATEDIFF(DATE_ADD(created_at, INTERVAL estimation DAY), ?) = 1', [$now]);
+                    }
+
+                    // Handle status 'Masih Dalam Estimasi'
+                    elseif ($status == 'Masih Dalam Estimasi') {
+                        $subQuery->whereRaw('DATE_ADD(created_at, INTERVAL estimation DAY) > ?', [$now])
+                            ->whereRaw('DATEDIFF(DATE_ADD(created_at, INTERVAL estimation DAY), ?) > 1', [$now]);
+                    }
+
+                    // Handle status 'Tepat Waktu'
+                    elseif ($status == 'Tepat Waktu') {
+                        $subQuery->where('status_orders', 4)->whereRaw('DATE_ADD(created_at, INTERVAL estimation DAY) >= ?', [$now]);
+                    }
+
+                    // Handle status 'Belum Ada Estimasi'
+                    elseif ($status == 'Belum Ada Estimasi') {
+                        $subQuery->whereNull('estimation');
+                    }
+                });
+            });
+        }
+
+
+        $q->orderByRaw("
+            CASE
+                WHEN status_orders = 1 THEN 1
+                WHEN status_orders = 2 THEN 2
+                WHEN status_orders = 3 THEN 3
+                WHEN status_orders = 4 THEN 4
+            END
+        ");
+
+        return DataTables::of($q)
+            ->editColumn('destination', function ($query) {
+                return $query->destination->name ?? '-';
+            })
+            ->addColumn('numberorders', function ($query) {
+                return $query->numberorders ?? '-';
+            })
+            ->addColumn('pengirim', function ($query) {
+                return $query->customer->name ?? '-';
+            })
+            ->addColumn('penerima', function ($query) {
+                return $query->penerima ?? '-';
+            })
+            ->editColumn('status_orders', function ($query) {
+                $html = status_html($query->status_orders);
+                $html .= '<small class="text-sm"><br/><i class="fas fa-truck"></i> ' . $query->status_awb . '</small>';
+                return  $html;
+            })
+            ->editColumn('estimation', function ($q) {
+
+                $createdAt = Carbon::parse($q->created_at);
+                $estimation = $q->estimation;
+
+                $estimatedDate = $createdAt->copy()->addDays($estimation);
+
+                $now = Carbon::now();
+
+                if ($estimation !== null) {
+                    if ($q->status_orders == 3) {
+                        $status = "<span class='badge bg-success'>Selesai</span>";
+                    } else if ($q->status_orders == 3 && $now->lessThanOrEqualTo($estimatedDate)) {
+                        $status = "<span class='badge bg-success'>Tepat Waktu</span>";
+                    } elseif ($now->greaterThan($estimatedDate)) {
+                        $status = "<span class='badge bg-danger'>Terlambat</span>";
+                    } elseif ($now->diffInDays($estimatedDate) == 1) {
+                        $status = "<span class='badge bg-warning'>Hampir Terlambat</span>";
+                    } else {
+                        $status = "<span class='badge bg-primary'>Masih Dalam Estimasi</span>";
+                    }
+                } else {
+                    $status = "<span class='badge bg-info'>Belum Ada Estimasi</span>";
+                }
+                $html = $q->estimation > 0 ? $q->estimation . 'hari' : '-';
+                $date_finish = Carbon::parse($q->created_at)->addDays($q->estimation)->format('d-m-Y');
+                $html .= '<small class="text-sm"><br/> ' . $date_finish . '</small>';
+                $html .= '<small class="text-sm"><br/> ' . $status . '</small>';
+                return $html;
+            })
+
+            ->editColumn('created_at', function ($query) {
+                return $query->created_at ? $query->created_at->format('d-m-Y') : '-';
+            })
+            ->editColumn('note', function ($query) {
+                return $query->note ??  '-';
+            })
+            ->addColumn('aksi', function ($query) {
+                $encryptId = Crypt::encrypt($query->id);
+                $btn = '';
+                $btn .= '<div class="dropdown">
+                        <button type="button" class="btn btn-sm dropdown-toggle hide-arrow py-0 waves-effect waves-float waves-light" data-bs-toggle="dropdown">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item"  href="' . url('/order/' . $encryptId . '/detail') . '">
+                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <span>Detail</span>
+                        </a>';
+                if ($query->status_orders == 1 && Auth::user()->role_id != 4) {
+                    $btn .= '<a class="dropdown-item"  href="' . url('/order/' . $encryptId . '/edit') . '">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 me-50"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                                <span>Edit</span>
+                            </a>
+                            <a class="dropdown-item"  href="' . url('/order/' . $encryptId) . '" data-confirm-delete="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash me-50"><polyline points="3 6 5 6 21 6"></polyline><path d="M16 6l-1 14-10-1"></path></svg>
+                                <span>Batalkan</span>
+                            </a>
+                            <a class="dropdown-item"  href="' . url('/order/' . $encryptId . '/print-v2') . '" target="_blank">
+                                <?xml version="1.0" encoding="utf-8"?><svg width="14" height="14"  version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 114.13" style="enable-background:new 0 0 122.88 114.13" xml:space="preserve"><g><path d="M23.2,29.44V3.35V0.53C23.2,0.24,23.44,0,23.73,0h2.82h54.99c0.09,0,0.17,0.02,0.24,0.06l1.93,0.8l-0.2,0.49l0.2-0.49 c0.08,0.03,0.14,0.08,0.2,0.14l12.93,12.76l0.84,0.83l-0.37,0.38l0.37-0.38c0.1,0.1,0.16,0.24,0.16,0.38v1.18v13.31 c0,0.29-0.24,0.53-0.53,0.53h-5.61c-0.29,0-0.53-0.24-0.53-0.53v-6.88H79.12H76.3c-0.29,0-0.53-0.24-0.53-0.53 c0-0.02,0-0.03,0-0.05v-2.77h0V6.69H29.89v22.75c0,0.29-0.24,0.53-0.53,0.53h-5.64C23.44,29.97,23.2,29.73,23.2,29.44L23.2,29.44z M30.96,67.85h60.97h0c0.04,0,0.08,0,0.12,0.01c0.83,0.02,1.63,0.19,2.36,0.49c0.79,0.33,1.51,0.81,2.11,1.41 c0.59,0.59,1.07,1.31,1.4,2.1c0.3,0.73,0.47,1.52,0.49,2.35c0.01,0.04,0.01,0.08,0.01,0.12v0v9.24h13.16h0c0.04,0,0.07,0,0.11,0.01 c0.57-0.01,1.13-0.14,1.64-0.35c0.57-0.24,1.08-0.59,1.51-1.02c0.43-0.43,0.78-0.94,1.02-1.51c0.21-0.51,0.34-1.07,0.35-1.65 c-0.01-0.03-0.01-0.07-0.01-0.1v0V43.55v0c0-0.04,0-0.07,0.01-0.11c-0.01-0.57-0.14-1.13-0.35-1.64c-0.24-0.56-0.59-1.08-1.02-1.51 c-0.43-0.43-0.94-0.78-1.51-1.02c-0.51-0.22-1.07-0.34-1.65-0.35c-0.03,0.01-0.07,0.01-0.1,0.01h0H11.31h0 c-0.04,0-0.08,0-0.11-0.01c-0.57,0.01-1.13,0.14-1.64,0.35C9,39.51,8.48,39.86,8.05,40.29c-0.43,0.43-0.78,0.94-1.02,1.51 c-0.21,0.51-0.34,1.07-0.35,1.65c0.01,0.03,0.01,0.07,0.01,0.1v0v35.41v0c0,0.04,0,0.08-0.01,0.11c0.01,0.57,0.14,1.13,0.35,1.64 c0.24,0.57,0.59,1.08,1.02,1.51C8.48,82.65,9,83,9.56,83.24c0.51,0.22,1.07,0.34,1.65,0.35c0.03-0.01,0.07-0.01,0.1-0.01h0h13.16 v-9.24v0c0-0.04,0-0.08,0.01-0.12c0.02-0.83,0.19-1.63,0.49-2.35c0.31-0.76,0.77-1.45,1.33-2.03c0.02-0.03,0.04-0.06,0.07-0.08 c0.59-0.59,1.31-1.07,2.1-1.4c0.73-0.3,1.52-0.47,2.36-0.49C30.87,67.85,30.91,67.85,30.96,67.85L30.96,67.85L30.96,67.85z M98.41,90.27v17.37v0c0,0.04,0,0.08-0.01,0.12c-0.02,0.83-0.19,1.63-0.49,2.36c-0.33,0.79-0.81,1.51-1.41,2.11 c-0.59,0.59-1.31,1.07-2.1,1.4c-0.73,0.3-1.52,0.47-2.35,0.49c-0.04,0.01-0.08,0.01-0.12,0.01h0H30.96h0 c-0.04,0-0.08-0.01-0.12-0.01c-0.83-0.02-1.62-0.19-2.35-0.49c-0.79-0.33-1.5-0.81-2.1-1.4c-0.6-0.6-1.08-1.31-1.41-2.11 c-0.3-0.73-0.47-1.52-0.49-2.35c-0.01-0.04-0.01-0.08-0.01-0.12v0V90.27H11.31h0c-0.04,0-0.08,0-0.12-0.01 c-1.49-0.02-2.91-0.32-4.2-0.85c-1.39-0.57-2.63-1.41-3.67-2.45c-1.04-1.04-1.88-2.28-2.45-3.67c-0.54-1.3-0.84-2.71-0.85-4.2 C0,79.04,0,79,0,78.96v0V43.55v0c0-0.04,0-0.08,0.01-0.12c0.02-1.49,0.32-2.9,0.85-4.2c0.57-1.39,1.41-2.63,2.45-3.67 c1.04-1.04,2.28-1.88,3.67-2.45c1.3-0.54,2.71-0.84,4.2-0.85c0.04-0.01,0.08-0.01,0.12-0.01h0h100.25h0c0.04,0,0.08,0,0.12,0.01 c1.49,0.02,2.91,0.32,4.2,0.85c1.39,0.57,2.63,1.41,3.67,2.45c1.04,1.04,1.88,2.28,2.45,3.67c0.54,1.3,0.84,2.71,0.85,4.2 c0.01,0.04,0.01,0.08,0.01,0.12v0v35.41v0c0,0.04,0,0.08-0.01,0.12c-0.02,1.49-0.32,2.9-0.85,4.2c-0.57,1.39-1.41,2.63-2.45,3.67 c-1.04,1.04-2.28,1.88-3.67,2.45c-1.3,0.54-2.71,0.84-4.2,0.85c-0.04,0.01-0.08,0.01-0.12,0.01h0H98.41L98.41,90.27z M89.47,15.86 l-7-6.91v6.91H89.47L89.47,15.86z M91.72,74.54H31.16v32.89h60.56V74.54L91.72,74.54z"/></g></svg>
+                                <span>Cetak Resi Fo2</span>
+                            </a>';
+                }
+                if ($query->status_orders == 2 && Auth::user()->role_id != 4) {
+                    $btn .= '<a class="dropdown-item"  href="' . url('/order/' . $encryptId . '/edit') . '">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 me-50"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                                <span>Edit</span>
+                            </a>';
+                }
+                if (($query->status_orders == 2 || $query->status_orders == 3) && Auth::user()->role_id != 4) {
+                    $btn .= '<a class="dropdown-item"  href="' . url('/order/' . $encryptId . '/print') . '" target="_blank">
+                            <?xml version="1.0" encoding="utf-8"?><svg width="14" height="14"  version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 114.13" style="enable-background:new 0 0 122.88 114.13" xml:space="preserve"><g><path d="M23.2,29.44V3.35V0.53C23.2,0.24,23.44,0,23.73,0h2.82h54.99c0.09,0,0.17,0.02,0.24,0.06l1.93,0.8l-0.2,0.49l0.2-0.49 c0.08,0.03,0.14,0.08,0.2,0.14l12.93,12.76l0.84,0.83l-0.37,0.38l0.37-0.38c0.1,0.1,0.16,0.24,0.16,0.38v1.18v13.31 c0,0.29-0.24,0.53-0.53,0.53h-5.61c-0.29,0-0.53-0.24-0.53-0.53v-6.88H79.12H76.3c-0.29,0-0.53-0.24-0.53-0.53 c0-0.02,0-0.03,0-0.05v-2.77h0V6.69H29.89v22.75c0,0.29-0.24,0.53-0.53,0.53h-5.64C23.44,29.97,23.2,29.73,23.2,29.44L23.2,29.44z M30.96,67.85h60.97h0c0.04,0,0.08,0,0.12,0.01c0.83,0.02,1.63,0.19,2.36,0.49c0.79,0.33,1.51,0.81,2.11,1.41 c0.59,0.59,1.07,1.31,1.4,2.1c0.3,0.73,0.47,1.52,0.49,2.35c0.01,0.04,0.01,0.08,0.01,0.12v0v9.24h13.16h0c0.04,0,0.07,0,0.11,0.01 c0.57-0.01,1.13-0.14,1.64-0.35c0.57-0.24,1.08-0.59,1.51-1.02c0.43-0.43,0.78-0.94,1.02-1.51c0.21-0.51,0.34-1.07,0.35-1.65 c-0.01-0.03-0.01-0.07-0.01-0.1v0V43.55v0c0-0.04,0-0.07,0.01-0.11c-0.01-0.57-0.14-1.13-0.35-1.64c-0.24-0.56-0.59-1.08-1.02-1.51 c-0.43-0.43-0.94-0.78-1.51-1.02c-0.51-0.22-1.07-0.34-1.65-0.35c-0.03,0.01-0.07,0.01-0.1,0.01h0H11.31h0 c-0.04,0-0.08,0-0.11-0.01c-0.57,0.01-1.13,0.14-1.64,0.35C9,39.51,8.48,39.86,8.05,40.29c-0.43,0.43-0.78,0.94-1.02,1.51 c-0.21,0.51-0.34,1.07-0.35,1.65c0.01,0.03,0.01,0.07,0.01,0.1v0v35.41v0c0,0.04,0,0.08-0.01,0.11c0.01,0.57,0.14,1.13,0.35,1.64 c0.24,0.57,0.59,1.08,1.02,1.51C8.48,82.65,9,83,9.56,83.24c0.51,0.22,1.07,0.34,1.65,0.35c0.03-0.01,0.07-0.01,0.1-0.01h0h13.16 v-9.24v0c0-0.04,0-0.08,0.01-0.12c0.02-0.83,0.19-1.63,0.49-2.35c0.31-0.76,0.77-1.45,1.33-2.03c0.02-0.03,0.04-0.06,0.07-0.08 c0.59-0.59,1.31-1.07,2.1-1.4c0.73-0.3,1.52-0.47,2.36-0.49C30.87,67.85,30.91,67.85,30.96,67.85L30.96,67.85L30.96,67.85z M98.41,90.27v17.37v0c0,0.04,0,0.08-0.01,0.12c-0.02,0.83-0.19,1.63-0.49,2.36c-0.33,0.79-0.81,1.51-1.41,2.11 c-0.59,0.59-1.31,1.07-2.1,1.4c-0.73,0.3-1.52,0.47-2.35,0.49c-0.04,0.01-0.08,0.01-0.12,0.01h0H30.96h0 c-0.04,0-0.08-0.01-0.12-0.01c-0.83-0.02-1.62-0.19-2.35-0.49c-0.79-0.33-1.5-0.81-2.1-1.4c-0.6-0.6-1.08-1.31-1.41-2.11 c-0.3-0.73-0.47-1.52-0.49-2.35c-0.01-0.04-0.01-0.08-0.01-0.12v0V90.27H11.31h0c-0.04,0-0.08,0-0.12-0.01 c-1.49-0.02-2.91-0.32-4.2-0.85c-1.39-0.57-2.63-1.41-3.67-2.45c-1.04-1.04-1.88-2.28-2.45-3.67c-0.54-1.3-0.84-2.71-0.85-4.2 C0,79.04,0,79,0,78.96v0V43.55v0c0-0.04,0-0.08,0.01-0.12c0.02-1.49,0.32-2.9,0.85-4.2c0.57-1.39,1.41-2.63,2.45-3.67 c1.04-1.04,2.28-1.88,3.67-2.45c1.3-0.54,2.71-0.84,4.2-0.85c0.04-0.01,0.08-0.01,0.12-0.01h0h100.25h0c0.04,0,0.08,0,0.12,0.01 c1.49,0.02,2.91,0.32,4.2,0.85c1.39,0.57,2.63,1.41,3.67,2.45c1.04,1.04,1.88,2.28,2.45,3.67c0.54,1.3,0.84,2.71,0.85,4.2 c0.01,0.04,0.01,0.08,0.01,0.12v0v35.41v0c0,0.04,0,0.08-0.01,0.12c-0.02,1.49-0.32,2.9-0.85,4.2c-0.57,1.39-1.41,2.63-2.45,3.67 c-1.04,1.04-2.28,1.88-3.67,2.45c-1.3,0.54-2.71,0.84-4.2,0.85c-0.04,0.01-0.08,0.01-0.12,0.01h0H98.41L98.41,90.27z M89.47,15.86 l-7-6.91v6.91H89.47L89.47,15.86z M91.72,74.54H31.16v32.89h60.56V74.54L91.72,74.54z"/></g></svg>
+                            <span>Cetak Resi Fo1</span>
+                        </a>';
+                    $btn .= '<a class="dropdown-item"  href="' . url('/order/' . $encryptId . '/print-v2') . '" target="_blank">
+                            <?xml version="1.0" encoding="utf-8"?><svg width="14" height="14"  version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 122.88 114.13" style="enable-background:new 0 0 122.88 114.13" xml:space="preserve"><g><path d="M23.2,29.44V3.35V0.53C23.2,0.24,23.44,0,23.73,0h2.82h54.99c0.09,0,0.17,0.02,0.24,0.06l1.93,0.8l-0.2,0.49l0.2-0.49 c0.08,0.03,0.14,0.08,0.2,0.14l12.93,12.76l0.84,0.83l-0.37,0.38l0.37-0.38c0.1,0.1,0.16,0.24,0.16,0.38v1.18v13.31 c0,0.29-0.24,0.53-0.53,0.53h-5.61c-0.29,0-0.53-0.24-0.53-0.53v-6.88H79.12H76.3c-0.29,0-0.53-0.24-0.53-0.53 c0-0.02,0-0.03,0-0.05v-2.77h0V6.69H29.89v22.75c0,0.29-0.24,0.53-0.53,0.53h-5.64C23.44,29.97,23.2,29.73,23.2,29.44L23.2,29.44z M30.96,67.85h60.97h0c0.04,0,0.08,0,0.12,0.01c0.83,0.02,1.63,0.19,2.36,0.49c0.79,0.33,1.51,0.81,2.11,1.41 c0.59,0.59,1.07,1.31,1.4,2.1c0.3,0.73,0.47,1.52,0.49,2.35c0.01,0.04,0.01,0.08,0.01,0.12v0v9.24h13.16h0c0.04,0,0.07,0,0.11,0.01 c0.57-0.01,1.13-0.14,1.64-0.35c0.57-0.24,1.08-0.59,1.51-1.02c0.43-0.43,0.78-0.94,1.02-1.51c0.21-0.51,0.34-1.07,0.35-1.65 c-0.01-0.03-0.01-0.07-0.01-0.1v0V43.55v0c0-0.04,0-0.07,0.01-0.11c-0.01-0.57-0.14-1.13-0.35-1.64c-0.24-0.56-0.59-1.08-1.02-1.51 c-0.43-0.43-0.94-0.78-1.51-1.02c-0.51-0.22-1.07-0.34-1.65-0.35c-0.03,0.01-0.07,0.01-0.1,0.01h0H11.31h0 c-0.04,0-0.08,0-0.11-0.01c-0.57,0.01-1.13,0.14-1.64,0.35C9,39.51,8.48,39.86,8.05,40.29c-0.43,0.43-0.78,0.94-1.02,1.51 c-0.21,0.51-0.34,1.07-0.35,1.65c0.01,0.03,0.01,0.07,0.01,0.1v0v35.41v0c0,0.04,0,0.08-0.01,0.11c0.01,0.57,0.14,1.13,0.35,1.64 c0.24,0.57,0.59,1.08,1.02,1.51C8.48,82.65,9,83,9.56,83.24c0.51,0.22,1.07,0.34,1.65,0.35c0.03-0.01,0.07-0.01,0.1-0.01h0h13.16 v-9.24v0c0-0.04,0-0.08,0.01-0.12c0.02-0.83,0.19-1.63,0.49-2.35c0.31-0.76,0.77-1.45,1.33-2.03c0.02-0.03,0.04-0.06,0.07-0.08 c0.59-0.59,1.31-1.07,2.1-1.4c0.73-0.3,1.52-0.47,2.36-0.49C30.87,67.85,30.91,67.85,30.96,67.85L30.96,67.85L30.96,67.85z M98.41,90.27v17.37v0c0,0.04,0,0.08-0.01,0.12c-0.02,0.83-0.19,1.63-0.49,2.36c-0.33,0.79-0.81,1.51-1.41,2.11 c-0.59,0.59-1.31,1.07-2.1,1.4c-0.73,0.3-1.52,0.47-2.35,0.49c-0.04,0.01-0.08,0.01-0.12,0.01h0H30.96h0 c-0.04,0-0.08-0.01-0.12-0.01c-0.83-0.02-1.62-0.19-2.35-0.49c-0.79-0.33-1.5-0.81-2.1-1.4c-0.6-0.6-1.08-1.31-1.41-2.11 c-0.3-0.73-0.47-1.52-0.49-2.35c-0.01-0.04-0.01-0.08-0.01-0.12v0V90.27H11.31h0c-0.04,0-0.08,0-0.12-0.01 c-1.49-0.02-2.91-0.32-4.2-0.85c-1.39-0.57-2.63-1.41-3.67-2.45c-1.04-1.04-1.88-2.28-2.45-3.67c-0.54-1.3-0.84-2.71-0.85-4.2 C0,79.04,0,79,0,78.96v0V43.55v0c0-0.04,0-0.08,0.01-0.12c0.02-1.49,0.32-2.9,0.85-4.2c0.57-1.39,1.41-2.63,2.45-3.67 c1.04-1.04,2.28-1.88,3.67-2.45c1.3-0.54,2.71-0.84,4.2-0.85c0.04-0.01,0.08-0.01,0.12-0.01h0h100.25h0c0.04,0,0.08,0,0.12,0.01 c1.49,0.02,2.91,0.32,4.2,0.85c1.39,0.57,2.63,1.41,3.67,2.45c1.04,1.04,1.88,2.28,2.45,3.67c0.54,1.3,0.84,2.71,0.85,4.2 c0.01,0.04,0.01,0.08,0.01,0.12v0v35.41v0c0,0.04,0,0.08-0.01,0.12c-0.02,1.49-0.32,2.9-0.85,4.2c-0.57,1.39-1.41,2.63-2.45,3.67 c-1.04,1.04-2.28,1.88-3.67,2.45c-1.3,0.54-2.71,0.84-4.2,0.85c-0.04,0.01-0.08,0.01-0.12,0.01h0H98.41L98.41,90.27z M89.47,15.86 l-7-6.91v6.91H89.47L89.47,15.86z M91.72,74.54H31.16v32.89h60.56V74.54L91.72,74.54z"/></g></svg>
+                            <span>Cetak Resi Fo2</span>
+                        </a>';
+                }
+                $btn .= '</div></div>';
+                return $btn;
+            })->rawColumns(['numberorders', 'estimation', 'destination', 'pengirim', 'penerima', 'created_at', 'note', 'status_orders', 'status_kenerlambatan', 'aksi', 'created_at'])
+            ->addIndexColumn()
+            ->make(true);
+    }
+
+
+
+    function getHistoryUpdateOrder(Request $request)
     {
 
-        $q = Order::query();
+        $q = HistoryUpdateOrder::with(['order', 'order.customer'])->where('order_id', $request->order_id);
+
 
 
         return DataTables::of($q)
-            ->addColumn('customer', function ($query) {
-                return $query->customer->name;
+            ->addColumn('numberorders', function ($query) {
+                return $query->numberorders;
             })
-            ->editColumn('status', function ($query) {
-                $html = status_html($query->status);
-                $html .= '<small class="text-sm"><br/><i class="fas fa-truck"></i>' . $query->histories->last()->status . '</small>';
+            ->addColumn('pengirim', function ($query) {
+                return $query->order->customer->name;
+            })
+            ->addColumn('penerima', function ($query) {
+                return $query->penerima;
+            })
+            ->editColumn('status_orders', function ($query) {
+                $html = status_html($query->status_orders);
+                $html .= '<small class="text-sm"><br/><i class="fas fa-truck"></i> ' . $query->status_awb . '</small>';
                 return  $html;
             })
             ->editColumn('created_at', function ($query) {
@@ -40,60 +237,155 @@ class OrderController extends Controller
                 $encryptId = Crypt::encrypt($query->id);
                 $btn = '';
                 $btn .= '<div class="dropdown">
-                    <button type="button" class="btn btn-sm dropdown-toggle hide-arrow py-0 waves-effect waves-float waves-light" data-bs-toggle="dropdown">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-                    </button>
-                    <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item"  href="' . url('/order/' . $encryptId) . '">
-                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> 
+                        <button type="button" class="btn btn-sm dropdown-toggle hide-arrow py-0 waves-effect waves-float waves-light" data-bs-toggle="dropdown">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item"  href="' . url('/order/' . $encryptId . '/detailhistoryupdate') . '">
+                            <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                             <span>Detail</span>
-                        </a>
-                        ';
-                if ($query->status == 1) {
+                        </a>';
 
-                    $btn .= '<a class="dropdown-item"  href="' . url('/order/' . $encryptId . '/edit') . '">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 me-50"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-                                        <span>Edit</span>
-                                    </a>
-                                    <a class="dropdown-item"  href="' . url('/order/' . $encryptId) . '" data-confirm-delete="true">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash me-50"><polyline points="3 6 5 6 21 6"></polyline><path d="M16 6l-1 14-10-1"></path></svg>
-                                        <span>Batalkan</span>
-                                    </a>';
-                }
-
-                $btn .= '</div>
-                </div>';
+                $btn .= '</div>';
                 return $btn;
-            })
-            ->rawColumns(['status', 'aksi'])
+            })->rawColumns(['numberorders', 'pengirim', 'penerima', 'created_at', 'status_orders', 'aksi'])
             ->addIndexColumn()
             ->make(true);
     }
 
+
+    function getEstimation(Request $request)
+    {
+
+
+        if ($request->outletasal) {
+            $estimation = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', $request->outletasal)->where('customer_id', $request->customer_id)->where('origin_id', $request->pengambilan_id)->first();
+            if ($estimation == null) {
+                $estimation = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', $request->outletasal)->where('origin_id', $request->pengambilan_id)->first();
+            }
+        } else {
+            if ($request->customer_id) {
+                $estimation = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', Auth::user()->outlets_id)->where('customer_id', $request->customer_id)->where('origin_id', $request->pengambilan_id)->first();
+                if ($estimation == null) {
+                    $estimation = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->where('origin_id', $request->pengambilan_id)->first();
+                }
+            } else {
+                $estimation = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->where('origin_id', $request->pengambilan_id)->first();
+            }
+        }
+        if ($estimation) {
+            $response = [
+                'status' => 'success',
+                'data' => [
+                    'price_id'   => $estimation->id,
+                    'price'      => $estimation->price,
+                    'estimation' => $estimation->estimation,
+                    'minweights' => $estimation->minweights,
+                    'nextweightprices' => $estimation->nextweightprices,
+                ]
+            ];
+        } else {
+            $response = [
+                'status' => 'error',
+                'data' => [
+                    'price_id'   => '0',
+                    'price'      => '0',
+                    'estimation' => '0',
+                    'minweights' => '0',
+                    'nextweightprices' => '0',
+                ]
+            ];
+        }
+
+        return response()->json($response);
+    }
+
+    function getCunstomer(Request $request)
+    {
+        if ($request->outletasal) {
+            $customers = User::where('outlets_id', $request->outletasal)->where('role_id', '4')->get(['id', 'name']);
+            return response()->json(['customers' => $customers]);
+        }
+
+        return response()->json(['customers', []]);
+    }
+
+
+
     function create()
     {
-        $customers = Customer::all();
+        if (Auth::user()->role_id == 1) {
+            $customers = User::where('role_id', 4)->get();
+        } else {
+            $customers = User::where('role_id', 4)->where('outlets_id', Auth::user()->outlets_id)->get();
+        }
         $destinations = Destination::all();
-        return view('pages.order.create', compact('customers', 'destinations'));
+        $outlets = Outlet::all();
+        return view('pages.order.create', compact('customers', 'destinations', 'outlets'));
     }
+
+
+
 
     function store(Request $request)
     {
         DB::beginTransaction();
         try {
             if ($request->has('pesanan_masal')) {
+                if (Auth::user()->role_id == 1) {
+                    $validator = Validator::make($request->all(), [
+                        'outlet_id' => 'required'
+                    ], [
+                        'outlet_id.required' => 'Pilih Salah Satu Outlet Asal'
+                    ]);
+                    if ($validator->fails()) {
+                        $error = $validator->errors()->all();
+                        $errorMessage = implode(', ', $error);
+
+                        Alert::error('Gagal', $errorMessage);
+                        return redirect()->back()->withInput();
+                    }
+                }
+
+                $validator = Validator::make($request->all(), [
+                    'customer_id'       => 'required',
+                    'destination1_id'   => 'required',
+                ], [
+                    'customer_id.required'     => 'Pilih Salah Satu Customer',
+                    'destination1_id.required' => 'Pilih Salah Satu Destinasi',
+                ]);
+
+                if ($validator->fails()) {
+                    $errors       = $validator->errors()->all();
+                    $errorMessage = implode(', ', $errors);
+
+                    Alert::error('Gagal', $errorMessage);
+                    return redirect()->back()->withInput();
+                }
+
                 // create order sebanyak total
                 for ($i = 0; $i < $request->total; $i++) {
+
+                    if ($request->outlet_id) {
+                        $outlet = Outlet::find($request->outlet_id);
+                    } else {
+                        $outlet = Outlet::where('id', Auth::user()->outlets_id)->first();
+                    }
+
                     $order = new Order();
-                    $order->customer_id = $request->customer_id;
-                    $order->awb = generateAwb();
-                    $order->status = 1;
+                    $order->numberorders    = generateAwb();
+                    $order->customer_id     = $request->customer_id;
+                    $order->destinations_id = ($request->destination_id != null ? $request->destination_id : $request->destination1_id);
+                    $order->status_orders   = 1;
+                    $order->status_awb      = "Pesanan sedang diambil kurir";
+                    $order->outlet_id       = $outlet->id;
+                    $order->created_by      = Auth::user()->id;
                     $order->save();
 
                     // create history awb -> "Pesanan sedang diambl kurir"
                     $order->histories()->create([
                         'order_id' => $order->id,
-                        'awb' => $order->awb,
+                        'awb' => $order->numberorders,
                         'status' => 'Pesanan sedang diambil kurir',
                     ]);
                 }
@@ -101,76 +393,625 @@ class OrderController extends Controller
                 Alert::success('Berhasil', 'Pesanan Berhasil Dibuat');
                 return redirect()->to('/order');
             } else {
+
+                if (Auth::user()->role_id == "1") {
+                    $validator = Validator::make($request->all(), [
+                        'outlet_id' => 'required',
+                    ], [
+                        'outlet_id.required' => 'Pilih Salah Satu Outlet Asal',
+                    ]);
+
+                    if ($validator->fails()) {
+                        $errors = $validator->errors()->all();
+                        $errorMessage = implode(', ', $errors);
+
+                        Alert::error('Gagal', $errorMessage);
+                        return redirect()->back()->withInput();
+                    }
+                }
+                $validator = Validator::make($request->all(), [
+                    'customer_id'       =>  'required',
+                    'destination_id'    =>  'required',
+                    'pengambilan_id'    =>  'required',
+                    'armada'            =>  'required',
+                    'address'           =>  'required',
+                    'weight'            =>  'required',
+                    'panjang_volume'    =>  'required',
+                    'lebar_volume'      =>  'required',
+                    'tinggi_volume'     =>  'required',
+                    'estimation'        =>  'required',
+                    'payment_method'    =>  'required',
+                    'description'       =>  'required',
+                    'note'              =>  'required',
+                    // 'koli'              =>  'required',
+                    'receiver'          =>  'required',
+                    'awb'               => 'required|unique:orders,numberorders',
+                ], [
+                    'customer_id.required'    => 'Pilih Salah Satu Customer',
+                    'destination_id.required' => 'Pilih Salah Satu Destinasi',
+                    'pengambilan_id.required' => 'Pilih Salah Satu Pengambilan',
+                    'armada.required'         => 'Pilih Salah Satu Armada',
+                    'service.required'        => 'Pilih Salah Satu Jenis',
+                    'address.required'        => 'Penerima Harus Diisi',
+                    'weight.required'         => 'Berat Harus Diisi',
+                    'panjang_volume.required' => 'Volume Harus Diisi',
+                    'lebar_volume.required'   => 'Volume Harus Diisi',
+                    'tinggi_volume.required'  => 'Volume Harus Diisi',
+                    'estimation.required'     => 'Estimasi Harus Diisi',
+                    'payment_method.required' => 'Pilih Salah Satu Metode Pembayaran',
+                    'description.required'    => 'Deskripsi Harus Diisi',
+                    'note.required'           => 'Catatan Harus Diisi',
+                    // 'koli.required'           => 'Koli Harus Diisi',
+                    'receiver.required'       => 'Penerima Harus Diisi',
+                    'awb.required'            => 'AWB Harus Diisi',
+                    'awb.unique'              => 'AWB Sudah Digunakan Harap Gunkan AWB Lain',
+                ]);
+
+                if ($validator->fails()) {
+                    $errors       = $validator->errors()->all();
+                    $errorMessage = implode(', ', $errors);
+
+                    Alert::error('Gagal', $errorMessage);
+                    return redirect()->back()->withInput();
+                }
+
+                // if ($request->price_id) {
+                //     if ($request->outlet_id) {
+                //         $minimumPrice = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', $request->outlet_id)->where('customer_id', $request->customer_id)->first();
+                //         if ($minimumPrice == null) {
+                //             $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', $request->outlet_id)->first();
+                //         }
+                //     } else {
+                //         if ($request->customer_id) {
+                //             $minimumPrice = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', Auth::user()->outlets_id)->where('customer_id', $request->customer_id)->first();
+                //             if ($minimumPrice == null) {
+                //                 $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
+                //             }
+                //         } else {
+                //             $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
+                //         }
+                //     }
+
+                //     if ($request->price < $minimumPrice->minimumprice) {
+                //         Alert::error('Gagal', 'Harga tidak boleh lebih kecil dari ' . formatRupiah($minimumPrice->minimumprice));
+                //         return redirect()->back()->withInput();
+                //     }
+                // }
+
+                // $order->awb = generateAwb();
+                if ($request->outlet_id) {
+                    $outlet = Outlet::find($request->outlet_id);
+                } else {
+                    $outlet = Outlet::where('id', Auth::user()->outlets_id)->first();
+                }
+
+                $gudangLocation = Outlet::find($outlet->id);
+
+                // cek awb
+                $cekAwb = Order::where('numberorders', $request->awb)->first();
+                if ($cekAwb) {
+                    Alert::error('Gagal', 'AWB Sudah Digunakan Harap Gunakan AWB Lain');
+                    return redirect()->back()->withInput();
+                }
+
+
+                // set volume
+                // if ($request->panjang_volume && $request->lebar_volume && $request->tinggi_volume) {
+                //     $volume = $request->panjang_volume * $request->lebar_volume * $request->tinggi_volume;
+                //     $panjangVolume = $request->panjang_volume;
+                //     $lebarVolume = $request->lebar_volume;
+                //     $tinggiVolume = $request->tinggi_volume;
+                // }
+
                 $order = new Order();
-                $order->customer_id = $request->customer_id;
-                $order->awb = generateAwb();
-                $order->status = 2;
-                $order->receiver = $request->receiver;
-                $order->armada = $request->armada;
-                $order->service = $request->service;
-                $order->destination_id = $request->destination_id;
-                $order->address = $request->address;
-                $order->weight = $request->weight;
-                $order->volume = $request->volume;
-                $order->price = $request->price;
-                $order->estimation = $request->estimation;
-                $order->description = $request->description;
-                $order->note = $request->note;
+                $order->numberorders    =  $request->awb;
+                $order->customer_id     =  $request->customer_id;
+                $order->status_orders   =  2;
+                $order->outlet_id       =  $request->outlet;
+                $order->armada          =  $request->armada;
+                $order->service         =  $request->service;
+                $order->destinations_id =  $request->destination_id;
+                $order->pengambilan_id  =  $request->pengambilan_id;
+                $order->address         =  $request->address;
+                $order->weight          =  $request->total_weight;
+                $order->volume          =  array_sum($request->input('total_volume'));
+                // $order->panjang_volume  =  $panjangVolume ?? null;
+                // $order->lebar_volume    =  $lebarVolume ?? null;
+                // $order->tinggi_volume   =  $tinggiVolume ?? null;
+                $order->payment_method  =  $request->payment_method;
+                $order->price           =  $request->total_price;
+                $order->estimation      =  $request->estimation;
+                $order->description     =  $request->description;
+                $order->koli            =  count($request->input('price'));
+                $order->note            =  $request->note;
+                $order->outlet_id       =  $outlet->id;
+                $order->penerima        =  $request->receiver;
+                $order->status_awb      =  'Pesanan sedang di proses di ' . $gudangLocation->name . ' oleh ' . Auth::user()->name;
+                $order->created_by      = Auth::user()->id;
                 $order->save();
 
-                // create history awb -> "Pesanan sedang di proses di gudang Bekasi"
+                // create detail order 
+                $weights        = $request->input('weight');
+                $panjangs       = $request->input('panjang_volume');
+                $lebars         = $request->input('lebar_volume');
+                $tinggis        = $request->input('tinggi_volume');
+                $total_volumes  = $request->input('total_volume');
+                $kg_volumes     = $request->input('kg_volume');
+                $prices         = $request->input('price');
+
+                foreach ($weights as $index => $weight) {
+                    DetailOrder::create([
+                        'order_id'      => $order->id,
+                        'weight'        => $weight,
+                        'panjang'       => $panjangs[$index],
+                        'lebar'         => $lebars[$index],
+                        'tinggi'        => $tinggis[$index],
+                        'total_volume'  => $total_volumes[$index],
+                        'berat_volume'  => $kg_volumes[$index] ?? 0,
+                        'harga'         => $prices[$index] ?? 0,
+                    ]);
+                }
+
+                // create history awb -> "Pesanan sedang di proses di gudang ..."
                 $order->histories()->create([
-                    'order_id' => $order->id,
-                    'awb' => $order->awb,
-                    'status' => 'Pesanan sedang di proses di gudang Bekasi',
+                    'order_id'      => $order->id,
+                    'awb'           => $order->numberorders,
+                    'status'        => 'Pesanan sedang di proses di ' . $gudangLocation->name . ' oleh ' . Auth::user()->name,
+                    'created_by'    => Auth::user()->id,
                 ]);
+
+
                 DB::commit();
                 Alert::success('Berhasil', 'Pesanan Berhasil Dibuat');
-                return redirect()->to('/order');
+                return redirect()->to('/order')->with('id', Crypt::encrypt($order->id));
             }
         } catch (\Throwable $th) {
-            dd($th);
             DB::rollBack();
-            Alert::error('Gagal', 'Terjadi Kesalahan');
+            // dd($th);
+            Alert::error('Gagal', 'Terjadi Kesalahan Mohon Periksa Kembali Data Yang Dimasukkan');
             return redirect()->back();
         }
     }
 
+
+    function show($id)
+    {
+        try {
+            $id = Crypt::decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
+        $order          = Order::find($id);
+        $orderWeight    = $order->weight;
+        $orderPrice     = $order->price;
+        $historyAwbs    = HistoryAwb::where('order_id', $order->id)->get();
+        $detailorders   = DetailOrder::where('order_id', $order->id)->get();
+
+        return view('pages.order.detail', compact('order', 'historyAwbs', 'detailorders', 'orderWeight', 'orderPrice'));
+    }
+
+
+    public function showHistoryupdateOrder($id)
+    {
+        try {
+            $id = Crypt::decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
+
+
+        $historyOrder      = HistoryUpdateOrder::find($id);
+        return view('pages.order.detailhistoryupdateorder', compact('historyOrder'));
+    }
+
+
+    public function historyupdate($id)
+    {
+        try {
+            $id = Crypt::decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
+
+        $order      = Order::find($id);
+
+        return view('pages.order.historyupdateorder', compact('order'));
+    }
+
+
+
+
     function edit($id)
     {
-        $id = Crypt::decrypt($id);
-        $order = Order::find($id);
-        $customers = Customer::all();
-        $destinations = Destination::all();
-        return view('pages.order.edit', compact('order', 'customers', 'destinations'));
+        try {
+            $id = Crypt::decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
+
+        $order          = Order::find($id);
+        if (Auth::user()->role_id == 1) {
+            $customers = User::where('role_id', 4)->get();
+        } else {
+            $customers = User::where('role_id', 4)->where('outlets_id', Auth::user()->outlets_id)->get();
+        }
+
+        $detailorders = DetailOrder::where('order_id', $id)->get();
+
+        $destinations   = Destination::all();
+        $outlets        = Outlet::all();
+        return view('pages.order.edit', compact('order', 'customers', 'destinations', 'outlets', 'detailorders'));
     }
 
     function update(Request $request, $id)
     {
+
+        try {
+            if (Auth::user()->role_id == "1") {
+                $validator = Validator::make($request->all(), [
+                    'outlet_id' => 'required',
+                ], [
+                    'outlet_id.required' => 'Pilih Salah Satu Outlet Asal',
+                ]);
+
+                if ($validator->fails()) {
+                    $errors = $validator->errors()->all();
+                    $errorMessage = implode(', ', $errors);
+
+                    Alert::error('Gagal', $errorMessage);
+                    return redirect()->back()->withInput();
+                }
+            }
+
+            $order = Order::find(Crypt::decrypt($id));
+
+            $validator = Validator::make($request->all(), [
+                'customer_id'       =>  'required',
+                'destination_id'    =>  'required',
+                'pengambilan_id'    =>  'required',
+                'armada'            =>  'required',
+                'address'           =>  'required',
+                // 'weight'            =>  'required',
+                // 'volume'            =>  'required',
+                'estimation'        =>  'required',
+                'payment_method'    =>  'required',
+                'description'       =>  'required',
+                'note'              =>  'required',
+                // 'koli'              =>  'required',
+                'receiver'          =>  'required',
+                'awb'               => 'required|unique:orders,numberorders,' . $order->id,
+            ], [
+                'customer_id.required'    => 'Pilih Salah Satu Customer',
+                'destination_id.required' => 'Pilih Salah Satu Destinasi',
+                'pengambilan_id.required' => 'required',
+                'armada.required'         => 'Pilih Salah Satu Armada',
+                'payment_method.required' => 'Pilih Salah Satu Metode Pembayaran',
+                'service.required'        => 'Pilih Salah Satu Jenis',
+                'address.required'        => 'Penerima Harus Diisi',
+                // 'weight.required'         => 'Berat Harus Diisi',
+                // 'volume.required'         => 'Volume Harus Diisi',
+                'estimation.required'     => 'Estimasi Harus Diisi',
+                'description.required'    => 'Deskripsi Harus Diisi',
+                'note.required'           => 'Catatan Harus Diisi',
+                // 'koli.required'           => 'Koli Harus Diisi',
+                'receiver.required'       => 'Penerima Harus Diisi',
+                'awb.required'            => 'AWB Harus Diisi',
+                'awb.unique'              => 'AWB Sudah Digunakan Harap Gunkan AWB Lain',
+            ]);
+
+            // if ($validator->fails()) {
+            //     $errors       = $validator->errors()->all();
+            //     $errorMessage = implode(', ', $errors);
+
+            //     Alert::error('Gagal', $errorMessage);
+            //     return redirect()->back()->withInput();
+            // }
+
+            // if ($request->price_id) {
+            //     if ($request->outlet_id) {
+            //         $minimumPrice = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', $request->outlet_id)->where('customer_id', $request->customer_id)->first();
+            //         if ($minimumPrice == null) {
+            //             $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', $request->outlet_id)->first();
+            //         }
+            //     } else {
+            //         if ($request->customer_id) {
+            //             $minimumPrice = CustomerPrice::where('armada', $request->armada)->where('destination_id', $request->destination_id)->where('outlet_id', Auth::user()->outlets_id)->where('customer_id', $request->customer_id)->first();
+            //             if ($minimumPrice == null) {
+            //                 $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
+            //             }
+            //         } else {
+            //             $minimumPrice = Masterprice::where('armada', $request->armada)->where('destinations_id', $request->destination_id)->where('outlets_id', Auth::user()->outlets_id)->first();
+            //         }
+            //     }
+
+
+
+            //     if ($request->price < $minimumPrice->minimumprice) {
+            //         Alert::error('Gagal', 'Harga tidak boleh lebih kecil dari ' . formatRupiah($minimumPrice->minimumprice));
+            //         return redirect()->back()->withInput();
+            //     }
+            // }
+
+
+            // cek awb
+            $cekAwb = Order::where('numberorders', $request->awb)->where('id', '!=', $order->id)->first();
+            if ($cekAwb) {
+                Alert::error('Gagal', 'AWB Sudah Digunakan Harap Gunakan AWB Lain');
+                return redirect()->back()->withInput();
+            }
+
+
+
+            if ($request->outlet_id) {
+                $outlet = Outlet::find($request->outlet_id);
+            } else {
+                $outlet = Outlet::where('id', $order->outlet_id)->first();
+            }
+
+            $gudangLocation = Outlet::find($outlet->id);
+
+            // if ($request->panjang && $request->lebar && $request->tinggi) {
+            //     $volume = $request->panjang * $request->lebar * $request->tinggi;
+            //     $panjangVolume = $request->panjang;
+            //     $lebarVolume = $request->lebar;
+            //     $tinggiVolume = $request->tinggi;
+            // }
+
+            $order->customer_id     = $request->customer_id;
+            $order->status_orders   = 2;
+            $order->outlet_id       = $outlet->id;
+            $order->numberorders    = $request->awb;
+            $order->penerima        = $request->receiver;
+            $order->armada          = $request->armada;
+            $order->service         = $request->service;
+            $order->destinations_id = $request->destination_id;
+            $order->pengambilan_id  = $request->pengambilan_id;
+            $order->address         = $request->address;
+            $order->weight          = $request->total_weight;
+            $order->volume          = array_sum($request->input('total_volume'));
+            // $order->panjang_volume  = $panjangVolume ?? null;
+            // $order->lebar_volume    = $lebarVolume ?? null;
+            // $order->tinggi_volume   = $tinggiVolume ?? null;
+            $order->price           = $request->total_price;
+            $order->payment_method  = $request->payment_method;
+            $order->estimation      = $request->estimation;
+            $order->description     = $request->description;
+            $order->note            = $request->note;
+            $order->koli            = count($request->input('price'));
+            $order->status_awb      = 'Pesanan sedang di proses di gudang ' . $gudangLocation->name . ' oleh ' . Auth::user()->name;
+            $order->save();
+
+            // create history awb -> "Pesanan sedang di proses di gudang Bekasi"
+            $order->histories()->create([
+                'order_id' => $order->id,
+                'awb'      => $order->numberorders,
+                'status'   => 'Pesanan sedang di proses di gudang ' . $gudangLocation->name,
+                'created_by' => Auth::user()->id,
+            ]);
+
+
+            //create history order
+            $historyOrder = new HistoryUpdateOrder();
+            $historyOrder->order_id         = $order->id;
+            $historyOrder->numberorders     = $order->numberorders;
+            $historyOrder->customer_id      = $order->customer_id;
+            $historyOrder->outlet_id        = $order->outlet_id;
+            $historyOrder->pengambilan_id   = $order->pengambilan_id;
+            $historyOrder->destinations_id  = $order->destinations_id;
+            $historyOrder->koli             = $order->koli;
+            $historyOrder->weight           = $order->weight;
+            $historyOrder->volume           = $order->volume;
+            // $historyOrder->panjang_volume   = $order->panjang_volume;
+            // $historyOrder->lebar_volume     = $order->lebar_volume;
+            // $historyOrder->tinggi_volume    = $order->tinggi_volume;
+            $historyOrder->price            = $order->price;
+            $historyOrder->content          = $order->content;
+            $historyOrder->penerima         = $order->penerima;
+            $historyOrder->armada           = $order->armada;
+            $historyOrder->address          = $order->address;
+            $historyOrder->estimation       = $order->estimation;
+            $historyOrder->status_orders    = $order->status_orders;
+            $historyOrder->payment_method   = $order->payment_method;
+            $historyOrder->status_awb       = $order->status_awb;
+            $historyOrder->service          = $order->service;
+            $historyOrder->description      = $order->description;
+            $historyOrder->note             = $order->note;
+            $historyOrder->photos           = $order->photos;
+            $historyOrder->created_by       = Auth::user()->id;
+            $historyOrder->save();
+
+
+            // create detail order 
+            $weights        = $request->input('weight');
+            $panjangs       = $request->input('panjang_volume');
+            $lebars         = $request->input('lebar_volume');
+            $tinggis        = $request->input('tinggi_volume');
+            $total_volumes  = $request->input('total_volume');
+            $kg_volumes     = $request->input('kg_volume');
+            $prices         = $request->input('price');
+
+
+            foreach ($weights as $index => $weight) {
+
+                $detailOrderId = $request->input('detail_order_id')[$index] ?? null;
+                if ($detailOrderId) {
+                    $detailOrder = DetailOrder::where('id', $detailOrderId)->where('order_id', $order->id)->first();
+
+                    if ($detailOrder) {
+                        $detailOrder->update([
+                            'weight'        => $weight,
+                            'panjang'       => $panjangs[$index],
+                            'lebar'         => $lebars[$index],
+                            'tinggi'        => $tinggis[$index],
+                            'total_volume'  => $total_volumes[$index],
+                            'berat_volume'  => $kg_volumes[$index],
+                            'harga'         => $prices[$index],
+                        ]);
+                    }
+                } else {
+                    DetailOrder::create([
+                        'order_id'      => $order->id,
+                        'weight'        => $weight,
+                        'panjang'       => $panjangs[$index],
+                        'lebar'         => $lebars[$index],
+                        'tinggi'        => $tinggis[$index],
+                        'total_volume'  => $total_volumes[$index],
+                        'berat_volume'  => $kg_volumes[$index],
+                        'harga'         => $prices[$index],
+                    ]);
+                }
+            }
+
+            DB::commit();
+            Alert::success('Berhasil', 'Pesanan Berhasil Diupdate');
+            return redirect()->to('/order');
+        } catch (\Throwable $th) {
+            // dd($th);
+            DB::rollBack();
+            Alert::error('Gagal', 'Terjadi Kesalahan Mohon Periksa Kembali Data Yang Dimasukkan');
+            return redirect()->back();
+        }
+    }
+
+
+
+
+    function destroy($id)
+    {
+        try {
+            $decrypted = Crypt::decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
+
         $order = Order::find(Crypt::decrypt($id));
-        $order->customer_id = $request->customer_id;
-        $order->status = 2;
-        $order->receiver = $request->receiver;
-        $order->armada = $request->armada;
-        $order->service = $request->service;
-        $order->destination_id = $request->destination_id;
-        $order->address = $request->address;
-        $order->weight = $request->weight;
-        $order->volume = $request->volume;
-        $order->price = $request->price;
-        $order->estimation = $request->estimation;
-        $order->description = $request->description;
-        $order->note = $request->note;
+        $order->status_orders   = 4;
+        $order->status_awb      = "Pesanan dibatalkan";
         $order->save();
 
-        // create history awb -> "Pesanan sedang di proses di gudang Bekasi"
-        $order->histories()->create([
+        HistoryAwb::create([
             'order_id' => $order->id,
-            'awb' => $order->awb,
-            'status' => 'Pesanan sedang di proses di gudang Bekasi',
+            'awb'      => $order->numberorders,
+            'status'   => 'Pesanan dibatalkan',
+            'created_by' => Auth::user()->id,
         ]);
         DB::commit();
-        Alert::success('Berhasil', 'Pesanan Berhasil Diupdate');
-        return redirect()->to('/order');
+        Alert::success('Berhasil', 'Pesanana Berhasil Dibatalkan');
+        return redirect()->back();
+    }
+
+
+
+    function printformat1($id)
+    {
+        try {
+            $decrypted = Crypt::decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
+
+        $order = Order::find($decrypted);
+        $originLocationOrder = Destination::find($order->outlet->location_id);
+
+
+        // format print resi old
+        // $pdf = new TCPDF;
+        // $pdf::SetFont('helvetica', '', 12);
+        // $pdf::SetTitle("$order->numberorders-pdf");
+        // $pdf::SetAuthor('Kaushal');
+        // $pdf::SetSubject('Generated PDF');
+
+
+        // // Set margin
+        // $leftMargin = 2;
+        // $topMargin = 2;
+        // $rightMargin = 3;
+        // $bottomMargin = 2;
+
+        // // Set margins to page
+        // $pdf::SetMargins($leftMargin, $topMargin, $rightMargin);
+        // $pdf::SetAutoPageBreak(true, $bottomMargin);
+
+        // //set paper size
+        // $pageWidth = 118;
+        // $pageHeight = 55;
+        // $pdf::AddPage('L', [$pageWidth, $pageHeight]);
+
+        // // Path gambar
+        // $imagePath = public_path('assets/img/logo.png');
+
+        // // HTML dengan gambar dalam tabel
+        // $html = view()->make('pages.order.print', compact('order', 'imagePath'));
+
+        // $pdf::writeHTML($html, true, false, true, false, '');
+        // $pdf::Output("$order->numberorders-pdf.pdf", 'I');
+        // $pdf::reset();
+
+        // format print resi new
+        $pdf = new TCPDF;
+        $pdf::SetFont('helvetica', '', 12);
+        $pdf::SetTitle("$order->numberorders-pdf");
+        $pdf::SetAuthor('Kaushal');
+        $pdf::SetSubject('Generated PDF');
+
+
+        // Set margin
+        $leftMargin = 10;
+        $topMargin = 2;
+        $rightMargin = 3;
+        $bottomMargin = 0;
+
+        // Set margins to page
+        $pdf::SetMargins($leftMargin, $topMargin, $rightMargin);
+        $pdf::SetAutoPageBreak(true, $bottomMargin);
+
+        //set paper size
+        $pageWidth = 118;
+        $pageHeight = 64;
+        $pdf::AddPage('L', [$pageWidth, $pageHeight]);
+
+        // Path gambar
+        $imagePath = public_path('assets/img/logo.png');
+
+        // HTML dengan gambar dalam tabel
+        $html = view()->make('pages.order.print1', compact('order', 'imagePath'));
+
+        $pdf::writeHTML($html, true, false, true, false, '');
+        $pdf::Output("$order->numberorders-pdf.pdf", 'I');
+        $pdf::reset();
+    }
+
+
+
+    function printformat2($id)
+    {
+        try {
+            $decrypted = Crypt::decrypt($id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
+
+        $order = Order::find($decrypted);
+        $originLocationOrder = Destination::find($order->outlet->location_id);
+        $detailOrders = DetailOrder::where('order_id', $order->id)->get();
+        $kgVolume = 0;
+        foreach ($detailOrders as $detailOrder) {
+            $kgVolume += $detailOrder->berat_volume;
+        }
+        return view('pages.order.print2', compact('order', 'originLocationOrder', 'kgVolume'));
+    }
+
+
+    public function destroyKoli(Request $request)
+    {
+        try {
+            $id = Crypt::decrypt($request->id);
+        } catch (DecryptException $e) {
+            abort(404);
+        }
+
+        $detailOrder = DetailOrder::find($id);
+        $detailOrder->delete();
+        return response()->json(['success' => true]);
     }
 }
