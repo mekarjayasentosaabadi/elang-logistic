@@ -299,10 +299,11 @@ class CustomerController extends Controller
         ];
         if(Auth::user()->role_id == '1'){
             $dataUpdate = [
-                'price'     => $request->price,
-                'minweights'=> $request->minweight,
-                'nextweightprices'=> $request->pricenext,
-                'minimumprice'  => $request->minimumprice,
+                'price'     => $request->price ?? 0,
+                'minweights'=> $request->minweight ?? 0,
+                'nextweightprices'=> $request->pricenext ?? 0,
+                'minimumprice'  => $request->minimumprice ?? 0,
+                'estimation'  => $request->estimation ?? 0,
             ];
         }
 
