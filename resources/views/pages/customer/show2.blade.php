@@ -85,7 +85,7 @@
     {{-- Modal edit price --}}
     <div class="modal fade" id="exampleModalCenter" tabindex="-1" aria-labelledby="exampleModalCenterTitle"
         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog  modal-lg">
             <form action="" id="form-change-pricecustomer">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -99,36 +99,36 @@
                                     <label for="service">Service</label>
                                     <input type="text" name="service" id="service" class="form-control" disabled>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group mt-1">
                                     <label for="destination">Destination</label>
                                     <input type="text" name="destination" id="destination" class="form-control" disabled>
                                 </div>
-                                <div class="form-group">
-                                    <label for="price">Price</label>
+                                <div class="form-group mt-1">
+                                    <label id="lbl-price" for="price">Price</label>
                                     <input type="text" name="price" id="price" class="form-control">
                                 </div>
                                 @if (Auth::user()->role_id == '1')
-                                    <div class="form-group">
+                                    <div id="minweight-input-group" class="form-group mt-1">
                                         <label for="minweight">Berat Minimal</label>
                                         <div class="input-group">
                                             <input type="text" name="minweight" id="minweight" class="form form-control">
                                             <span class="input-group-text">Kg</span>
                                         </div>
                                     </div>
-                                    <div class="form-group mt-1">
+                                    <div class="form-group mt-1 d-none">
                                         <label for="minimumprice">Minimum Price</label>
                                         <input type="text" name="minimumprice" id="minimumprice" class="form-control"
                                             placeholder="20000">
+                                    </div>
+                                    <div id="pricenext-input-group" class="form-group mt-1">
+                                        <label for="pricenext">Next Weight Price</label>
+                                        <input type="text" name="pricenext" id="pricenext" class="form-control"
+                                            placeholder="2000">
                                     </div>
                                     <div class="form-group mt-1">
                                         <label for="estimation">Estimation</label>
                                         <input type="text" name="estimation" id="estimation" class="form-control"
                                             placeholder="1">
-                                    </div>
-                                    <div class="form-group mt-1">
-                                        <label for="pricenext">Next Weight Price</label>
-                                        <input type="text" name="pricenext" id="pricenext" class="form-control"
-                                            placeholder="2000">
                                     </div>
                                 @endif
                             </div>
@@ -302,6 +302,9 @@
                 ]
             })
         })
+
+
+
         //confirm generate price customer
         function generatePrice() {
             Swal.fire({
@@ -333,6 +336,8 @@
                 }
             })
         }
+
+        // change price
         function changePrice(x) {
             $.getJSON(window.location.origin + '/' + listRoutes['customer.getdetail'].replace('{id}', x), function(e){
 
@@ -343,13 +348,27 @@
                 $('#destination').val('')
                 $('#destination').val(e.data[0].destination.name)
                 $('#service').val('')
+                $('#estimation').val(e.data[0].estimation)
+                $('#pricenext').val(e.data[0].nextweightprices)
+                $('#minweight').val(e.data[0].minweights)
+                
+                
                 var armada;
                 if (e.data[0].armada == 1) {
                     armada = 'Darat';
+                    $('#lbl-price').text('10kg pertama')
+                    $('#pricenext-input-group').removeClass('d-none')
+                    $('#minweight-input-group').addClass('d-none')
                 } else if (e.data[0].armada == 2) {
                     armada = 'Laut';
+                    $('#lbl-price').text('Harga')
+                    $('#minweight-input-group').removeClass('d-none')
+                    $('#pricenext-input-group').addClass('d-none')
                 } else {
                     armada = 'Udara';
+                    $('#lbl-price').text('Harga')
+                    $('#minweight-input-group').addClass('d-none')
+                    $('#pricenext-input-group').addClass('d-none')
                 }
                 $('#service').val(armada)
                 icustomerprice = e.data[0].id;
@@ -357,6 +376,8 @@
                 console.log(e)
             })
         }
+
+
 
         $('#form-change-pricecustomer').validate({
             rules: {
@@ -386,6 +407,8 @@
                 })
             }
         })
+
+        
 
         $('#formAddManualPrice').validate({
             rules: {

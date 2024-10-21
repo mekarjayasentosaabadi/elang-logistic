@@ -76,6 +76,7 @@ Route::middleware(['auth', 'check.role:1,2'])->group(function () {
         Route::get('/getAll', [CustomerController::class, 'getAll'])->name('customer.getAll');
         Route::get('/{id}', [CustomerController::class, 'show']);
         Route::get('/{id}/edit', [CustomerController::class, 'edit']);
+        Route::get('/{id}/delete', [CustomerController::class, 'destroy']);
         Route::post('/{id}', [CustomerController::class, 'update'])->name('customer.update');
         Route::post('/{id}/changeStatus', [CustomerController::class, 'changeStatus'])->name('customer.changestatus');
         Route::get('/{id}/getcustomerprice', [CustomerController::class, 'getcustomerprice'])->name('customer.getcustomerprice');
