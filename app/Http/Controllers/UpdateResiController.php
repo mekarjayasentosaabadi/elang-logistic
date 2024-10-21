@@ -25,12 +25,21 @@ class UpdateResiController extends Controller
 
     function getResi(Request $request)
     {
+        $query = null;
+
         if ($request->update_data == '1') {
-            $list_data = Surattugas::where('statussurattugas', 2)->get();
+            $query = Surattugas::where('statussurattugas', 2);
+            if($request->has('q')){
+                $query->where('nosurattugas', 'LIKE', '%'.$request->q.'%');
+            }
         } else {
-            $list_data = Manifest::where('status_manifest', 2)->get();
+            $query = Manifest::where('status_manifest', 2);
+            if($request->has('q')){
+                $query->where('manifestno', 'LIKE', '%'.$request->q.'%');
+            }
         }
 
+        $list_data = $query->get();
         $data = [];
         foreach ($list_data as $key => $value) {
             $data[] = [
