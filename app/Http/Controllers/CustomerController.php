@@ -49,6 +49,12 @@ class CustomerController extends Controller
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2 me-50"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                                 <span>Edit</span>
                         </a>
+                        <a class="dropdown-item" href="#" onclick="confirmDelete(\''. $encryptId .'\')">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
+                                <path d="M9 3h6c.55 0 1 .45 1 1v1h4c.55 0 1 .45 1 1s-.45 1-1 1h-1v13c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V7H4c-.55 0-1-.45-1-1s.45-1 1-1h4V4c0-.55.45-1 1-1zm1 2v1h4V5h-4zm7 2H7v13h10V7zm-6 3c.55 0 1 .45 1 1v7c0 .55-.45 1-1 1s-1-.45-1-1v-7c0-.55.45-1 1-1zm4 0c.55 0 1 .45 1 1v7c0 .55-.45 1-1 1s-1-.45-1-1v-7c0-.55.45-1 1-1z"/>
+                            </svg>
+                            <span>Delete</span>
+                        </a>
                     </div>
                 </div>';
                 return $btn;
@@ -218,9 +224,18 @@ class CustomerController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Customer $customer)
-    {
-        //
+    public function destroy(Customer $customer, $id)
+    {   
+        try {
+            $id = decrypt($id);    
+            $customer = User::find($id);
+            $customer->destroy($id);
+            Alert::success('Berhasil', 'Pesanan Berhasil Delete');
+            return redirect()->back();
+        } catch (Exception $error) {
+            Alert::error('Gagal', 'Terjadi Kesalahan');
+            return redirect()->back();
+        }
     }
 
     function changeStatus(Request $request, $id){
