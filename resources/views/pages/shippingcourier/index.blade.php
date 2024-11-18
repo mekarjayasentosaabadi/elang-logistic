@@ -13,7 +13,13 @@
                 <div class="card-header">
                     <h4 class="card-title">Shipping Courier</h4>
                     @if (Auth::user()->role_id == '1' || Auth::user()->role_id == '2')
-                        <a href="{{ url('/shipping-courier/create') }}" class="btn btn-primary"><li class="fa fa-plus"></li> Tambah Pengiriman</a>
+                        <a href="{{ url('/shipping-courier/create') }}" class="btn btn-primary">
+                            <li class="fa fa-plus"></li> Tambah Pengiriman
+                        </a>
+                    @elseif (Auth::user()->role_id == '3')
+                        <a href="{{ url('/shipping-courier/create') }}" class="btn btn-primary">
+                            <li class="fa fa-plus"></li> Ambil & Kirim Paket
+                        </a>
                     @endif
                 </div>
                 <div class="card-body">
@@ -42,7 +48,7 @@
 
 @section('custom-js')
     <script>
-       $(document).ready(function() {
+        $(document).ready(function() {
             $('#tbl-user').DataTable({
                 processing: true,
                 serverSide: true,
@@ -50,8 +56,7 @@
                     url: "{{ url('/shipping-courier/getAll') }}",
                     type: 'GET'
                 },
-                columns: [
-                    {
+                columns: [{
                         data: 'DT_RowIndex',
                         orderable: false,
                         searchable: false
@@ -90,6 +95,5 @@
                 ]
             });
         });
-
     </script>
 @endsection

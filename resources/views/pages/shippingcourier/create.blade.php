@@ -12,7 +12,9 @@
                 <div class="card">
                     <div class="card-header">
                         <h4 class="card-title">Outlet</h4>
-                        <a href="{{ url('/shipping-courier') }}" class="btn btn-warning"><li class="fa fa-undo"></li> Kembali</a>
+                        <a href="{{ url('/shipping-courier') }}" class="btn btn-warning">
+                            <li class="fa fa-undo"></li> Kembali
+                        </a>
                     </div>
                     <div class="card-body">
                         <div class="form-group">
@@ -20,7 +22,7 @@
                             <select name="outlet_id_select" id="outlet_id_select" class="form-control">
                                 <option value="" hidden>Pilih Outlet</option>
                                 @foreach ($outlets as $outlet)
-                                    <option value="{{ $outlet->id }}" >{{ $outlet->name }}</option>
+                                    <option value="{{ $outlet->id }}">{{ $outlet->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -36,7 +38,9 @@
                     <div class="card-header">
                         <h4 class="card-title">Tambah Pengiriman</h4>
                         @if (Auth::user()->role_id != '1')
-                            <a href="{{ url('/shipping-courier') }}" class="btn btn-warning"><li class="fa fa-undo"></li>Kembali</a>
+                            <a href="{{ url('/shipping-courier') }}" class="btn btn-warning">
+                                <li class="fa fa-undo"></li>Kembali
+                            </a>
                         @endif
                     </div>
                     <div class="card-body mb-5">
@@ -47,20 +51,27 @@
                             <div class="col-md-6 hidden">
                                 <div class="form-group mb-2">
                                     <label for="shipping_no">Nomor Pengiriman</label>
-                                    <input type="text" name="shipping_no" id="shipping_no" class="form-control" placeholder="Masukan nomor pengiriman" value="{{ generateShippingNo() }}">
+                                    <input type="text" name="shipping_no" id="shipping_no" class="form-control"
+                                        placeholder="Masukan nomor pengiriman" value="{{ generateShippingNo() }}">
                                 </div>
                             </div>
                             <div class="">
                                 <div class="form-group mb-2">
                                     <label for="courier">Kurir</label>
-                                    <select name="courier" id="courier" class="form-control">
+                                    <select name="courier" id="courier" class="form-control"
+                                        {{ Auth::user()->role_id == '3' ? 'disabled' : '' }}>
                                         <option value="" hidden>Pilih Kurir</option>
                                         @if (Auth::user()->role_id != '1')
                                             @foreach ($couriers as $courier)
-                                                <option value="{{ $courier->id }}">{{ $courier->name }}</option>
+                                                <option value="{{ $courier->id }}"
+                                                    {{ Auth::user()->role_id == '3' && Auth::user()->id == $courier->id ? 'selected' : '' }}>
+                                                    {{ $courier->name }}</option>
                                             @endforeach
                                         @endif
                                     </select>
+                                    @if (Auth::user()->role_id == '3')
+                                        <input type="hidden" name="courier" value="{{ Auth::user()->id }}">
+                                    @endif
                                 </div>
                                 <div class="form-group">
                                     <label for="note">Catatan</label>
@@ -73,7 +84,10 @@
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title">Tambahkan paket</h3>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModalCenter"><li class="fa fa-plus"></li> Add Paket</button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#exampleModalCenter">
+                            <li class="fa fa-plus"></li> Add Paket
+                        </button>
                     </div>
                     <div class="card-body">
                         <div class="row">
@@ -95,7 +109,9 @@
                                 </table>
 
                                 <div class="mt-3">
-                                    <button class="btn btn-primary btn-md float-end"><li class="fa fa-save"></li> Simpan</button>
+                                    <button class="btn btn-primary btn-md float-end">
+                                        <li class="fa fa-save"></li> Simpan
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -161,7 +177,7 @@
     <script src="{{ asset('assets/app-assets/vendors/js/forms/validation/jquery.validate.min.js') }}"></script>
     <script>
         // remove row detail paket
-         function removeRow(button) {
+        function removeRow(button) {
             const orderId = $(button).closest('tr').data('id');
             $('input[name="order_ids[]"][value="' + orderId + '"]').remove();
             $(button).closest('tr').remove();
@@ -203,7 +219,7 @@
                 var selectedValue = $(this).val();
                 $('#outlet_id_hidden').val(selectedValue);
 
-                 // Kosongkan tabel detail paket dan input tersembunyi saat outlet berubah
+                // Kosongkan tabel detail paket dan input tersembunyi saat outlet berubah
                 $('#tbl-detail-paket').empty();
                 $('#hidden-inputs-container').empty();
 
@@ -214,29 +230,30 @@
             });
 
             // get courier by outlet
-            $('#outlet_id_select').change(function () {
+            $('#outlet_id_select').change(function() {
                 $.ajax({
-                    url:'{{ url('/shipping-courier/getCourier') }}',
+                    url: '{{ url('/shipping-courier/getCourier') }}',
                     type: 'GET',
-                    data : {
-                        outletasal : $('#outlet_id_hidden').val()
+                    data: {
+                        outletasal: $('#outlet_id_hidden').val()
                     },
 
-                    success: function (response) {
-                            var couriers = response.couriers;
-                            var courierSelect = $('#courier')
-                            courierSelect.empty();
+                    success: function(response) {
+                        var couriers = response.couriers;
+                        var courierSelect = $('#courier')
+                        courierSelect.empty();
 
-                            courierSelect.append('<option value="" hidden>Pilih Kurir</option>');
+                        courierSelect.append('<option value="" hidden>Pilih Kurir</option>');
 
-                            if (couriers != null) {
-                                couriers.forEach(function (couriers) {
-                                    courierSelect.append('<option value="'+ couriers.id +'" >'+couriers.name+'</option>')
-                                });
-                            }
+                        if (couriers != null) {
+                            couriers.forEach(function(couriers) {
+                                courierSelect.append('<option value="' + couriers.id +
+                                    '" >' + couriers.name + '</option>')
+                            });
+                        }
                     },
 
-                    error: function (xhr, status, error) {
+                    error: function(xhr, status, error) {
                         // console.error('AJAX Error: ', xhr.responseText)
                         console.log('error');
                     }
@@ -245,7 +262,7 @@
             })
 
             // data order by outlet
-            $('#outlet_id_select').change(function () {
+            $('#outlet_id_select').change(function() {
 
                 // destroy instance datatable jika ada datanya
                 if ($.fn.DataTable.isDataTable('#tbl-orders-by-outlet')) {
@@ -259,8 +276,8 @@
                     ajax: {
                         url: "{{ url('/shipping-courier/getOrdersByOutlet') }}",
                         type: 'GET',
-                        data : {
-                            outletasal : $('#outlet_id_hidden').val()
+                        data: {
+                            outletasal: $('#outlet_id_hidden').val()
                         },
                     },
                     columns: [{
@@ -289,9 +306,9 @@
 
 
             // order detail table
-             window.check = function(checkbox) {
+            window.check = function(checkbox) {
 
-                let rowNumber = 1 ;
+                let rowNumber = 1;
                 const orderId = $(checkbox).val();
                 const isChecked = $(checkbox).is(':checked');
 
@@ -301,7 +318,9 @@
                     $.ajax({
                         url: "{{ url('/shipping-courier/getOrderDetail') }}",
                         type: 'GET',
-                        data: { id: orderId },
+                        data: {
+                            id: orderId
+                        },
                         success: function(response) {
                             const rowNumber = $('#tbl-detail-paket tr').length + 1;
                             // Menambahkan baris ke tabel
@@ -315,7 +334,8 @@
                                     <td><button type="button" class="btn text-danger d-flex" onclick="removeRow(this)"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash me-50"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>Cancle</button></td>
                                 </tr>
                             `);
-                            $('#hidden-inputs-container').append(`<input type="hidden" name="order_ids[]" value="${orderId}">`);
+                            $('#hidden-inputs-container').append(
+                                `<input type="hidden" name="order_ids[]" value="${orderId}">`);
                         },
                         complete: function() {
                             $(checkbox).prop('disabled', false);
